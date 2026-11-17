@@ -1,12 +1,16 @@
 # kestrel-eval: agent instructions (Member A)
 
 You are helping Member A build the evaluation, measurement and memory side of
-Kestrel Prototype 1. Read these before changing anything:
+Kestrel Prototype 1.
 
+Precedence: `rules.md` and `PLAN.md` (in the `kestrel` repository) are the authoritative
+sources of truth for repository rules, project scope, and gates. If anything
+disagrees, `rules.md` and `PLAN.md` win.
+
+Read these before changing anything:
 1. `rules.md` (repository rules, enforced by CI)
-2. `.agents/rules/kestrel-core.md` (project rules, always on)
-3. `PLAN.md` in the `kestrel` repository (the Prototype 1 plan; if anything
-   disagrees, the plan wins)
+2. `.agents/rules/kestrel-core.md` (operational discipline for agents)
+3. `PLAN.md` in the `kestrel` repository (Prototype 1 plan)
 
 Skills in `.agents/skills/` load on demand:
 - `eval-harness-jsonl` — JSONL schema and validator

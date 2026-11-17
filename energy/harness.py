@@ -293,27 +293,46 @@ class EnergyHarness:
 
     # ── Counter availability ────────────────────────────────────────────────
 
-    def check_counters(self) -> dict[str, Any]:
-        """Check which counters are available and return a status dict.
+    def check_counters(self, *, strict: bool = True) -> dict[str, Any]:
+        """Check which counters are available and determine the energy status.
 
-        Raises ``RuntimeError`` if **no** counter is available (which means
-        no energy measurement is possible, not even relative).  In that case
-        the caller should abort Step 0 or fall back to wall-time-only metrics.
+        Step 0 Gate / Kill-gate rule:
+        - If counters exist and are calibrated with a wall meter: ``measured_calibrated``.
+        - If counters exist but are not calibrated against a wall meter: ``relative_only``
+          (or ``measured_uncalibrated`` if pending calibration). Relative energy is allowed
+          and must be labelled on every result.
+        - If NO counters exist at all (neither CPU nor GPU): energy cannot be measured.
+          If ``strict=True``, raises ``RuntimeError``; otherwise returns status with
+          ``energy_status='unmeasured'``.
+
+        Args:
+            strict: If True, raise RuntimeError when no counter is found.
         """
         cpu_ok = self._cpu.available
         gpu_ok = self._nvml_available
+
+        if self.config.wall_meter_calibrated:
+            energy_status = "measured_calibrated"
+        elif self.config.relative_only or (self.config.wall_meter_calibrated is False):
+            energy_status = "relative_only"
+        elif cpu_ok or gpu_ok:
+            energy_status = "measured_uncalibrated"
+        else:
+            energy_status = "unmeasured"
+
         status: dict[str, Any] = {
-            "cpu_counter_source": self._cpu.source,
             "cpu_available": cpu_ok,
+            "cpu_counter_source": self._cpu.source,
+            "energy_status": energy_status,
             "gpu_nvml_available": gpu_ok,
-            "relative_only": self.config.relative_only or not self.config.wall_meter_calibrated,
+            "relative_only": energy_status == "relative_only",
             "wall_meter_calibrated": self.config.wall_meter_calibrated,
         }
-        if not cpu_ok and not gpu_ok:
+        if strict and not cpu_ok and not gpu_ok:
             raise RuntimeError(
-                "No energy counter is available (CPU: none, GPU: NVML unavailable). "
-                "Cannot measure energy. Report wall-time only and add a note to every "
-                "result that energy is unmeasured."
+                "No hardware energy counter is available (CPU: none, GPU: none). "
+                "Per Step 0 kill-gate, energy cannot be measured on this host. "
+                "Report wall-time only and mark energy_status='unmeasured'."
             )
         return status
 

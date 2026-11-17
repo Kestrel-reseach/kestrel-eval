@@ -176,10 +176,11 @@ systems:
   B_LLM:
     description: "Best quantized small model from the shortlist, plain retrieval."
     candidates:
-      - "Qwen3.5-0.8B-Instruct 4-bit"
-      - "Qwen3.5-2B-Instruct 4-bit"
-      - "Granite-4.0-Nano-1.5B 4-bit"
-      - "LFM2 (confirm version and size before downloading)"
+      - "Qwen3.5-0.8B-Instruct 4-bit (example candidate; unverified after early 2026, confirm before download)"
+      - "Qwen3.5-2B-Instruct 4-bit (example candidate; unverified after early 2026, confirm before download)"
+      - "Granite-4.0-Nano-1.5B 4-bit (example candidate; unverified after early 2026, confirm before download)"
+      - "LFM2 (example candidate; unverified after early 2026, confirm version and size before download)"
+    candidates_note: "Model versions and sizes dated after early 2026 are unverified; confirm before downloading per rules.md."
     chosen: UNMEASURED         # filled at Step 2 by measurement
     selection_criterion: "accuracy-versus-energy-versus-memory trade-off, by measurement"
   P1:

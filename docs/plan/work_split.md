@@ -1,5 +1,10 @@
 # Kestrel Prototype 1 — 3-Member Work Split & Deliverables
 
+> [!NOTE]
+> Reference copy only. The single source of truth is `PLAN.md` in the `kestrel`
+> repository and the owner's Notion workspace. If this document and `PLAN.md`
+> ever disagree, `PLAN.md` wins.
+
 ## 1. Non-negotiable rules
 - Work from the validation partition only. Run the locked-test partition once, at Step 10, with the frozen config.
 - Never change a metric or threshold after seeing results.

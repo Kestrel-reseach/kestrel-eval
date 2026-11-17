@@ -81,13 +81,23 @@ def test_read_gpu_power_returns_none_when_nvml_unavailable() -> None:
 
 
 def test_check_counters_raises_when_nothing_available() -> None:
-    """With no CPU counter and no NVML, check_counters raises RuntimeError."""
+    """With no CPU counter and no NVML, check_counters raises RuntimeError when strict=True."""
     config = HarnessConfig()
     harness = EnergyHarness(config)
     harness._cpu = _make_cpu_source(available=False)
     harness._nvml_available = False
-    with pytest.raises(RuntimeError, match="No energy counter"):
+    with pytest.raises(RuntimeError, match="energy counter"):
         harness.check_counters()
+
+
+def test_check_counters_non_strict_returns_unmeasured() -> None:
+    """With strict=False, returns energy_status='unmeasured' instead of raising."""
+    config = HarnessConfig()
+    harness = EnergyHarness(config)
+    harness._cpu = _make_cpu_source(available=False)
+    harness._nvml_available = False
+    status = harness.check_counters(strict=False)
+    assert status["energy_status"] == "unmeasured"
 
 
 def test_check_counters_ok_with_cpu_only() -> None:

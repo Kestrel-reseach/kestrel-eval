@@ -130,18 +130,24 @@ def paired_bootstrap_ci(
 
 
 def joules_per_correct_task(records: list[Record]) -> float | None:
-    """Total energy divided by number of correct tasks.
+    """Total energy across all attempts divided by number of correct tasks.
 
-    Returns None when no energy data is present.
+    Joules per correct task measures the total energy cost of the system
+    (including failed passes, retries, and incorrect answers) amortized over
+    the number of correct solutions among items with energy measurements.
+
+    Returns None when no energy data is present or zero tasks were correct.
     """
-    correct_energy = [
-        r["energy_joules"]
-        for r in records
-        if r.get("correct") and r.get("energy_joules") is not None
-    ]
-    if not correct_energy:
+    measured = [r for r in records if r.get("energy_joules") is not None]
+    if not measured:
         return None
-    return sum(correct_energy) / len(correct_energy)
+
+    correct_count = sum(1 for r in measured if r.get("correct"))
+    if correct_count == 0:
+        return None
+
+    total_energy = sum(r["energy_joules"] for r in measured)
+    return total_energy / correct_count
 
 
 # ── Latency ───────────────────────────────────────────────────────────────────

@@ -1,5 +1,6 @@
-# Kestrel-eval agent rules — always on
-# Read AGENTS.md first, then this file, before any change.
+# Kestrel-eval agent rules — operational discipline
+# Precedence: rules.md and PLAN.md are the authoritative sources of truth.
+# Read AGENTS.md and rules.md first, then this file, before any change.
 
 ## Non-negotiable rules (from PLAN.md and rules.md)
 

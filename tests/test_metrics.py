@@ -99,10 +99,11 @@ class TestEnergyMetrics:
         records = [
             _record(correct=True, energy_joules=10.0),
             _record(correct=True, energy_joules=20.0),
-            _record(correct=False, energy_joules=5.0),
+            _record(correct=False, energy_joules=10.0),
         ]
+        # Total energy = 10 + 20 + 10 = 40 J across all attempts; 2 correct tasks -> 20.0 J/correct
         j = joules_per_correct_task(records)
-        assert j == pytest.approx(15.0)
+        assert j == pytest.approx(20.0)
 
     def test_no_correct_returns_none(self):
         records = [_record(correct=False, energy_joules=5.0)]
