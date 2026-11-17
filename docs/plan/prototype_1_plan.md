@@ -1,6 +1,6 @@
 # Project Kestrel — Prototype 1: Detailed Execution Plan
 
-What this is: a step-by-step plan to build and measure the first Kestrel prototype on the two-tier hardware (Ryzen 7 5800H CPU, RTX 3060 Laptop 6 GB with a 1–1.5 GB VRAM budget for the assistant, free Colab T4 for training). It is a plan, not a result. Nothing here has been built or tested. All thresholds marked *(proposed)* are drafts for the owner to accept or change before Step 0 freezes them.
+What this is: a step-by-step plan to build and measure the first Kestrel prototype on the two-tier hardware (Ryzen 7 5800H CPU, RTX 3060 Laptop 6 GB with a 1–1.5 GB VRAM budget for the assistant, free Colab T4 for training). It is a plan, not a result. The owner accepted all gates on 2026-11-17 and they are frozen in `evaluation/manifest.yaml`; do not change a threshold after seeing results.
 
 ## 1. Links
 - Charter and gates: 00 — Program Charter v2: Token-Free Jarvis-Class Assistant
@@ -33,7 +33,7 @@ Kestrel separates what the model knows from how hard it thinks. It has four part
 | Knowledge QA over a fixed corpus snapshot | 300 | Tests the store | Exact or judged match against a key |
 | Personal-memory probe | 100 (30 are stale-fact items) | Tests memory | Key from the source history |
 
-### Pass gates for prototype 1 (proposed)
+### Pass gates for prototype 1 (accepted 2026-11-17, frozen)
 - **G-Q, quality versus baseline:** on checkable and store groups, P1 beats B-LLM by >= 5 pp (paired bootstrap 95% CI excludes zero) at no more than baseline energy per correct task. Or matches B-LLM accuracy at <= 50% energy.
 - **G-F, gap to frontier:** report gap to F and fraction of B-LLM-to-F gap closed (>= 25% on checkable is strong).
 - **G-M, memory slice:** P1 >= F (no history), within 5 pp of F (full history). Stale-fact errors <= 50% of plain external memory.
