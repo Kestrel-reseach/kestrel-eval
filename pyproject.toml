@@ -1,0 +1,19 @@
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "BLE"]
+ignore = ["E501"]
+
+[tool.pyrefly]
+python-version = "3.12"
+python-platform = "linux"
+site-packages-path = [
+    ".venv/lib/python3.12/site-packages",
+]
+
+
