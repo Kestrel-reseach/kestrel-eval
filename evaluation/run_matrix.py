@@ -1,12 +1,12 @@
 """Run matrix: iterate over systems × splits × configs — Step 0 scaffold.
 
-This module orchestrates evaluation runs and writes JSONL records.  It is a
+This module orchestrates evaluation runs and writes JSONL records. It is a
 scaffold for Steps 2–10; the actual model calls are injected via the
 ``ModelRunner`` protocol.
 
 Usage::
 
-    from evaluation.run_matrix import RunMatrix, RunConfig
+    from evaluation.run_matrix import RunConfig, RunMatrix
 
     config = RunConfig(
         run_id="run-20260101-001",
@@ -26,12 +26,11 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Protocol
 
-from evaluation.schema import REQUIRED_FIELDS, validate_record
+from evaluation.schema import validate_record
 
 __all__ = [
     "ModelRunner",
@@ -47,7 +46,7 @@ Record = dict[str, Any]
 
 
 class ModelRunner(Protocol):
-    """Seam for model inference.  Implement this for each system (F, B-LLM, P1)."""
+    """Seam for model inference. Implement this for each system (F, B-LLM, P1)."""
 
     def run_item(self, item: dict[str, Any]) -> dict[str, Any]:
         """Run a single suite item and return a partial JSONL record.
@@ -56,7 +55,8 @@ class ModelRunner(Protocol):
             tokens_generated, passes, verifier_score, retrieval_hits,
             bytes_read_from_ssd, energy_joules, wall_time_ms, peak_vram_mb, correct
 
-        The harness fills: run_id, git_commit, config_hash, seed, split, item_id, system.
+        The harness fills: run_id, git_commit, config_hash, seed, split, group,
+        item_id, system, git_dirty, energy_status.
         """
         ...
 
@@ -75,8 +75,17 @@ class RunConfig:
     system: str
     output_path: Path
 
+    git_dirty: bool = False
+    """True if the repository had uncommitted changes at run time."""
+
+    energy_status: str = "unmeasured"
+    """One of: measured_calibrated, measured_uncalibrated, relative_only, unmeasured."""
+
     allow_locked_test: bool = False
     """Set to True only at Step 10 for the final locked-test run."""
+
+    manifest_frozen: bool = False
+    """Set to True only when the manifest has been frozen."""
 
     extra: dict[str, Any] = field(default_factory=dict)
     """Any extra fields saved alongside the config (not in JSONL records)."""
@@ -85,26 +94,28 @@ class RunConfig:
     def config_hash(self) -> str:
         """SHA-256 of this config (excluding output_path and extra)."""
         payload = {
-            "run_id": self.run_id,
             "git_commit": self.git_commit,
+            "git_dirty": self.git_dirty,
+            "run_id": self.run_id,
             "seed": self.seed,
             "split": self.split,
             "system": self.system,
         }
-        return hashlib.sha256(
-            json.dumps(payload, sort_keys=True).encode("utf-8")
-        ).hexdigest()
+        return hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
 
     def save(self, path: Path) -> None:
         """Save a config JSON alongside the JSONL file."""
         payload = {
-            "run_id": self.run_id,
-            "git_commit": self.git_commit,
             "config_hash": self.config_hash,
+            "energy_status": self.energy_status,
+            "git_commit": self.git_commit,
+            "git_dirty": self.git_dirty,
+            "manifest_frozen": self.manifest_frozen,
+            "output_path": str(self.output_path),
+            "run_id": self.run_id,
             "seed": self.seed,
             "split": self.split,
             "system": self.system,
-            "output_path": str(self.output_path),
             **self.extra,
         }
         path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
@@ -169,12 +180,13 @@ class RunMatrix:
             for item in remaining:
                 record = self._run_one(item)
                 errors = validate_record(
-                    record, allow_locked_test=config.allow_locked_test
+                    record,
+                    allow_locked_test=config.allow_locked_test,
+                    manifest_frozen=config.manifest_frozen,
+                    expected_config_hash=config.config_hash,
                 )
                 if errors:
-                    raise ValueError(
-                        f"Invalid record for {item['item_id']!r}: {errors}"
-                    )
+                    raise ValueError(f"Invalid record for {item['item_id']!r}: {errors}")
                 line = json.dumps(record) + "\n"
                 fh.write(line)
                 fh.flush()
@@ -191,26 +203,33 @@ class RunMatrix:
         else:
             # Dry-run stub: all fields are zero / null, correct is False.
             partial = {
-                "tokens_generated": 0,
-                "passes": 1,
-                "verifier_score": None,
-                "retrieval_hits": 0,
                 "bytes_read_from_ssd": 0,
-                "energy_joules": 0.0,
-                "wall_time_ms": 0.0,
-                "peak_vram_mb": 0.0,
                 "correct": False,
+                "energy_joules": 0.0,
+                "energy_status": config.energy_status,
+                "passes": 1,
+                "peak_vram_mb": 0.0,
+                "retrieval_hits": 0,
+                "tokens_generated": 0,
+                "verifier_score": None,
+                "wall_time_ms": 0.0,
             }
 
+        item_id = item["item_id"]
+        group = item.get("group", item_id.split("-")[0] if "-" in item_id else item_id)
+        energy_status = partial.pop("energy_status", config.energy_status)
+
         record: Record = {
-            "run_id": config.run_id,
-            "git_commit": config.git_commit,
             "config_hash": config.config_hash,
+            "energy_status": energy_status,
+            "git_commit": config.git_commit,
+            "git_dirty": config.git_dirty,
+            "group": group,
+            "item_id": item_id,
+            "run_id": config.run_id,
             "seed": config.seed,
             "split": config.split,
-            "item_id": item["item_id"],
             "system": config.system,
             **partial,
         }
         return record
-
