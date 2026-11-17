@@ -1,21 +1,21 @@
 # Kestrel Prototype 1 — evaluation manifest
 # Step 0: freeze and instrument.
 #
-# OWNER DECISIONS REQUIRED before this manifest is frozen:
-#   1. Which frontier model is F, and the cost cap for the one run.
-#   2. Gate acceptance: accept or change the proposed gates below.
-#   3. Wall power meter (yes = absolute joules; no = relative-only energy reported).
-#   4. Cloud escalation allowed (default: off).
-#   5. Real personal data in memory probe (default: synthetic only).
-#   6. Sizes decision: are the group counts per_partition or total? (See below).
-#   7. Corpus snapshot for knowledge QA group.
+# OWNER DECISIONS — resolved 2026-11-17:
+#   1. F and its cost cap: DEFERRED to Step 2 (model/cost stay UNDEFINED).
+#   2. Gates: ACCEPTED as written below (status: ACCEPTED).
+#   3. Wall meter: NO — relative-only energy, labelled on every result.
+#   4. Cloud escalation: OFF.
+#   5. Memory probe: SYNTHETIC ONLY; real items need item-by-item approval.
+#   6. sizes_are: per_partition (see the analysis below).
+#   7. Knowledge-QA corpus: small fixed public Wikipedia snapshot (see corpus field).
 #
-# Fields marked PROPOSED are drafts. Owner must accept them before Step 0 closes.
+# These decisions are frozen. Do not change a threshold after seeing results.
 
 schema_version: "1"
 git_commit: UNSET            # filled by run_matrix.py at run time
 created_at: "2026-11-17"
-frozen: false                # set to true only when owner freezes manifest at Step 0 close
+frozen: true                 # owner accepted gates and all Step 0 decisions on 2026-11-17
 
 # ── Reproducibility ────────────────────────────────────────────────────────────
 seeds:
@@ -51,7 +51,12 @@ seeds:
 #   Statistical note: Matches the plan's text ("about ±3 points of 95% interval
 #   on the largest groups" with paired testing). Detects 5 pp effects on checkable groups.
 # ──────────────────────────────────────────────────────────────────────────────
-sizes_are: UNDEFINED         # owner must set to 'per_partition' or 'total'
+sizes_are: per_partition     # owner decision 2026-11-17: 1200 items per partition (3600 total)
+
+# Why per_partition: with `total`, the locked-test groups would be n=20–60 and
+# 95% CIs ±12.7–21.9 pp, so G-Q's 5 pp effect could not be confirmed. With
+# per_partition, locked-test groups are n=100–300 with ±5.7–9.8 pp CIs, which
+# matches the plan's stated precision and makes the 5 pp gate testable.
 
 groups:
   math:
@@ -74,7 +79,8 @@ groups:
     description: "Knowledge QA over a fixed corpus snapshot"
     size: 300
     answer_check: "key_match"
-    corpus: UNDEFINED         # owner must name the corpus before Step 1 finishes
+    corpus: "wikipedia_en_2024-01_abstracts_5k"  # owner chose a small fixed public snapshot;
+                                                  # pin exact dump URL + SHA-256 at Step 1
   memory_probe:
     description: "Personal-memory probe (30 stale-fact items)"
     size: 100
@@ -104,7 +110,7 @@ hardware:
     device: "Free Colab T4"
     checkpoint_interval_minutes: 10
 
-# ── Pass gates (PROPOSED — owner must accept before Step 0 closes) ─────────────
+# ── Pass gates (ACCEPTED by owner 2026-11-17 — frozen, do not change) ──────────
 gates:
   G_Q:
     description: >
@@ -112,66 +118,67 @@ gates:
       points (paired bootstrap 95% interval excludes zero) at no more energy per
       correct task; or matches B-LLM accuracy at no more than 50% of its energy
       per correct task.
-    threshold_pp: 5           # PROPOSED
+    threshold_pp: 5           # accepted 2026-11-17
     ci_method: "paired_bootstrap"
     ci_level: 0.95
     energy_multiplier_cap: 1.0   # P1 energy <= B-LLM energy for the accuracy gate
     energy_savings_cap: 0.50     # P1 energy <= 50 % of B-LLM for the efficiency gate
-    status: PROPOSED
+    status: ACCEPTED
 
   G_F:
     description: >
       Report the gap to F and the fraction of the B-LLM-to-F gap that P1 closes.
       25 % or more on the checkable groups is a strong result. This gate is
       reported, not promised.
-    strong_result_threshold_pct: 25   # PROPOSED
-    status: PROPOSED
+    strong_result_threshold_pct: 25   # accepted 2026-11-17
+    status: ACCEPTED
 
   G_M:
     description: >
       On the memory probe, P1 is at least as good as F with no history and within
       5 points of F with the full history. Stale-fact errors at most half those of
       plain external memory.
-    gap_to_f_full_history_pp: 5      # PROPOSED
-    stale_fact_error_ratio_cap: 0.50 # PROPOSED
-    status: PROPOSED
+    gap_to_f_full_history_pp: 5      # accepted 2026-11-17
+    stale_fact_error_ratio_cap: 0.50 # accepted 2026-11-17
+    status: ACCEPTED
 
   G_R:
     description: >
       At most 1.5 GB resident VRAM on the GPU tier; at most 4 GB resident RAM on
       the CPU tier (SSD index excluded, reported separately). Report joules per
       correct task, p50 and p95 latency.
-    vram_cap_gb: 1.5          # PROPOSED
-    ram_cap_gb: 4.0           # PROPOSED
+    vram_cap_gb: 1.5          # accepted 2026-11-17
+    ram_cap_gb: 4.0           # accepted 2026-11-17
     latency_percentiles: [50, 95]
-    status: PROPOSED
+    status: ACCEPTED
 
   no_regression:
     description: >
       Adding a component must not drop earlier-step results by more than 3
       percentage points.
-    threshold_pp: 3           # PROPOSED
-    status: PROPOSED
+    threshold_pp: 3           # accepted 2026-11-17
+    status: ACCEPTED
 
 # ── Energy measurement ─────────────────────────────────────────────────────────
 energy:
   metric: "joules_per_correct_task"
   idle_baseline_minutes: 10
-  wall_meter_calibrated: UNMEASURED   # set to true/false after Step 0 calibration
-  relative_only: UNMEASURED           # set to true if wall meter is unavailable
+  wall_meter_calibrated: false        # owner decision 2026-11-17: no wall meter
+  relative_only: true                 # all energy results must say "relative energy only"
   counter_sources:
     cpu: "RAPL via /sys/class/powercap/intel-rapl or ryzen_smu or hwmon"
     gpu: "NVML via pynvml"
   note: >
-    If counters cannot be calibrated against a wall meter, report
-    relative energy only and label every result accordingly.
+    Owner chose relative-only energy on 2026-11-17. No wall-meter calibration
+    will be performed. Every result and report must state "relative energy
+    only" and comparisons are between systems measured with the same counters.
 
 # ── Reference systems ─────────────────────────────────────────────────────────
 systems:
   F:
     description: "Frontier model, run once on public and synthetic items only."
-    model: UNDEFINED           # owner must choose before Step 2 runs F
-    cost_cap_usd: UNDEFINED    # owner must set
+    model: UNDEFINED           # owner deferred F to Step 2 — choose before running F
+    cost_cap_usd: UNDEFINED    # owner deferred cost cap to Step 2
     memory_probe_runs: ["no_history", "full_history"]
   B_LLM:
     description: "Best quantized small model from the shortlist, plain retrieval."
