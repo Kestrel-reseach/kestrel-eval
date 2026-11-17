@@ -26,14 +26,16 @@ from typing import Any
 __all__ = [
     "accuracy",
     "accuracy_by_group",
+    "compute_half_width",
     "config_hash",
+    "format_half_widths_table",
     "gate_q_accuracy",
     "gate_q_energy",
     "joules_per_correct_task",
-    "paired_bootstrap_ci",
-    "percentile_latency",
-    "peak_vram_gb",
     "load_records",
+    "paired_bootstrap_ci",
+    "peak_vram_gb",
+    "percentile_latency",
 ]
 
 Record = dict[str, Any]
@@ -42,7 +44,9 @@ Record = dict[str, Any]
 # ── Loading ────────────────────────────────────────────────────────────────────
 
 
-def load_records(path: Path, *, group: str | None = None, split: str = "validation") -> list[Record]:
+def load_records(
+    path: Path, *, group: str | None = None, split: str = "validation"
+) -> list[Record]:
     """Load JSONL records, optionally filtered by group prefix and split."""
     records = []
     with path.open(encoding="utf-8") as fh:
@@ -245,3 +249,47 @@ def config_hash(config: dict[str, Any]) -> str:
     canonical = json.dumps(config, sort_keys=True).encode("utf-8")
     return hashlib.sha256(canonical).hexdigest()
 
+
+# ── Sample size & CI half-width helper ─────────────────────────────────────────
+
+
+def compute_half_width(n: int, p: float = 0.5, ci_level: float = 0.95) -> float:
+    """Return the asymptotic Wald 95% binomial CI half-width in percentage points.
+
+    Args:
+        n: Sample size.
+        p: Baseline proportion (default 0.5 for maximum variance).
+        ci_level: Confidence level (default 0.95 -> z ≈ 1.95996).
+    """
+    if n <= 0:
+        return 0.0
+    # Normal quantile for ci_level
+    # for 0.95: z ≈ 1.959963984540054
+    z = 1.959963984540054 if ci_level == 0.95 else 1.96
+    se = math.sqrt(p * (1.0 - p) / n)
+    return z * se * 100.0
+
+
+def format_half_widths_table() -> str:
+    """Return a formatted comparison table of 95% half-widths for both sizes_are readings."""
+    groups = [
+        ("math", 200),
+        ("science_mcq", 200),
+        ("knowledge_mcq", 300),
+        ("code", 100),
+        ("knowledge_qa", 300),
+        ("memory_probe", 100),
+    ]
+    lines = [
+        "Group          | Listed | Reading A: total (n_locked, ±pp) | Reading B: per_partition (n_locked, ±pp)",
+        "---------------|--------|-----------------------------------|-----------------------------------------",
+    ]
+    for name, listed in groups:
+        n_a = int(listed * 0.20)
+        hw_a = compute_half_width(n_a)
+        n_b = listed
+        hw_b = compute_half_width(n_b)
+        lines.append(
+            f"{name:<14} | {listed:<6} | n={n_a:<3} (±{hw_a:.1f} pp)                  | n={n_b:<3} (±{hw_b:.1f} pp)"
+        )
+    return "\n".join(lines)

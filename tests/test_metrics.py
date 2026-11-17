@@ -7,7 +7,9 @@ import pytest
 from evaluation.metrics import (
     accuracy,
     accuracy_by_group,
+    compute_half_width,
     config_hash,
+    format_half_widths_table,
     gate_q_accuracy,
     gate_q_energy,
     joules_per_correct_task,
@@ -19,11 +21,14 @@ from evaluation.metrics import (
 
 def _record(**kwargs):
     defaults = {
-        "item_id": "math-001",
         "correct": True,
         "energy_joules": 10.0,
-        "wall_time_ms": 500.0,
+        "energy_status": "unmeasured",
+        "git_dirty": False,
+        "group": "math",
+        "item_id": "math-001",
         "peak_vram_mb": 1024.0,
+        "wall_time_ms": 500.0,
     }
     defaults.update(kwargs)
     return defaults
@@ -140,15 +145,23 @@ class TestVramMetrics:
 
 class TestGates:
     def test_gate_q_accuracy_passes_when_p1_better(self):
-        p1 = [_record(correct=True) for _ in range(72)] + [_record(correct=False) for _ in range(28)]
-        bllm = [_record(correct=True) for _ in range(65)] + [_record(correct=False) for _ in range(35)]
+        p1 = [_record(correct=True) for _ in range(72)] + [
+            _record(correct=False) for _ in range(28)
+        ]
+        bllm = [_record(correct=True) for _ in range(65)] + [
+            _record(correct=False) for _ in range(35)
+        ]
         result = gate_q_accuracy(p1, bllm, threshold_pp=5.0)
         # 72% vs 65% = 7pp difference, should pass with high probability
         assert result["difference_pp"] == pytest.approx(7.0, abs=0.5)
 
     def test_gate_q_accuracy_fails_when_similar(self):
-        p1 = [_record(correct=True) for _ in range(50)] + [_record(correct=False) for _ in range(50)]
-        bllm = [_record(correct=True) for _ in range(50)] + [_record(correct=False) for _ in range(50)]
+        p1 = [_record(correct=True) for _ in range(50)] + [
+            _record(correct=False) for _ in range(50)
+        ]
+        bllm = [_record(correct=True) for _ in range(50)] + [
+            _record(correct=False) for _ in range(50)
+        ]
         result = gate_q_accuracy(p1, bllm, threshold_pp=5.0)
         assert not result["passes"]
 
@@ -188,3 +201,29 @@ class TestConfigHash:
         c2 = {"b": 2, "a": 1}
         assert config_hash(c1) == config_hash(c2)
 
+
+class TestHalfWidth:
+    def test_compute_half_width_values(self):
+        hw_100 = compute_half_width(100)
+        assert hw_100 == pytest.approx(9.8, abs=0.05)
+
+        hw_40 = compute_half_width(40)
+        assert hw_40 == pytest.approx(15.5, abs=0.1)
+
+        hw_60 = compute_half_width(60)
+        assert hw_60 == pytest.approx(12.65, abs=0.1)
+
+        hw_20 = compute_half_width(20)
+        assert hw_20 == pytest.approx(21.9, abs=0.1)
+
+        hw_300 = compute_half_width(300)
+        assert hw_300 == pytest.approx(5.66, abs=0.1)
+
+        assert compute_half_width(0) == 0.0
+
+    def test_format_half_widths_table(self):
+        table = format_half_widths_table()
+        assert "Reading A: total" in table
+        assert "Reading B: per_partition" in table
+        assert "math" in table
+        assert "memory_probe" in table
