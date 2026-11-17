@@ -28,6 +28,7 @@ Usage::
 
 from __future__ import annotations
 
+import os
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -54,12 +55,12 @@ _HWMON_GLOB_DIRS = Path("/sys/class/hwmon")
 def _find_rapl_path() -> Path | None:
     """Return the RAPL package energy file path, or None if unavailable."""
     p = Path(_RAPL_PACKAGE_GLOB)
-    if p.is_file():
+    if p.is_file() and os.access(p, os.R_OK):
         return p
     # Try numbering rapl:0 through rapl:3
     for index in range(4):
         candidate = Path(f"/sys/class/powercap/intel-rapl/intel-rapl:{index}/energy_uj")
-        if candidate.is_file():
+        if candidate.is_file() and os.access(candidate, os.R_OK):
             return candidate
     return None
 
@@ -75,7 +76,8 @@ def _find_hwmon_power_path() -> Path | None:
         name = name_file.read_text().strip().lower()
         if name in ("k10temp", "amdgpu", "ryzen_smu"):
             for candidate in hwmon.glob("power*_average"):
-                return candidate
+                if os.access(candidate, os.R_OK):
+                    return candidate
     return None
 
 
