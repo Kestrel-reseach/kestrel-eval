@@ -23,6 +23,13 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Check repo rules
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: bash scripts/check_repo_rules.sh
 
       - name: Set up Python
         uses: actions/setup-python@v7
