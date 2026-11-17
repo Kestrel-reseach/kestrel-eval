@@ -22,8 +22,11 @@ git_commit      str    — at least 7 hex characters of the current commit
 config_hash     str    — SHA-256 of the frozen config dict (sorted keys)
 seed            int    — the eval_run seed from manifest.yaml
 split           str    — "train" | "validation" | "locked_test"
+group           str    — evaluation group name (e.g. "math", "code", "memory_probe")
 item_id         str    — group-prefixed item identifier (e.g. "math-001")
 system          str    — "F" | "B_LLM" | "P1"
+git_dirty       bool   — true if repo had uncommitted changes at run time
+energy_status   str    — "measured_calibrated" | "measured_uncalibrated" | "relative_only" | "unmeasured"
 tokens_generated int   — total tokens emitted (all passes combined)
 passes          int    — number of generate-score cycles (>= 1)
 verifier_score  float | null — calibrated correctness probability in [0,1]
@@ -38,8 +41,12 @@ correct         bool   — whether the final answer matched the answer key
 ## Rules
 
 - `verifier_score` may be `null` before Step 3 delivers the verifier.
-- `split` is validated; "locked_test" is blocked unless `allow_locked_test=True`
-  (only set at Step 10).
+- `split` is validated; "locked_test" is blocked unless all 4 conditions are met:
+  1. `allow_locked_test=True` (Step 10 only)
+  2. `KESTREL_LOCKED_RUN=1` environment variable is set
+  3. Manifest is frozen (`frozen: true`)
+  4. Record `config_hash` matches `expected_config_hash`
+- `energy_status` explicitly distinguishes calibrated absolute joules from relative-only or unmeasured.
 - `energy_joules` is gross energy; subtract `idle_power_w * wall_time_s` to
   get the net figure for reporting.
 - `config_hash` = `hashlib.sha256(json.dumps(config, sort_keys=True).encode()).hexdigest()`.

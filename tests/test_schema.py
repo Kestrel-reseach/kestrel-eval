@@ -1,11 +1,14 @@
 """Tests for the JSONL run record schema (Step 0).
 
 Covers:
-- All required fields present/missing
+- All required fields present/missing (including group, git_dirty, energy_status)
 - Type constraints for each field
-- Split guard (locked_test blocked in development)
+- Split guard & locked_test multi-factor guard:
+  - allow_locked_test=True
+  - KESTREL_LOCKED_RUN=1
+  - manifest_frozen=True
+  - matching config_hash
 - File-level validation of a multi-line JSONL
-- No future leakage: locked_test guard fires when allow_locked_test is False
 """
 
 from __future__ import annotations
@@ -17,12 +20,12 @@ from pathlib import Path
 import pytest
 
 from evaluation.schema import (
+    ENERGY_STATUSES,
     REQUIRED_FIELDS,
-    SchemaError,  # noqa: F401 — imported to confirm it is exported
+    SchemaError,  # noqa: F401
     validate_jsonl_file,
     validate_record,
 )
-
 
 # ── Fixtures ───────────────────────────────────────────────────────────────────
 
@@ -32,11 +35,14 @@ def _valid_record(**overrides: object) -> dict:
     base = {
         "run_id": "run-20260101-001",
         "git_commit": "abc1234",
-        "config_hash": "deadbeef",
+        "config_hash": "deadbeef12345678",
         "seed": 20260101,
         "split": "validation",
+        "group": "math",
         "item_id": "math-001",
         "system": "P1",
+        "git_dirty": False,
+        "energy_status": "unmeasured",
         "tokens_generated": 42,
         "passes": 1,
         "verifier_score": 0.85,
@@ -92,6 +98,30 @@ def test_split_must_be_valid() -> None:
     assert validate_record(_valid_record(split="validation")) == []
 
 
+def test_group_must_be_non_empty_string() -> None:
+    assert validate_record(_valid_record(group="")) != []
+    assert validate_record(_valid_record(group=123)) != []
+    assert validate_record(_valid_record(group="math")) == []
+    assert validate_record(_valid_record(group="code")) == []
+
+
+def test_git_dirty_must_be_boolean() -> None:
+    assert validate_record(_valid_record(git_dirty="false")) != []
+    assert validate_record(_valid_record(git_dirty=0)) != []
+    assert validate_record(_valid_record(git_dirty=False)) == []
+    assert validate_record(_valid_record(git_dirty=True)) == []
+
+
+@pytest.mark.parametrize("status", sorted(ENERGY_STATUSES))
+def test_energy_status_valid_values(status: str) -> None:
+    assert validate_record(_valid_record(energy_status=status)) == []
+
+
+def test_energy_status_invalid_value() -> None:
+    assert validate_record(_valid_record(energy_status="invalid_status")) != []
+    assert validate_record(_valid_record(energy_status=123)) != []
+
+
 def test_tokens_generated_must_be_non_negative_int() -> None:
     assert validate_record(_valid_record(tokens_generated=-1)) != []
     assert validate_record(_valid_record(tokens_generated=1.5)) != []
@@ -130,20 +160,66 @@ def test_system_must_be_known() -> None:
     assert validate_record(_valid_record(system="B_LLM")) == []
 
 
-# ── Partition-guard (no future leakage) ───────────────────────────────────────
+# ── Locked test partition multi-factor guard ──────────────────────────────────
 
 
-def test_locked_test_blocked_in_development() -> None:
-    """Locked-test partition must not be used before Step 10."""
+def test_locked_test_blocked_by_default() -> None:
+    """Locked-test partition must not be used without allow_locked_test=True."""
     record = _valid_record(split="locked_test")
     errors = validate_record(record, allow_locked_test=False)
-    assert any("locked_test" in e for e in errors)
+    assert any("allow_locked_test" in e for e in errors)
 
 
-def test_locked_test_allowed_at_step_10() -> None:
-    """Locked-test partition is allowed when allow_locked_test=True."""
+def test_locked_test_blocked_if_no_env_var(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Locked-test requires KESTREL_LOCKED_RUN=1."""
+    monkeypatch.delenv("KESTREL_LOCKED_RUN", raising=False)
     record = _valid_record(split="locked_test")
-    errors = validate_record(record, allow_locked_test=True)
+    errors = validate_record(
+        record,
+        allow_locked_test=True,
+        manifest_frozen=True,
+        expected_config_hash="deadbeef12345678",
+    )
+    assert any("KESTREL_LOCKED_RUN" in e for e in errors)
+
+
+def test_locked_test_blocked_if_manifest_not_frozen(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Locked-test requires manifest_frozen=True."""
+    monkeypatch.setenv("KESTREL_LOCKED_RUN", "1")
+    record = _valid_record(split="locked_test")
+    errors = validate_record(
+        record,
+        allow_locked_test=True,
+        manifest_frozen=False,
+        expected_config_hash="deadbeef12345678",
+    )
+    assert any("frozen=true" in e for e in errors)
+
+
+def test_locked_test_blocked_if_config_hash_mismatch(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Locked-test requires matching config_hash."""
+    monkeypatch.setenv("KESTREL_LOCKED_RUN", "1")
+    record = _valid_record(split="locked_test", config_hash="actual_hash")
+    errors = validate_record(
+        record,
+        allow_locked_test=True,
+        manifest_frozen=True,
+        expected_config_hash="different_expected_hash",
+    )
+    assert any("matching config_hash" in e for e in errors)
+
+
+def test_locked_test_passes_when_all_guards_satisfied(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Locked-test is accepted when all 4 conditions are met simultaneously."""
+    monkeypatch.setenv("KESTREL_LOCKED_RUN", "1")
+    expected_hash = "deadbeef12345678"
+    record = _valid_record(split="locked_test", config_hash=expected_hash)
+    errors = validate_record(
+        record,
+        allow_locked_test=True,
+        manifest_frozen=True,
+        expected_config_hash=expected_hash,
+    )
     assert errors == []
 
 
@@ -190,4 +266,3 @@ def test_validate_jsonl_file_skips_blank_lines() -> None:
     errors = validate_jsonl_file(path)
     path.unlink()
     assert errors == []
-
