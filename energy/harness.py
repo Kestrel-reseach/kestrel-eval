@@ -28,8 +28,6 @@ Usage::
 
 from __future__ import annotations
 
-import os
-import struct
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -487,4 +485,3 @@ class EnergyHarness:
             "software_to_wall_ratio": ratio,
             "notes": notes,
         }
-

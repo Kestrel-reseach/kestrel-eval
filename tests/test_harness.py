@@ -18,10 +18,8 @@ from energy.harness import (
     HarnessConfig,
     IdleBaseline,
     check_nvml_available,
-    read_cpu_energy_joules,
     read_gpu_power_watts,
 )
-
 
 # ── CpuCounterSource (no real hardware needed) ────────────────────────────────
 
@@ -205,7 +203,9 @@ def test_net_joules_subtracts_idle() -> None:
     """net_joules = task_energy - idle_power * task_time."""
     from energy.harness import EnergySample
 
-    sample = EnergySample(wall_time_s=10.0, cpu_energy_joules=None, gpu_energy_joules=50.0, energy_joules=50.0)
+    sample = EnergySample(
+        wall_time_s=10.0, cpu_energy_joules=None, gpu_energy_joules=50.0, energy_joules=50.0
+    )
     baseline = IdleBaseline(
         duration_s=600.0,
         cpu_power_w=None,
@@ -219,7 +219,9 @@ def test_net_joules_subtracts_idle() -> None:
 def test_net_joules_returns_none_when_no_energy() -> None:
     from energy.harness import EnergySample
 
-    sample = EnergySample(wall_time_s=5.0, cpu_energy_joules=None, gpu_energy_joules=None, energy_joules=None)
+    sample = EnergySample(
+        wall_time_s=5.0, cpu_energy_joules=None, gpu_energy_joules=None, energy_joules=None
+    )
     baseline = IdleBaseline(duration_s=600.0, cpu_power_w=5.0, gpu_power_w=None, total_power_w=5.0)
     assert EnergyHarness.net_joules(sample, baseline) is None
 
@@ -228,8 +230,12 @@ def test_net_joules_clips_to_zero() -> None:
     """net_joules should not go negative (clipped at 0)."""
     from energy.harness import EnergySample
 
-    sample = EnergySample(wall_time_s=5.0, cpu_energy_joules=None, gpu_energy_joules=None, energy_joules=1.0)
-    baseline = IdleBaseline(duration_s=600.0, cpu_power_w=10.0, gpu_power_w=None, total_power_w=10.0)
+    sample = EnergySample(
+        wall_time_s=5.0, cpu_energy_joules=None, gpu_energy_joules=None, energy_joules=1.0
+    )
+    baseline = IdleBaseline(
+        duration_s=600.0, cpu_power_w=10.0, gpu_power_w=None, total_power_w=10.0
+    )
     net = EnergyHarness.net_joules(sample, baseline)
     assert net is not None
     assert net >= 0.0
@@ -270,4 +276,3 @@ def _make_cpu_source(*, available: bool, source: str = "none") -> CpuCounterSour
     mock.read_power_uw.return_value = None
     mock.rapl_max_range_uj.return_value = None
     return mock
-
