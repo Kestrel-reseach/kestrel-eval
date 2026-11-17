@@ -52,3 +52,4 @@ Kestrel separates what the model knows from how hard it thinks. It has four part
 - Step 8: Looped-core toy (optional branch, 3–5 T4 sessions)
 - Step 9: Titans-style memory module (optional branch, 1–2 weeks)
 - Step 10: Final evaluation and report (~1 week)
+
