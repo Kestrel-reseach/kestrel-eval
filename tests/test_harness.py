@@ -67,13 +67,13 @@ def test_cpu_counter_source_uses_hwmon_when_rapl_absent(tmp_path) -> None:
 
 def test_check_nvml_available_returns_false_when_pynvml_absent() -> None:
     """When pynvml is not installed, check_nvml_available returns False."""
-    with patch("energy.harness.check_nvml_available", return_value=False):
+    with patch.dict("sys.modules", {"pynvml": None}):
         assert check_nvml_available() is False
 
 
 def test_read_gpu_power_returns_none_when_nvml_unavailable() -> None:
-    """When NVML fails, read_gpu_power_watts returns None."""
-    with patch("energy.harness.read_gpu_power_watts", return_value=None):
+    """When NVML fails or is absent, read_gpu_power_watts returns None."""
+    with patch.dict("sys.modules", {"pynvml": None}):
         assert read_gpu_power_watts() is None
 
 
