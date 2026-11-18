@@ -15,6 +15,8 @@
 #   9. Context length 2048 tokens (2026-11-18).
 #  10. CPU energy UNMEASURED; GPU-only relative energy (D7, 2026-11-18).
 #  11. Non-inferiority margin = 3 pp, same as no-regression (D4, 2026-11-18).
+# 12. Step 10 F run on free tier ACCEPTED 2026-11-18 with safeguards: one-time use,
+#     minimal send, reserve test set built after Step 10, credits explored but not blocking.
 #
 # These decisions are frozen. Do not change a threshold after seeing results.
 
@@ -208,6 +210,14 @@ systems:
       Free-tier content may be used to improve the provider's products, so
       send only public and synthetic items (no real personal data).
     api_key_env: GEMINI_API_KEY  # key in environment variable, never in the repo
+    step10_exposure_policy: >
+      Owner accepted the free tier for the Step 10 locked-test F run on
+      2026-11-18 (D12). Locked items may be used for product improvement by the
+      provider, so the locked partition is strictly one-time use and cannot be
+      reused for new claims. Send only what F strictly needs to be scored. A
+      reserve test set will be written after Step 10 and never sent externally.
+      Explore zero-cost or no-retention credits, but do not block on them.
+      Record this exposure decision in the final report.
     memory_probe_runs: ["no_history", "full_history"]
   B_LLM:
     description: "Best quantized small model from the shortlist, plain retrieval."
