@@ -206,4 +206,21 @@ This log records dated progress, measurements, commits, and open issues for each
   - All 180 unit tests pass cleanly.
 - **Status**: Part 3B complete; preflight clean; ready for co-owner review.
 
+---
+
+### 2026-11-18 — PR 1 (Step 2): Preconditions, Frontier Rate Limits & Knowledge-QA Retrieval Baseline
+- **Step**: Step 2 (Baselines and Frontier Reference $F$)
+- **Branch**: `step-2-baselines-and-f` (`kestrel-eval`)
+- **Result**:
+  - Implemented `config/f_limits.yaml` establishing rate limits, cost caps ($0 free tier), pacing (2 RPM, 50 RPD), 2048 token context window, exponential backoff (2.0s to 60.0s), and mandatory reference label per Decisions D5, D6, and D12.
+  - Verified `GEMINI_API_KEY` handling: detected key is unset in environment, recorded status as `UNDEFINED` / `PENDING_KEY`, allowing local candidate baselines to proceed independently without blocking.
+  - Implemented deterministic, zero-VRAM BM25Okapi flat retriever in `evaluation/retrieval.py` over `data/wikipedia_abstracts_5k.jsonl` (6,000 articles) with $k_1=1.5, b=0.75$, title boosting, and deterministic tie-breaking.
+  - Configured fixed top-$k=3$ passages retrieval for `knowledge_qa` items with structured context prompt formatting.
+  - Implemented candidate shortlist and budget verification in `evaluation/candidates.py` covering `Qwen2.5-0.5B-Instruct` (0.45 GB), `Qwen2.5-1.5B-Instruct` (1.15 GB), and `Granite-3.1-2B-Instruct` (1.40 GB) fitting the $\le 1.5$ GB GPU assistant budget, and `Qwen2.5-3B-Instruct` (2.25 GB) designated CPU tier.
+  - Implemented `FrontierRunner` and `LocalRunner` adhering to the `ModelRunner` protocol for `RunMatrix` with support for diagnostic retrieval toggling (`use_retrieval=True` vs `False`), peak VRAM tracking via PyTorch NVML, GPU energy integration via `EnergyHarness`, and consolidated answer checking in `evaluation/loaders/common.py`.
+  - Added unit test suites `tests/test_retrieval.py` (6 tests), `tests/test_f_limits.py` (6 tests), and `tests/test_candidates_and_runners.py` (4 tests). Total test suite expanded from 180 to 196 passing tests.
+  - Documented pipeline in `reports/step2_retrieval_and_config.md`.
+- **Status**: PR 1 (Step 2) complete; all 196 tests pass; ruff clean; repo rules clean. Ready for review.
+
+
 
