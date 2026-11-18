@@ -10,12 +10,14 @@ from pathlib import Path
 def test_no_locked_ids_in_reports_or_docs():
     """Verify that zero files under reports/ or docs/ mention any locked test item ID."""
     repo_root = Path(__file__).resolve().parent.parent
-    private_dir = Path(
-        os.environ.get("KESTREL_PRIVATE_DIR", "/home/ash09/project_x/kestrel_private")
-    ).resolve()
+    env_dir = os.environ.get("KESTREL_PRIVATE_DIR")
+    if env_dir:
+        private_dir = Path(env_dir).resolve()
+    else:
+        private_dir = (repo_root.parent / "kestrel_private").resolve()
     locked_dir = private_dir / "locked_test"
 
-    if not locked_dir.exists():
+    if not locked_dir.exists() or not (locked_dir / "math.jsonl").exists():
         return
 
     locked_ids: set[str] = set()

@@ -77,7 +77,7 @@ def compute_root_hash(partition_hashes: dict[str, str]) -> str:
     return compute_sha256(payload)
 
 
-def get_private_dir() -> Path:
+def get_private_dir(create: bool = False) -> Path:
     """Return destination directory for locked-test partitions.
 
     Must reside outside git repository per project rules.
@@ -87,9 +87,13 @@ def get_private_dir() -> Path:
     if env_dir:
         dest = Path(env_dir).resolve()
     else:
-        # Default to a private directory in project_x workspace outside kestrel-eval git repo
-        dest = Path("/home/ash09/project_x/kestrel_private").resolve()
-    dest.mkdir(parents=True, exist_ok=True)
+        repo_root = Path(__file__).resolve().parent.parent
+        dest = (repo_root.parent / "kestrel_private").resolve()
+    if create:
+        try:
+            dest.mkdir(parents=True, exist_ok=True)
+        except OSError:
+            pass
     return dest
 
 
@@ -333,7 +337,7 @@ def write_suite_files(
 
     Returns dict with file hashes and root hash.
     """
-    private_dir = get_private_dir()
+    private_dir = get_private_dir(create=True)
     hashes: dict[str, dict[str, str]] = {
         "validation": {},
         "locked_test": {},
