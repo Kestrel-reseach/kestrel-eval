@@ -14,14 +14,14 @@
 | Parameter | PLAN.md Target Tier | Measured Test Machine | Status |
 | :--- | :--- | :--- | :--- |
 | **CPU** | AMD Ryzen 7 5800H | AMD Ryzen 7 7435HS | **Hardware Variant** (Zen 3+ vs Zen 3) |
-| **GPU Model** | NVIDIA GeForce RTX 3060 Laptop | NVIDIA GeForce RTX 3050 Laptop | **Test Tier Accepted** (Owner decision 2026-11-18) |
+| **GPU Model** | NVIDIA GeForce RTX 3060 Laptop | NVIDIA GeForce RTX 3050 Laptop | **PENDING OWNER CONFIRMATION** (`docs/decisions/hardware_tier.md`) |
 | **GPU VRAM** | 6.0 GB (1.0–1.5 GB assistant budget) | 4.0 GB (4,096 MiB) | Budget accommodated |
 | **Power Target** | ~60–80 W TGP tier | 35–60 W dynamic TGP tier | Calibrated in pilot |
 
-> [!NOTE]
-> **Owner Decision on Target Hardware (2026-11-18)**:
-> In PR #7 (commit `07979e5`), the repository owner approved the RTX 3050 Laptop GPU (4 GB) / Ryzen 7 7435HS as the official test tier for Prototype 1 because the physical RTX 3060 hardware is unavailable. Formal target-tier re-run is deferred, and Gate G-R thresholds remain unchanged.
-> **Step 0 in `PLAN.md` remains UNCHECKED** pending reviewer review and formal sign-off.
+> [!WARNING]
+> **Results obtained on the RTX 3050 Laptop GPU (4 GB) are NOT transferable to the RTX 3060 tier.**
+> As documented in [`docs/decisions/hardware_tier.md`](file:///home/ash09/project_x/kestrel-eval/docs/decisions/hardware_tier.md), the RTX 3050 tier acceptance was agent-drafted and merged by Member B without a written record authored by the owner. It remains `PENDING OWNER CONFIRMATION` in writing (Decision D8).
+> **Step 0 in `PLAN.md` remains strictly UNCHECKED** until owner confirmation is provided.
 
 ---
 
@@ -43,68 +43,63 @@ Raw output of `check_counters(strict=True)`:
 1. **CPU Counter (`cpu_counter_source: 'none'`)**:
    - `/sys/class/powercap/intel-rapl` exists on this system, but its child node `intel-rapl:0/energy_uj` has permissions `0400` (`-r--------` owned by root). Regular non-root users encounter `PermissionError`.
    - `/sys/class/hwmon/hwmon4` (`k10temp`) exposes temperature, not `power*_average` sysfs files.
-   - Therefore, CPU energy is truthfully reported as `None` in user space without elevated privileges or a setuid helper.
+   - Therefore, CPU energy is truthfully reported as `None` in user space without elevated privileges or a setuid helper (Decision D7).
 2. **GPU Counter (`gpu_nvml_available: True`)**:
    - Discovered and read via `pynvml` (`nvidia-ml-py==13.615.71`).
    - Accurately tracks milliwatt power draw across dynamic P-states.
 3. **Status Defaults**:
-   - `wall_meter_calibrated`: `false` (aligned with `manifest.yaml` line 171).
-   - `relative_only`: `true` (relative energy only; uncalibrated against wall meter).
+   - `wall_meter_calibrated`: `false` (aligned with `manifest.yaml` line 171 and Decision Record `docs/decisions/energy_measurement.md`).
+   - `relative_only`: `true` (relative energy only; uncalibrated against wall meter per Step 0 Kill Gate).
    - `energy_status`: `"relative_only"`.
 
 ---
 
-## 3. Idle Baseline Measurement (`record_idle_baseline`)
+## 3. Canonical Idle Baseline Measurement (`record_idle_baseline`)
 
-- **Duration sampled**: 60.0 seconds (65.19 s elapsed)
-- **Mean GPU idle power ($P_{\text{idle}}$)**: 10.142 W
-- **GPU idle power standard deviation ($\sigma_{\text{idle}}$)**: 1.855 W
-- **Combined idle rate**: 8.921 W (J/s)
+Idle baseline was sampled across 3 repeated intervals under the same AC power plan:
+- **Repeat 1**: 60.0 s | Mean GPU power: 8.689 W (std: 1.649 W)
+- **Repeat 2**: 60.0 s | Mean GPU power: 8.281 W (std: 1.024 W)
+- **Repeat 3**: 60.0 s | Mean GPU power: 8.036 W (std: 0.082 W)
+
+### Canonical Pooled Idle Parameters:
+- **Total Duration Sampled**: 180.1 seconds (174 samples)
+- **Canonical Mean Idle Power ($P_{\text{idle}}$)**: **8.335 W**
+- **Pooled Idle Standard Deviation ($\sigma_{\text{idle}}$)**: **1.122 W**
+- **Canonical Definition**: Single pooled mean sample rate is used for all idle energy subtractions. Competing sampling windows are eliminated.
 
 ---
 
-## 4. CUDA FP16 GEMM Workload Measurement & Repeatability
+## 4. Workload Measurement & 3-Trial Repeatability
 
 Workload executed: Continuous FP16 Matrix Multiplication ($2048 \times 2048$) on `cuda:0` using PyTorch.
 
-### 3-Trial Repeatability Table:
-| Trial | Duration (s) | Gross Energy (J) | Gross Power (W) | Idle Energy (J) | Unclipped Net Energy (J) | Noise Margin ($3\sigma$) (J) | Valid |
-| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| 1 | 11.420 | 684.77 | 59.96 | 115.82 | **568.95** | 63.54 | **PASS** |
-| 2 | 11.410 | 684.35 | 59.98 | 115.72 | **568.63** | 63.49 | **PASS** |
-| 3 | 11.440 | 686.53 | 60.01 | 116.02 | **570.51** | 63.65 | **PASS** |
+> [!IMPORTANT]
+> Relative energy only; GPU NVML scope; same machine and session; not comparable across machines.
+
+| Trial | Duration (s) | Gross Energy (J) | Gross Power (W) | Idle Energy (J) | Unclipped Net Energy (J) | Noise Margin (3σ) (J) | Valid |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 11.409 | 683.77 | 59.93 | 95.10 | **588.67** | 38.40 | **PASS** |
+| 2 | 11.422 | 684.03 | 59.89 | 95.20 | **588.83** | 38.44 | **PASS** |
+| 3 | 11.257 | 674.43 | 59.91 | 93.83 | **580.60** | 37.89 | **PASS** |
+| **Mean** | 11.362 | 680.74 | 59.91 | 94.71 | **586.03** | 38.24 | **PASS** |
 
 ### Unclipped Net Energy & Noise Rule:
 - Noise criterion: A workload run is valid if $E_{\text{net}} > 0$ and $E_{\text{net}} > 3 \times \sigma_{\text{idle}} \times \Delta t$.
-- In all 3 trials, average gross power was ~60 W, giving gross energy of ~600 J over 10 s.
-- Idle power was 10.14 W (~101.4 J over 10 s).
-- Unclipped net energy was ~568.6 J, exceeding the $3\sigma$ noise margin (63.49 J) by more than 10×.
-- All 3 trials are marked **PASS**.
+- In all 3 trials and on average, gross power was ~59.9 W, gross energy was ~680.7 J over 11.4 s.
+- Idle energy was 94.7 J (at 8.335 W idle).
+- Unclipped net energy was **586.03 J**, exceeding the $3\sigma$ noise margin (38.24 J) by more than 8×.
+- All 3 trials and the mean are marked **PASS**.
 
 ---
 
-## 5. Technical Clarifications on Measurement Figures
+## 5. Schema-Validated JSONL Measurement Record
 
-### A. Clarification on 9.36 W vs 12.48 J / 2.0 s:
-- **9.36 W**: Instantaneous point sample from `read_gpu_power_watts()` while in P3 power state during a brief wake event.
-- **12.48 J over 2.0 s**: Integrated energy over a 2.0-second interval, yielding an average power of $12.48 / 2.0 = 6.24\text{ W}$.
-- Instantaneous power varies with dynamic clock gating and display refresh; integrated energy over time captures the true average consumption.
-
-### B. Explanation of Previous Pilot Net Energy:
-- The initial exploratory pilot ran a CPU-bound Python loop while reading the GPU counter.
-- Under CPU load, the GPU remained in idle/display state (~6.1 W), which was lower than a transient idle sample of 8.3 W, causing net energy to calculate as negative and clip to 0.0 J.
-- In this revised pilot, the workload is executed directly on the GPU (CUDA FP16 GEMM), drawing ~60 W (well above idle), with unclipped net energy clearly reported and verified against the noise margin rule.
-
----
-
-## 6. Schema-Validated JSONL Measurement Record
-
-The representative run (Trial 2) produced the following record in `reports/step0_hardware_calibration.jsonl`:
+The mean run produced the following schema-validated record in `reports/step0_hardware_calibration.jsonl`:
 ```json
 {
   "run_id": "run-step0-pilot-hw-20261118",
-  "git_commit": "1affa5725ee7b223c740ebb3c255139a438b8b56",
-  "config_hash": "744c5caf509a349c0913f79df50a0fc2555ba951913ffe3357f39b108a51f10b",
+  "git_commit": "6963226b879e6dadfbe62e671a9b9c646a3c2491",
+  "config_hash": "d98502c6a97302641647f20221460cb9870d8cf4341502e9fa198f0914de1deb",
   "seed": 42,
   "split": "validation",
   "group": "pilot_hardware_calibration",
@@ -116,34 +111,26 @@ The representative run (Trial 2) produced the following record in `reports/step0
   "verifier_score": null,
   "retrieval_hits": 0,
   "bytes_read_from_ssd": 0,
-  "energy_joules": 568.629,
+  "energy_joules": 586.033,
   "energy_status": "relative_only",
-  "wall_time_ms": 11409.99,
-  "peak_vram_mb": 48.12,
+  "wall_time_ms": 11362.37,
+  "peak_vram_mb": 40.12,
   "correct": true
 }
 ```
 
-### Schema Field Documentation:
-- **Measured Fields**:
-  - `energy_joules`: 568.629 J (measured net GPU energy).
-  - `wall_time_ms`: 11409.99 ms (measured duration).
-  - `peak_vram_mb`: 48.12 MB (measured via CUDA memory allocator).
-  - `energy_status`: `"relative_only"` (measured uncalibrated software counter).
-- **Metadata Fields**:
-  - `run_id`: `"run-step0-pilot-hw-20261118"`
-  - `git_commit`: `"1affa5725ee7b223c740ebb3c255139a438b8b56"`
-  - `config_hash`: `"744c5caf509a349c0913f79df50a0fc2555ba951913ffe3357f39b108a51f10b"`
-  - `seed`: 42
-  - `split`: `"validation"`
-  - `group`: `"pilot_hardware_calibration"`
-  - `item_id`: `"calib-item-001"`
-  - `git_dirty`: False
-- **Schema-Required Evaluation Placeholders** (documented per reviewer instructions):
-  - `system`: `"P1"`
-  - `correct`: `true`
-  - `verifier_score`: `null` (nullable field in schema; null indicates no verification task)
-  - `passes`: 1
-  - `tokens_generated`: 0
-  - `retrieval_hits`: 0
-  - `bytes_read_from_ssd`: 0
+### Measured vs Placeholder Field Breakdown:
+| Category | Fields | Description / Value |
+| :--- | :--- | :--- |
+| **Measured Fields** | `energy_joules` | **586.033 J** (mean unclipped net GPU energy) |
+| | `wall_time_ms` | **11362.37 ms** (mean duration) |
+| | `peak_vram_mb` | **40.12 MB** (resident CUDA memory) |
+| | `energy_status` | `"relative_only"` (measured uncalibrated software counter) |
+| **Metadata Fields** | `run_id`, `git_commit`, `config_hash`, `seed`, `split`, `group`, `item_id`, `git_dirty` | Run tracking provenance |
+| **Schema-Required Placeholders** | `system: "P1"` | Required by schema; placeholder for hardware pilot |
+| | `correct: true` | Required by schema; placeholder (no QA question solved) |
+| | `verifier_score: null` | Explicitly nullable; null indicates no verification task |
+| | `passes: 1` | Default single pass |
+| | `tokens_generated: 0` | Hardware pilot generated zero LLM tokens |
+| | `retrieval_hits: 0` | No SSD retrieval performed |
+| | `bytes_read_from_ssd: 0` | No SSD index accessed |

@@ -42,3 +42,4 @@ On 2026-11-18, during local test execution by Member A, the target RTX 3060 / Ry
    - Measurements collected on the RTX 3050 test tier must be explicitly labeled as produced by the `RTX 3050 Laptop GPU (4 GB) test tier`.
    - Gate G-R thresholds (1–1.5 GB resident VRAM) remain frozen and unmodified.
    - Formal target-tier verification for Prototype 1 requires re-running on the official RTX 3060 hardware once accessible.
+

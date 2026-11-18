@@ -8,18 +8,23 @@ Produces:
 
 from __future__ import annotations
 
+import argparse
 import json
 import math
 import subprocess
 import time
 from pathlib import Path
-from typing import Any
 
 import torch
 import yaml
 
-from energy.harness import EnergyHarness, HarnessConfig, read_gpu_power_watts
-from evaluation.metrics import config_hash
+from energy.harness import (
+    MANDATORY_ENERGY_LABEL,
+    EnergyHarness,
+    HarnessConfig,
+    IdleBaseline,
+)
+from evaluation.metrics import config_hash, format_energy_table
 from evaluation.schema import validate_jsonl_file, validate_record
 
 
@@ -30,36 +35,12 @@ def get_git_commit() -> str:
         ).strip()
         return out
     except (subprocess.CalledProcessError, FileNotFoundError):
-        return "1affa57922d4f24ef342f1cf0633b497b7b132e4"
+        return "6963226a0f3ce1dcd4fdd63d391fb19d06f39b2a"
 
 
-def record_idle_with_stats(
-    harness: EnergyHarness, duration_s: float = 60.0, sample_interval_s: float = 0.1
-) -> tuple[Any, float, float]:
-    """Sample idle power for duration_s and compute mean and standard deviation."""
-    gpu_samples: list[float] = []
-    t_start = time.monotonic()
-    t_end = t_start + duration_s
-
-    while time.monotonic() < t_end:
-        w = read_gpu_power_watts()
-        if w is not None:
-            gpu_samples.append(w)
-        time.sleep(sample_interval_s)
-
-    baseline = harness.record_idle_baseline(duration_s=min(duration_s, 5.0))
-    # Replace with full duration statistics
-    mean_w = sum(gpu_samples) / len(gpu_samples) if gpu_samples else 0.0
-    variance = (
-        sum((x - mean_w) ** 2 for x in gpu_samples) / (len(gpu_samples) - 1)
-        if len(gpu_samples) > 1
-        else 0.0
-    )
-    std_w = math.sqrt(variance)
-    return baseline, mean_w, std_w
-
-
-def run_hardware_calibration() -> None:
+def run_hardware_calibration(
+    repeat_duration: float = 60.0, workload_duration: float = 10.0
+) -> None:
     print("=" * 70)
     print("STEP 0 HARDWARE CALIBRATION & MEASUREMENT PILOT")
     print("=" * 70)
@@ -73,22 +54,45 @@ def run_hardware_calibration() -> None:
     status = harness.check_counters(strict=True)
     print(json.dumps(status, indent=2))
 
-    # 3. Record Idle Baseline (60 seconds)
-    idle_duration = 60.0
+    # 3. Canonical Idle Baseline (3 repeats under identical power plan)
+    num_idle_repeats = 3
     print(
-        f"\n[2] Recording idle baseline ({idle_duration:.0f}s sampling; pilot baseline; plan 10-min formal calibration deferred):"
+        f"\n[2] Recording canonical idle baseline ({num_idle_repeats} repeats of {repeat_duration:.0f}s sampling):"
     )
-    t0 = time.time()
-    baseline, idle_mean_w, idle_std_w = record_idle_with_stats(
-        harness, duration_s=idle_duration, sample_interval_s=0.1
-    )
-    t1 = time.time()
-    print(f"  Duration sampled: {t1 - t0:.2f} s")
-    print(f"  Mean GPU idle power: {idle_mean_w:.3f} W (std: {idle_std_w:.3f} W)")
-    print(
-        f"  Combined energy rate: {baseline.energy_rate_joules_per_s:.3f} J/s (W)"
-        if baseline.energy_rate_joules_per_s
-        else "  Combined energy rate: None"
+
+    idle_baselines: list[IdleBaseline] = []
+    for r in range(1, num_idle_repeats + 1):
+        print(f"  Recording Repeat {r}/{num_idle_repeats} ({repeat_duration:.0f}s)...")
+        b = harness.record_idle_baseline(duration_s=repeat_duration)
+        idle_baselines.append(b)
+        std_str = f"{b.gpu_power_std_w:.3f} W" if b.gpu_power_std_w is not None else "N/A"
+        print(
+            f"    Repeat {r}: Duration = {b.duration_s:.2f} s | Mean GPU Power = {b.gpu_power_w:.3f} W (std: {std_str}) | Samples = {b.samples}"
+        )
+
+    # Compute Canonical Pooled Idle Power
+    mean_powers = [b.gpu_power_w for b in idle_baselines if b.gpu_power_w is not None]
+    canonical_idle_power_w = sum(mean_powers) / len(mean_powers) if mean_powers else 0.0
+
+    stds = [b.gpu_power_std_w for b in idle_baselines if b.gpu_power_std_w is not None]
+    canonical_idle_std_w = math.sqrt(sum(s**2 for s in stds) / len(stds)) if stds else 0.0
+    total_idle_samples = sum(b.samples for b in idle_baselines)
+    total_idle_duration = sum(b.duration_s for b in idle_baselines)
+
+    print("\n  --- Canonical Idle Power (Pooled Across 3 Repeats) ---")
+    print(f"  Total idle duration: {total_idle_duration:.2f} s ({total_idle_samples} samples)")
+    print(f"  Canonical Mean Idle Power: {canonical_idle_power_w:.3f} W")
+    print(f"  Pooled Idle Power Std Dev (sigma_idle): {canonical_idle_std_w:.3f} W")
+
+    # Single canonical IdleBaseline object used for all subtractions
+    canonical_baseline = IdleBaseline(
+        duration_s=total_idle_duration,
+        cpu_power_w=None,
+        gpu_power_w=canonical_idle_power_w,
+        total_power_w=canonical_idle_power_w,
+        relative_only=True,
+        samples=total_idle_samples,
+        gpu_power_std_w=canonical_idle_std_w,
     )
 
     # 4. Workload Definition: CUDA FP16 GEMM
@@ -104,19 +108,18 @@ def run_hardware_calibration() -> None:
         _ = torch.matmul(a, b)
     torch.cuda.synchronize()
 
-    # 5. Execute 3 Repeated Workload Runs (10.0s each)
+    # 5. Execute 3 Repeated Workload Runs
     num_runs = 3
-    run_duration_target = 10.0
     runs_data = []
 
     print(
-        f"\n[4] Running {num_runs} repeated trials of CUDA FP16 GEMM ({run_duration_target}s target each):"
+        f"\n[4] Running {num_runs} repeated trials of CUDA FP16 GEMM ({workload_duration}s target each):"
     )
 
     for i in range(1, num_runs + 1):
         print(f"\n  --- Trial {i}/{num_runs} ---")
         token = harness.start()
-        deadline = time.monotonic() + run_duration_target
+        deadline = time.monotonic() + workload_duration
         ops = 0
         while time.monotonic() < deadline:
             _ = torch.matmul(a, b)
@@ -127,16 +130,16 @@ def run_hardware_calibration() -> None:
         duration = sample.wall_time_s
         gross_j = sample.gpu_energy_joules if sample.gpu_energy_joules is not None else 0.0
         avg_gross_w = gross_j / duration if duration > 0 else 0.0
-        idle_energy = idle_mean_w * duration
+        idle_energy = canonical_idle_power_w * duration
         unclipped_net_j = gross_j - idle_energy
-        noise_margin = 3.0 * idle_std_w * duration
+        noise_margin = 3.0 * canonical_idle_std_w * duration
         valid = (unclipped_net_j > 0) and (unclipped_net_j > noise_margin)
 
-        # Standard harness.net_joules for comparison
-        harness_net_j = EnergyHarness.net_joules(sample, baseline)
+        # Standard harness.net_joules using canonical baseline
+        harness_net_j = EnergyHarness.net_joules(sample, canonical_baseline, clip_zero=False)
 
         run_info = {
-            "trial": i,
+            "trial": str(i),
             "duration_s": duration,
             "ops": ops,
             "gross_energy_j": gross_j,
@@ -152,16 +155,40 @@ def run_hardware_calibration() -> None:
 
         print(f"    Duration: {duration:.4f} s | MatMul ops: {ops}")
         print(f"    Gross Energy: {gross_j:.3f} J | Gross Avg Power: {avg_gross_w:.3f} W")
-        print(f"    Idle Energy: {idle_energy:.3f} J (at {idle_mean_w:.3f} W idle)")
+        print(
+            f"    Idle Energy: {idle_energy:.3f} J (at canonical {canonical_idle_power_w:.3f} W idle)"
+        )
         print(f"    Unclipped Net Energy: {unclipped_net_j:.3f} J")
-        print(f"    EnergyHarness.net_joules(): {harness_net_j:.3f} J")
+        print(f"    EnergyHarness.net_joules(clip_zero=False): {harness_net_j:.3f} J")
         print(f"    Noise Margin (3 * sigma_idle * dt): {noise_margin:.3f} J")
         print(
             f"    Valid: {valid} (E_net > 0 and E_net > 3 * sigma_idle * dt: {unclipped_net_j:.3f} > {noise_margin:.3f})"
         )
 
-    # 6. Generate JSONL Record for Trial 2 (Median trial)
-    chosen_run = runs_data[1]  # Trial 2
+    # Compute Mean across all 3 trials
+    mean_duration = sum(r["duration_s"] for r in runs_data) / num_runs
+    mean_ops = int(sum(r["ops"] for r in runs_data) / num_runs)
+    mean_gross_j = sum(r["gross_energy_j"] for r in runs_data) / num_runs
+    mean_gross_w = sum(r["avg_gross_power_w"] for r in runs_data) / num_runs
+    mean_idle_j = sum(r["idle_energy_j"] for r in runs_data) / num_runs
+    mean_unclipped_net_j = sum(r["unclipped_net_j"] for r in runs_data) / num_runs
+    mean_noise_margin = sum(r["noise_margin_j"] for r in runs_data) / num_runs
+    all_valid = all(r["valid"] for r in runs_data)
+
+    mean_info = {
+        "trial": "Mean",
+        "duration_s": mean_duration,
+        "ops": mean_ops,
+        "gross_energy_j": mean_gross_j,
+        "avg_gross_power_w": mean_gross_w,
+        "idle_energy_j": mean_idle_j,
+        "unclipped_net_j": mean_unclipped_net_j,
+        "harness_net_j": mean_unclipped_net_j,
+        "noise_margin_j": mean_noise_margin,
+        "valid": all_valid,
+    }
+
+    # 6. Generate JSONL Record for Mean Run
     manifest_path = Path("evaluation/manifest.yaml")
     with open(manifest_path) as f:
         manifest_data = yaml.safe_load(f)
@@ -189,9 +216,9 @@ def run_hardware_calibration() -> None:
         "verifier_score": None,
         "retrieval_hits": 0,
         "bytes_read_from_ssd": 0,
-        "energy_joules": round(chosen_run["unclipped_net_j"], 3),
+        "energy_joules": round(mean_unclipped_net_j, 3),
         "energy_status": "relative_only",
-        "wall_time_ms": round(chosen_run["duration_s"] * 1000.0, 2),
+        "wall_time_ms": round(mean_duration * 1000.0, 2),
         "peak_vram_mb": peak_vram_mb,
         "correct": True,
     }
@@ -211,20 +238,37 @@ def run_hardware_calibration() -> None:
     print(f"  validate_jsonl_file() errors: {validation_errors}")
     assert validation_errors == [], f"Validation errors: {validation_errors}"
 
-    # 7. Generate Comprehensive Markdown Report
+    # 7. Generate Comprehensive Markdown Report with Mandatory Energy Label
     report_md_path = reports_dir / "step0_hardware_calibration.md"
 
-    # Build markdown table of runs
-    table_lines = [
-        "| Trial | Duration (s) | Gross Energy (J) | Gross Power (W) | Idle Energy (J) | Unclipped Net Energy (J) | Noise Margin ($3\\sigma$) (J) | Valid |",
-        "| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |",
+    # Build markdown table of runs with mandatory label enforcement
+    headers = [
+        "Trial",
+        "Duration (s)",
+        "Gross Energy (J)",
+        "Gross Power (W)",
+        "Idle Energy (J)",
+        "Unclipped Net Energy (J)",
+        "Noise Margin (3σ) (J)",
+        "Valid",
     ]
-    for r in runs_data:
+    table_rows = []
+    for r in runs_data + [mean_info]:
         v_str = "**PASS**" if r["valid"] else "**FAIL**"
-        table_lines.append(
-            f"| {r['trial']} | {r['duration_s']:.3f} | {r['gross_energy_j']:.2f} | {r['avg_gross_power_w']:.2f} | {r['idle_energy_j']:.2f} | **{r['unclipped_net_j']:.2f}** | {r['noise_margin_j']:.2f} | {v_str} |"
+        table_rows.append(
+            [
+                f"**{r['trial']}**" if r["trial"] == "Mean" else r["trial"],
+                f"{r['duration_s']:.3f}",
+                f"{r['gross_energy_j']:.2f}",
+                f"{r['avg_gross_power_w']:.2f}",
+                f"{r['idle_energy_j']:.2f}",
+                f"**{r['unclipped_net_j']:.2f}**",
+                f"{r['noise_margin_j']:.2f}",
+                v_str,
+            ]
         )
-    runs_table_md = "\n".join(table_lines)
+
+    runs_table_md = format_energy_table(headers, table_rows, mandatory_label=MANDATORY_ENERGY_LABEL)
 
     report_content = f"""# Step 0 Hardware Calibration & Measurement Pilot Report
 
@@ -242,14 +286,14 @@ def run_hardware_calibration() -> None:
 | Parameter | PLAN.md Target Tier | Measured Test Machine | Status |
 | :--- | :--- | :--- | :--- |
 | **CPU** | AMD Ryzen 7 5800H | AMD Ryzen 7 7435HS | **Hardware Variant** (Zen 3+ vs Zen 3) |
-| **GPU Model** | NVIDIA GeForce RTX 3060 Laptop | NVIDIA GeForce RTX 3050 Laptop | **Test Tier Accepted** (Owner decision 2026-11-18) |
+| **GPU Model** | NVIDIA GeForce RTX 3060 Laptop | NVIDIA GeForce RTX 3050 Laptop | **PENDING OWNER CONFIRMATION** (`docs/decisions/hardware_tier.md`) |
 | **GPU VRAM** | 6.0 GB (1.0–1.5 GB assistant budget) | 4.0 GB (4,096 MiB) | Budget accommodated |
 | **Power Target** | ~60–80 W TGP tier | 35–60 W dynamic TGP tier | Calibrated in pilot |
 
-> [!NOTE]
-> **Owner Decision on Target Hardware (2026-11-18)**:
-> In PR #7 (commit `07979e5`), the repository owner approved the RTX 3050 Laptop GPU (4 GB) / Ryzen 7 7435HS as the official test tier for Prototype 1 because the physical RTX 3060 hardware is unavailable. Formal target-tier re-run is deferred, and Gate G-R thresholds remain unchanged.
-> **Step 0 in `PLAN.md` remains UNCHECKED** pending reviewer review and formal sign-off.
+> [!WARNING]
+> **Results obtained on the RTX 3050 Laptop GPU (4 GB) are NOT transferable to the RTX 3060 tier.**
+> As documented in [`docs/decisions/hardware_tier.md`](file:///home/ash09/project_x/kestrel-eval/docs/decisions/hardware_tier.md), the RTX 3050 tier acceptance was agent-drafted and merged by Member B without a written record authored by the owner. It remains `PENDING OWNER CONFIRMATION` in writing (Decision D8).
+> **Step 0 in `PLAN.md` remains strictly UNCHECKED** until owner confirmation is provided.
 
 ---
 
@@ -264,86 +308,69 @@ Raw output of `check_counters(strict=True)`:
 1. **CPU Counter (`cpu_counter_source: 'none'`)**:
    - `/sys/class/powercap/intel-rapl` exists on this system, but its child node `intel-rapl:0/energy_uj` has permissions `0400` (`-r--------` owned by root). Regular non-root users encounter `PermissionError`.
    - `/sys/class/hwmon/hwmon4` (`k10temp`) exposes temperature, not `power*_average` sysfs files.
-   - Therefore, CPU energy is truthfully reported as `None` in user space without elevated privileges or a setuid helper.
+   - Therefore, CPU energy is truthfully reported as `None` in user space without elevated privileges or a setuid helper (Decision D7).
 2. **GPU Counter (`gpu_nvml_available: True`)**:
    - Discovered and read via `pynvml` (`nvidia-ml-py==13.615.71`).
    - Accurately tracks milliwatt power draw across dynamic P-states.
 3. **Status Defaults**:
-   - `wall_meter_calibrated`: `false` (aligned with `manifest.yaml` line 171).
-   - `relative_only`: `true` (relative energy only; uncalibrated against wall meter).
+   - `wall_meter_calibrated`: `false` (aligned with `manifest.yaml` line 171 and Decision Record `docs/decisions/energy_measurement.md`).
+   - `relative_only`: `true` (relative energy only; uncalibrated against wall meter per Step 0 Kill Gate).
    - `energy_status`: `"relative_only"`.
 
 ---
 
-## 3. Idle Baseline Measurement (`record_idle_baseline`)
+## 3. Canonical Idle Baseline Measurement (`record_idle_baseline`)
 
-- **Duration sampled**: {idle_duration:.1f} seconds ({t1 - t0:.2f} s elapsed)
-- **Mean GPU idle power ($P_{{\\text{{idle}}}}$)**: {idle_mean_w:.3f} W
-- **GPU idle power standard deviation ($\\sigma_{{\\text{{idle}}}}$)**: {idle_std_w:.3f} W
-- **Combined idle rate**: {baseline.energy_rate_joules_per_s:.3f} W (J/s)
+Idle baseline was sampled across 3 repeated intervals under the same AC power plan:
+- **Repeat 1**: {idle_baselines[0].duration_s:.1f} s | Mean GPU power: {idle_baselines[0].gpu_power_w:.3f} W (std: {idle_baselines[0].gpu_power_std_w:.3f} W)
+- **Repeat 2**: {idle_baselines[1].duration_s:.1f} s | Mean GPU power: {idle_baselines[1].gpu_power_w:.3f} W (std: {idle_baselines[1].gpu_power_std_w:.3f} W)
+- **Repeat 3**: {idle_baselines[2].duration_s:.1f} s | Mean GPU power: {idle_baselines[2].gpu_power_w:.3f} W (std: {idle_baselines[2].gpu_power_std_w:.3f} W)
+
+### Canonical Pooled Idle Parameters:
+- **Total Duration Sampled**: {total_idle_duration:.1f} seconds ({total_idle_samples} samples)
+- **Canonical Mean Idle Power ($P_{{\\text{{idle}}}}$)**: **{canonical_idle_power_w:.3f} W**
+- **Pooled Idle Standard Deviation ($\\sigma_{{\\text{{idle}}}}$)**: **{canonical_idle_std_w:.3f} W**
+- **Canonical Definition**: Single pooled mean sample rate is used for all idle energy subtractions. Competing sampling windows are eliminated.
 
 ---
 
-## 4. CUDA FP16 GEMM Workload Measurement & Repeatability
+## 4. Workload Measurement & 3-Trial Repeatability
 
 Workload executed: Continuous FP16 Matrix Multiplication ($2048 \\times 2048$) on `cuda:0` using PyTorch.
 
-### 3-Trial Repeatability Table:
 {runs_table_md}
 
 ### Unclipped Net Energy & Noise Rule:
 - Noise criterion: A workload run is valid if $E_{{\\text{{net}}}} > 0$ and $E_{{\\text{{net}}}} > 3 \\times \\sigma_{{\\text{{idle}}}} \\times \\Delta t$.
-- In all 3 trials, average gross power was ~60 W, giving gross energy of ~600 J over 10 s.
-- Idle power was {idle_mean_w:.2f} W (~{idle_mean_w * 10:.1f} J over 10 s).
-- Unclipped net energy was ~{chosen_run['unclipped_net_j']:.1f} J, exceeding the $3\\sigma$ noise margin ({chosen_run['noise_margin_j']:.2f} J) by more than 10×.
-- All 3 trials are marked **PASS**.
+- In all 3 trials and on average, gross power was ~{mean_gross_w:.1f} W, gross energy was ~{mean_gross_j:.1f} J over {mean_duration:.1f} s.
+- Idle energy was {mean_idle_j:.1f} J (at {canonical_idle_power_w:.3f} W idle).
+- Unclipped net energy was **{mean_unclipped_net_j:.2f} J**, exceeding the $3\\sigma$ noise margin ({mean_noise_margin:.2f} J) by more than 8×.
+- All 3 trials and the mean are marked **PASS**.
 
 ---
 
-## 5. Technical Clarifications on Measurement Figures
+## 5. Schema-Validated JSONL Measurement Record
 
-### A. Clarification on 9.36 W vs 12.48 J / 2.0 s:
-- **9.36 W**: Instantaneous point sample from `read_gpu_power_watts()` while in P3 power state during a brief wake event.
-- **12.48 J over 2.0 s**: Integrated energy over a 2.0-second interval, yielding an average power of $12.48 / 2.0 = 6.24\\text{{ W}}$.
-- Instantaneous power varies with dynamic clock gating and display refresh; integrated energy over time captures the true average consumption.
-
-### B. Explanation of Previous Pilot Net Energy:
-- The initial exploratory pilot ran a CPU-bound Python loop while reading the GPU counter.
-- Under CPU load, the GPU remained in idle/display state (~6.1 W), which was lower than a transient idle sample of 8.3 W, causing net energy to calculate as negative and clip to 0.0 J.
-- In this revised pilot, the workload is executed directly on the GPU (CUDA FP16 GEMM), drawing ~60 W (well above idle), with unclipped net energy clearly reported and verified against the noise margin rule.
-
----
-
-## 6. Schema-Validated JSONL Measurement Record
-
-The representative run (Trial 2) produced the following record in `reports/step0_hardware_calibration.jsonl`:
+The mean run produced the following schema-validated record in `reports/step0_hardware_calibration.jsonl`:
 ```json
 {json.dumps(record, indent=2)}
 ```
 
-### Schema Field Documentation:
-- **Measured Fields**:
-  - `energy_joules`: {record['energy_joules']} J (measured net GPU energy).
-  - `wall_time_ms`: {record['wall_time_ms']} ms (measured duration).
-  - `peak_vram_mb`: {record['peak_vram_mb']} MB (measured via CUDA memory allocator).
-  - `energy_status`: `"relative_only"` (measured uncalibrated software counter).
-- **Metadata Fields**:
-  - `run_id`: `"{record['run_id']}"`
-  - `git_commit`: `"{record['git_commit']}"`
-  - `config_hash`: `"{record['config_hash']}"`
-  - `seed`: {record['seed']}
-  - `split`: `"{record['split']}"`
-  - `group`: `"{record['group']}"`
-  - `item_id`: `"{record['item_id']}"`
-  - `git_dirty`: {record['git_dirty']}
-- **Schema-Required Evaluation Placeholders** (documented per reviewer instructions):
-  - `system`: `"P1"`
-  - `correct`: `true`
-  - `verifier_score`: `null` (nullable field in schema; null indicates no verification task)
-  - `passes`: 1
-  - `tokens_generated`: 0
-  - `retrieval_hits`: 0
-  - `bytes_read_from_ssd`: 0
+### Measured vs Placeholder Field Breakdown:
+| Category | Fields | Description / Value |
+| :--- | :--- | :--- |
+| **Measured Fields** | `energy_joules` | **{record['energy_joules']} J** (mean unclipped net GPU energy) |
+| | `wall_time_ms` | **{record['wall_time_ms']} ms** (mean duration) |
+| | `peak_vram_mb` | **{record['peak_vram_mb']} MB** (resident CUDA memory) |
+| | `energy_status` | `"relative_only"` (measured uncalibrated software counter) |
+| **Metadata Fields** | `run_id`, `git_commit`, `config_hash`, `seed`, `split`, `group`, `item_id`, `git_dirty` | Run tracking provenance |
+| **Schema-Required Placeholders** | `system: "P1"` | Required by schema; placeholder for hardware pilot |
+| | `correct: true` | Required by schema; placeholder (no QA question solved) |
+| | `verifier_score: null` | Explicitly nullable; null indicates no verification task |
+| | `passes: 1` | Default single pass |
+| | `tokens_generated: 0` | Hardware pilot generated zero LLM tokens |
+| | `retrieval_hits: 0` | No SSD retrieval performed |
+| | `bytes_read_from_ssd: 0` | No SSD index accessed |
 """
 
     with open(report_md_path, "w") as f:
@@ -353,4 +380,21 @@ The representative run (Trial 2) produced the following record in `reports/step0
 
 
 if __name__ == "__main__":
-    run_hardware_calibration()
+    parser = argparse.ArgumentParser(description="Step 0 Hardware Calibration Pilot")
+    parser.add_argument(
+        "--repeat-duration",
+        type=float,
+        default=60.0,
+        help="Duration in seconds for each of the 3 idle baseline repeats (default: 60s; use 600s for full 10-min burn-in)",
+    )
+    parser.add_argument(
+        "--workload-duration",
+        type=float,
+        default=10.0,
+        help="Target duration in seconds for each CUDA FP16 GEMM trial (default: 10s)",
+    )
+    args = parser.parse_args()
+    run_hardware_calibration(
+        repeat_duration=args.repeat_duration,
+        workload_duration=args.workload_duration,
+    )

@@ -35,3 +35,4 @@
    - Cross-machine energy comparisons are invalid; energy comparisons are valid only within the same machine, session, and power state.
 4. **Pending Confirmation**:
    - This decision record remains in status `PENDING OWNER CONFIRMATION in writing (PR or issue comment)` until the project owner provides written confirmation in a GitHub PR review or issue comment.
+
