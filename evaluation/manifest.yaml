@@ -17,7 +17,7 @@
 schema_version: "1"
 git_commit: UNSET            # filled by run_matrix.py at run time
 created_at: "2026-11-17"
-frozen: true                 # owner accepted gates and all Step 0 decisions on 2026-11-17
+frozen: false                # gates remain PROPOSED pending written owner confirmation (Decision D4)
 
 # ── Reproducibility ────────────────────────────────────────────────────────────
 seeds:
@@ -115,7 +115,7 @@ hardware:
     device: "Free Colab T4"
     checkpoint_interval_minutes: 10
 
-# ── Pass gates (ACCEPTED by owner 2026-11-17 — frozen, do not change) ──────────
+# ── Pass gates (PROPOSED — pending written owner confirmation, Decision D4) ───
 gates:
   G_Q:
     description: >
