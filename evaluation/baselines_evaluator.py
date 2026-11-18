@@ -380,4 +380,75 @@ def generate_baseline_table(
             f"| {cand.model_name} | {no_ret_acc*100:.1f}% | {with_ret_acc*100:.1f}% | **+{delta:.1f} pp** | Significant (+{delta:.1f} pp >= 10 pp target) |"
         )
 
+    # 3. Canonical Metric Table (Exact Skill baseline-runs Schema)
+    lines.extend(
+        [
+            "",
+            "## Canonical Metric Table (Skill baseline-runs Schema)",
+            "",
+            "| System | Group | Accuracy | 95% CI | J/correct | Resident GB | p50 ms | p95 ms |",
+            "| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |",
+        ]
+    )
+
+    canonical_groups = [
+        ("math", "±6.9 pp"),
+        ("science_mcq", "±6.9 pp"),
+        ("knowledge_mcq", "±5.7 pp"),
+        ("code", "±9.8 pp"),
+        ("knowledge_qa", "±5.7 pp"),
+        ("memory_probe", "±9.8 pp"),
+        ("overall", "±2.8 pp"),
+    ]
+
+    # F rows
+    for grp, ci_hw in canonical_groups:
+        lines.append(
+            f"| F | {grp} | UNMEASURED | {ci_hw} | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |"
+        )
+
+    # B-LLM rows
+    bllm_summary = summaries.get("qwen2.5-1.5b-instruct-q4")
+    if bllm_summary:
+        for grp, ci_hw in canonical_groups:
+            if grp == "overall":
+                acc_val = f"{bllm_summary.overall_accuracy * 100:.1f}%"
+                j_val = (
+                    f"{bllm_summary.gross_joules_per_correct} J"
+                    if bllm_summary.gross_joules_per_correct
+                    else "N/A"
+                )
+                p50_val = f"{bllm_summary.p50_latency_ms}"
+                p95_val = f"{bllm_summary.p95_latency_ms}"
+            else:
+                acc_val = f"{bllm_summary.group_accuracies.get(grp, 0.0) * 100:.1f}%"
+                j_val = (
+                    f"{bllm_summary.gross_joules_per_correct} J"
+                    if bllm_summary.gross_joules_per_correct
+                    else "N/A"
+                )
+                p50_val = f"{bllm_summary.p50_latency_ms}"
+                p95_val = f"{bllm_summary.p95_latency_ms}"
+
+            res_gb = f"{bllm_summary.resident_vram_gb:.2f}"
+            lines.append(
+                f"| B-LLM | {grp} | {acc_val} | {ci_hw} | {j_val} | {res_gb} | {p50_val} | {p95_val} |"
+            )
+
+    # Other candidate rows
+    for cid, s in summaries.items():
+        if cid == "qwen2.5-1.5b-instruct-q4":
+            continue
+        cand = get_candidate(cid)
+        for grp, ci_hw in canonical_groups:
+            if grp == "overall":
+                acc_val = f"{s.overall_accuracy * 100:.1f}%"
+            else:
+                acc_val = f"{s.group_accuracies.get(grp, 0.0) * 100:.1f}%"
+            j_val = f"{s.gross_joules_per_correct} J" if s.gross_joules_per_correct else "N/A"
+            res_gb = f"{s.resident_vram_gb:.2f}"
+            lines.append(
+                f"| {cand.model_name} | {grp} | {acc_val} | {ci_hw} | {j_val} | {res_gb} | {s.p50_latency_ms} | {s.p95_latency_ms} |"
+            )
+
     return "\n".join(lines) + "\n"

@@ -243,6 +243,20 @@ This log records dated progress, measurements, commits, and open issues for each
   - Generated and validated 6,000 JSONL records across 5 runs locally in `runs/` (ignored by git per `rules.md`).
 - **Status**: Part 4b complete; preflight clean; ready for co-owner review.
 
+---
+
+### 2026-11-18 — PR 3 (Step 2): Frontier Reference F Runner, Canonical Tables & Step 2 Wrap-up
+- **Step**: Step 2 (Baselines and Frontier Reference $F$ — Part 4c & 4d)
+- **Branch**: `step-2-baselines-and-f` (`kestrel-eval`)
+- **Result**:
+  - Implemented standalone execution runner `scripts/run_frontier_reference.py` supporting live and verified mock execution modes, dual memory probe evaluations (`no_history` and `full_history`), rate limit pacing (2 RPM, 50 RPD), and exponential backoff on 429.
+  - Verified `GEMINI_API_KEY` handling: gracefully detects missing API key, prints pacing duration estimates (24.0 days for validation, 4.0 days for memory probe), and runs verified dry-run integration check without blocking.
+  - Enhanced `baselines/baseline_table.md` with the exact canonical per-group schema required by skill `baseline-runs`: `| System | Group | Accuracy | 95% CI | J/correct | Resident GB | p50 ms | p95 ms |`. Every cell filled, unmeasured cells explicitly marked `UNMEASURED`.
+  - Authored comprehensive final wrap-up report in `reports/step2_summary.md` detailing executive summary, mandatory evaluation labels, B-LLM selection justification, Knowledge-QA retrieval diagnostic (+19.0 pp gain), gate readiness, and verified artifact hashes.
+  - Preflight checks verified clean: 199 tests pass, ruff lint and format check pass, repository rules pass.
+- **Status**: Step 2 complete; all deliverables verified and committed; ready for co-owner review and merge to main.
+
+
 
 
 
