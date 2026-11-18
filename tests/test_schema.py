@@ -266,3 +266,12 @@ def test_validate_jsonl_file_skips_blank_lines() -> None:
     errors = validate_jsonl_file(path)
     path.unlink()
     assert errors == []
+
+
+def test_committed_hardware_calibration_jsonl_is_valid() -> None:
+    """The committed reports/step0_hardware_calibration.jsonl must strictly pass schema validation."""
+    path = Path("reports/step0_hardware_calibration.jsonl")
+    if not path.is_file():
+        pytest.skip("reports/step0_hardware_calibration.jsonl not present")
+    errors = validate_jsonl_file(path)
+    assert errors == [], f"Validation errors found in committed calibration jsonl: {errors}"
