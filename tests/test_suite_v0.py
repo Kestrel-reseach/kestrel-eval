@@ -60,6 +60,10 @@ def test_load_suite_partition_locked_test_guard(monkeypatch: pytest.MonkeyPatch)
 
 def test_load_suite_partition_locked_test_allowed(monkeypatch: pytest.MonkeyPatch):
     """Verify locked-test split loads items when KESTREL_ALLOW_LOCKED_TEST=1."""
+    from evaluation.suite import get_private_dir
+
+    if not (get_private_dir() / "locked_test" / "math.jsonl").exists():
+        pytest.skip("Locked test partition files not present on CI runner")
     monkeypatch.setenv("KESTREL_ALLOW_LOCKED_TEST", "1")
     items = load_suite_partition(split="locked_test")
     assert len(items) == 1200
