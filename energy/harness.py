@@ -28,6 +28,8 @@ Usage::
 
 from __future__ import annotations
 
+import math
+import os
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -39,10 +41,14 @@ __all__ = [
     "EnergySample",
     "HarnessConfig",
     "IdleBaseline",
+    "MANDATORY_ENERGY_LABEL",
     "check_nvml_available",
     "read_cpu_energy_joules",
+    "read_gpu_energy_mj",
     "read_gpu_power_watts",
 ]
+
+MANDATORY_ENERGY_LABEL: str = "Relative energy only; GPU NVML scope; same machine and session; not comparable across machines."
 
 # ── CPU energy counter discovery ───────────────────────────────────────────────
 
@@ -54,12 +60,12 @@ _HWMON_GLOB_DIRS = Path("/sys/class/hwmon")
 def _find_rapl_path() -> Path | None:
     """Return the RAPL package energy file path, or None if unavailable."""
     p = Path(_RAPL_PACKAGE_GLOB)
-    if p.is_file():
+    if p.is_file() and os.access(p, os.R_OK):
         return p
     # Try numbering rapl:0 through rapl:3
     for index in range(4):
         candidate = Path(f"/sys/class/powercap/intel-rapl/intel-rapl:{index}/energy_uj")
-        if candidate.is_file():
+        if candidate.is_file() and os.access(candidate, os.R_OK):
             return candidate
     return None
 
@@ -75,7 +81,8 @@ def _find_hwmon_power_path() -> Path | None:
         name = name_file.read_text().strip().lower()
         if name in ("k10temp", "amdgpu", "ryzen_smu"):
             for candidate in hwmon.glob("power*_average"):
-                return candidate
+                if os.access(candidate, os.R_OK):
+                    return candidate
     return None
 
 
@@ -155,17 +162,45 @@ def check_nvml_available() -> bool:
         return False
 
 
-def read_gpu_power_watts() -> float | None:
+def read_gpu_energy_mj(handle: Any = None) -> int | None:
+    """Read cumulative GPU energy consumption in millijoules from NVML.
+
+    Queries nvmlDeviceGetTotalEnergyConsumption() on the first NVML device.
+    If handle is provided, queries the device handle directly without re-initialising NVML.
+    Returns None when NVML is unavailable, the device/driver does not support
+    the total energy consumption counter, or the call fails.
+    """
+    try:
+        import pynvml  # type: ignore[import-untyped]
+
+        if handle is not None:
+            return int(pynvml.nvmlDeviceGetTotalEnergyConsumption(handle))
+
+        pynvml.nvmlInit()
+        dev_handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+        mj = pynvml.nvmlDeviceGetTotalEnergyConsumption(dev_handle)
+        pynvml.nvmlShutdown()
+        return int(mj)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def read_gpu_power_watts(handle: Any = None) -> float | None:
     """Read instantaneous GPU power in watts from the first NVML device.
 
+    If handle is provided, queries the device handle directly without re-initialising NVML.
     Returns None when NVML is unavailable or the read fails.
     """
     try:
         import pynvml  # type: ignore[import-untyped]
 
+        if handle is not None:
+            milliwatts = pynvml.nvmlDeviceGetPowerUsage(handle)
+            return milliwatts / 1000.0
+
         pynvml.nvmlInit()
-        handle = pynvml.nvmlDeviceGetHandleByIndex(0)
-        milliwatts = pynvml.nvmlDeviceGetPowerUsage(handle)
+        dev_handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+        milliwatts = pynvml.nvmlDeviceGetPowerUsage(dev_handle)
         pynvml.nvmlShutdown()
         return milliwatts / 1000.0
     except Exception:  # noqa: BLE001
@@ -193,19 +228,20 @@ class HarnessConfig:
     idle_baseline_seconds: int = 600
     """Duration of the idle baseline recording in seconds (~10 minutes)."""
 
-    sample_interval_s: float = 1.0
-    """How often to poll power counters during a measurement window."""
+    sample_interval_s: float = 0.1
+    """How often to poll power counters during a measurement window (0.1 s = 10 Hz)."""
 
-    wall_meter_calibrated: bool | None = None
+    wall_meter_calibrated: bool = False
     """
     Set to True after calibrating counters against a plug-in wall meter.
-    Set to False to record relative-only energy and label results accordingly.
-    None means 'not yet determined' (Step 0 initial state).
+    Set to False when no wall meter is used; results are relative-only.
+    Defaults to False to match the frozen evaluation manifest (owner decision 2026-11-17).
     """
 
-    relative_only: bool = False
-    """True when wall-meter calibration was not possible.  Every result
-    labelled with this flag must include 'relative energy only' in reports."""
+    relative_only: bool = True
+    """True when wall-meter calibration was not done. Every result
+    labelled with this flag must include 'relative energy only' in reports.
+    Defaults to True when wall_meter_calibrated is False."""
 
 
 @dataclass
@@ -226,6 +262,9 @@ class EnergySample:
 
     relative_only: bool = False
     """True when the energy figure is relative (not calibrated against a wall meter)."""
+
+    gpu_energy_method: str = "nvml_total_energy_counter"
+    """Method used to compute gross GPU energy ('nvml_total_energy_counter' or 'integrated_power_samples')."""
 
     @property
     def has_energy(self) -> bool:
@@ -254,6 +293,15 @@ class IdleBaseline:
     samples: int = 0
     """Number of power samples collected."""
 
+    gpu_power_std_w: float | None = None
+    """Standard deviation of idle GPU power samples in watts."""
+
+    gpu_energy_counter_j: float | None = None
+    """Total GPU energy consumed during baseline in joules (from hardware counter)."""
+
+    sample_rate_hz: float | None = None
+    """Actual sampling frequency during recording in Hz."""
+
     @property
     def energy_rate_joules_per_s(self) -> float | None:
         """Idle power in watts = joules per second."""
@@ -266,6 +314,7 @@ class _MeasurementToken:
 
     start_wall: float = field(default_factory=time.monotonic)
     start_cpu_uj: int | None = None
+    start_gpu_mj: int | None = None
     gpu_samples_w: list[float] = field(default_factory=list)
     cpu_samples_j: list[float] = field(default_factory=list)
 
@@ -311,14 +360,14 @@ class EnergyHarness:
         cpu_ok = self._cpu.available
         gpu_ok = self._nvml_available
 
-        if self.config.wall_meter_calibrated:
+        if not cpu_ok and not gpu_ok:
+            energy_status = "unmeasured"
+        elif self.config.wall_meter_calibrated:
             energy_status = "measured_calibrated"
         elif self.config.relative_only or (self.config.wall_meter_calibrated is False):
             energy_status = "relative_only"
-        elif cpu_ok or gpu_ok:
-            energy_status = "measured_uncalibrated"
         else:
-            energy_status = "unmeasured"
+            energy_status = "measured_uncalibrated"
 
         status: dict[str, Any] = {
             "cpu_available": cpu_ok,
@@ -359,35 +408,73 @@ class EnergyHarness:
         gpu_powers: list[float] = []
         elapsed = 0.0
 
+        nvml_handle: Any = None
+        if self._nvml_available:
+            try:
+                import pynvml  # type: ignore[import-untyped]
+
+                pynvml.nvmlInit()
+                nvml_handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+            except Exception:  # noqa: BLE001
+                nvml_handle = None
+
         # First RAPL reading for cumulative delta
         prev_cpu_uj = self._cpu.read_energy_uj() if self._cpu.source == "rapl" else None
+        try:
+            start_gpu_mj = read_gpu_energy_mj(nvml_handle) if self._nvml_available else None
+        except TypeError:
+            start_gpu_mj = read_gpu_energy_mj() if self._nvml_available else None
         prev_wall = time.monotonic()
 
-        while elapsed < total_s:
-            sleep(min(interval, total_s - elapsed))
-            now = time.monotonic()
-            dt = now - prev_wall
-            elapsed += dt
+        try:
+            while elapsed < total_s:
+                sleep(min(interval, total_s - elapsed))
+                now = time.monotonic()
+                dt = now - prev_wall
+                elapsed += dt
 
-            # CPU
-            if self._cpu.source == "rapl":
-                curr_uj = self._cpu.read_energy_uj()
-                if curr_uj is not None and prev_cpu_uj is not None and dt > 0:
-                    max_range = self._cpu.rapl_max_range_uj() or (1 << 32)
-                    delta_uj = (curr_uj - prev_cpu_uj) % max_range
-                    cpu_powers.append(delta_uj / 1e6 / dt)
-                prev_cpu_uj = curr_uj
-            elif self._cpu.source == "hwmon":
-                uw = self._cpu.read_power_uw()
-                if uw is not None:
-                    cpu_powers.append(uw / 1e6)
+                # CPU
+                if self._cpu.source == "rapl":
+                    curr_uj = self._cpu.read_energy_uj()
+                    if curr_uj is not None and prev_cpu_uj is not None and dt > 0:
+                        max_range = self._cpu.rapl_max_range_uj() or (1 << 32)
+                        delta_uj = (curr_uj - prev_cpu_uj) % max_range
+                        cpu_powers.append(delta_uj / 1e6 / dt)
+                    prev_cpu_uj = curr_uj
+                elif self._cpu.source == "hwmon":
+                    uw = self._cpu.read_power_uw()
+                    if uw is not None:
+                        cpu_powers.append(uw / 1e6)
 
-            # GPU
-            gpu_w = read_gpu_power_watts()
-            if gpu_w is not None:
-                gpu_powers.append(gpu_w)
+                # GPU
+                try:
+                    gpu_w = read_gpu_power_watts(nvml_handle)
+                except TypeError:
+                    gpu_w = read_gpu_power_watts()
+                if gpu_w is not None:
+                    gpu_powers.append(gpu_w)
 
-            prev_wall = now
+                prev_wall = now
+
+            try:
+                end_gpu_mj = read_gpu_energy_mj(nvml_handle) if self._nvml_available else None
+            except TypeError:
+                end_gpu_mj = read_gpu_energy_mj() if self._nvml_available else None
+        finally:
+            if nvml_handle is not None:
+                try:
+                    import pynvml  # type: ignore[import-untyped]
+
+                    pynvml.nvmlShutdown()
+                except Exception:  # noqa: BLE001
+                    pass
+        gpu_energy_counter_j: float | None = None
+        if start_gpu_mj is not None and end_gpu_mj is not None:
+            gpu_energy_counter_j = (end_gpu_mj - start_gpu_mj) / 1000.0
+
+        sample_rate_hz: float | None = (
+            len(gpu_powers) / elapsed if elapsed > 0 and gpu_powers else None
+        )
 
         cpu_power_w = sum(cpu_powers) / len(cpu_powers) if cpu_powers else None
         gpu_power_w = sum(gpu_powers) / len(gpu_powers) if gpu_powers else None
@@ -402,6 +489,11 @@ class EnergyHarness:
         else:
             total_power_w = None
 
+        gpu_power_std_w: float | None = None
+        if len(gpu_powers) > 1 and gpu_power_w is not None:
+            variance = sum((p - gpu_power_w) ** 2 for p in gpu_powers) / (len(gpu_powers) - 1)
+            gpu_power_std_w = math.sqrt(variance)
+
         return IdleBaseline(
             duration_s=elapsed,
             cpu_power_w=cpu_power_w,
@@ -409,6 +501,9 @@ class EnergyHarness:
             total_power_w=total_power_w,
             relative_only=self.config.relative_only,
             samples=len(cpu_powers) + len(gpu_powers),
+            gpu_power_std_w=gpu_power_std_w,
+            gpu_energy_counter_j=gpu_energy_counter_j,
+            sample_rate_hz=sample_rate_hz,
         )
 
     # ── Per-task measurement ────────────────────────────────────────────────
@@ -418,6 +513,8 @@ class EnergyHarness:
         token = _MeasurementToken(start_wall=time.monotonic())
         if self._cpu.source == "rapl":
             token.start_cpu_uj = self._cpu.read_energy_uj()
+        if self._nvml_available:
+            token.start_gpu_mj = read_gpu_energy_mj()
         return token
 
     def stop(self, token: _MeasurementToken) -> EnergySample:
@@ -439,11 +536,20 @@ class EnergyHarness:
             if mid_uw is not None:
                 cpu_energy_j = mid_uw / 1e6 * wall_time_s
 
-        # GPU energy (integrate over wall time, single sample is an approximation)
+        # GPU energy: prefer hardware total energy consumption counter (mJ);
+        # fallback to instantaneous power sample × wall time if counter unsupported.
         gpu_energy_j: float | None = None
-        gpu_w = read_gpu_power_watts()
-        if gpu_w is not None:
-            gpu_energy_j = gpu_w * wall_time_s
+        gpu_method = "none"
+        if self._nvml_available:
+            end_gpu_mj = read_gpu_energy_mj()
+            if token.start_gpu_mj is not None and end_gpu_mj is not None:
+                gpu_energy_j = (end_gpu_mj - token.start_gpu_mj) / 1000.0
+                gpu_method = "nvml_total_energy_counter"
+            else:
+                gpu_w = read_gpu_power_watts()
+                if gpu_w is not None:
+                    gpu_energy_j = gpu_w * wall_time_s
+                    gpu_method = "integrated_power_samples"
 
         # Total
         if cpu_energy_j is not None and gpu_energy_j is not None:
@@ -461,13 +567,25 @@ class EnergyHarness:
             gpu_energy_joules=gpu_energy_j,
             energy_joules=total_j,
             relative_only=self.config.relative_only,
+            gpu_energy_method=gpu_method,
         )
 
     # ── Convenience: net joules (idle-subtracted) ───────────────────────────
 
     @staticmethod
-    def net_joules(sample: EnergySample, baseline: IdleBaseline) -> float | None:
+    def net_joules(
+        sample: EnergySample,
+        baseline: IdleBaseline,
+        *,
+        clip_zero: bool = True,
+    ) -> float | None:
         """Return task energy minus idle power × wall time.
+
+        Args:
+            sample: Task measurement.
+            baseline: Recorded idle baseline.
+            clip_zero: If True, clip negative net energy to 0.0 (legacy default).
+                       If False, return unclipped net energy.
 
         Returns None when energy is not measured.
         """
@@ -476,7 +594,8 @@ class EnergyHarness:
         if baseline.energy_rate_joules_per_s is None:
             return sample.energy_joules  # cannot subtract; return gross
         idle_during_task = baseline.energy_rate_joules_per_s * sample.wall_time_s
-        return max(0.0, sample.energy_joules - idle_during_task)
+        net = sample.energy_joules - idle_during_task
+        return max(0.0, net) if clip_zero else net
 
     # ── Wall-meter calibration record ──────────────────────────────────────
 

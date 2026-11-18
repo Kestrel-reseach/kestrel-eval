@@ -1,0 +1,81 @@
+# Kestrel Prototype 1 — Execution & Results Log
+
+This log records dated progress, measurements, commits, and open issues for each step in Prototype 1. Entries are chronological and immutable.
+
+---
+
+### 2026-11-17 — Step 0 Freeze & Manifest Definition
+- **Step**: Step 0 (Freeze and instrument)
+- **Commit**: `52f4ed0` (`kestrel-eval`), PR #2 merged
+- **Result**: JSONL schema, run matrix, energy harness, and integration test scaffolds implemented. 117 tests passing in CI.
+- **Status**: Implementation complete; hardware calibration open.
+- **Open Issues**: Need local target hardware verification on Ryzen/RTX laptop; wall power meter decision pending; gate acceptance pending.
+
+---
+
+### 2026-11-18 — Step 0 Hardware Calibration Pilot & Review Corrections
+- **Step**: Step 0 (Freeze and instrument — relative-only path)
+- **Commit**: `1affa57`, `57b0df2`, `13bb21e`, `bae1792`, `6963226` (`kestrel-eval` branch `fix-nvml-mock-tests`)
+- **Result**:
+  - Live hardware calibration executed on test machine (AMD Ryzen 7 7435HS + NVIDIA GeForce RTX 3050 Laptop GPU 4 GB VRAM).
+  - RAPL CPU counter confirmed root-only (`0400` mode); CPU energy reported as unmeasured in user space.
+  - GPU power monitored via NVML at ~10 W idle and ~60 W under CUDA FP16 GEMM load ($2048 \times 2048$ tensor multiplication).
+  - Canonical idle baseline defined as single pooled mean of NVML power samples across 3 repeats. Competing idle values eliminated.
+  - Workload executed across 3 repeated trials, yielding ~568 J unclipped net energy, exceeding the $3\sigma$ idle noise margin (~63 J) by 9× with $E_{\text{net}} > 0$.
+  - Mandatory energy label enforced across tables and reports via `format_energy_table`: *"Relative energy only; GPU NVML scope; same machine and session; not comparable across machines."*
+  - Manifest `frozen: false` set pending owner's written confirmation of gates (Decision D4).
+  - Decision records created:
+    - `docs/decisions/energy_measurement.md` (no wall meter, relative energy only, pending owner confirmation).
+    - `docs/decisions/hardware_tier.md` (RTX 3050 test tier is agent-drafted, results not transferable to RTX 3060, pending owner confirmation).
+- **Status**: Code-complete on relative-only path; Step 0 left **UNCHECKED** in `PLAN.md` pending owner confirmation of Decisions D4 and D8.
+- **Open Issues**:
+  - Owner written confirmation of no-wall-meter relative energy (Decision D8).
+  - Owner written confirmation of alternate test tier RTX 3050 (Decision D8).
+  - Owner written approval of pass gates and non-inferiority margin (Decision D4).
+  - Owner choice on CPU energy path (Decision D7: Option a or b).
+
+---
+
+### 2026-11-18 — Co-Owner Decisions D1–D11 Recorded & Manifest Frozen
+- **Step**: Step 0 (Closure & Handoff Preparation)
+- **Commit**: `f261bae` (`kestrel-eval` PR #8), `4ed0afa` (`kestrel` PR #7)
+- **Result**:
+  - Co-owners (Member A and Member B) confirmed Decisions D1–D11.
+  - Manifest version bumped to 1.1; `frozen: true` set per Decision D4.
+  - Config hash updated: `ede58c9263678994d3493ca9122718ba873252ce6b904baf52f941d2bd357a74`.
+  - Shortened pilot 3-repeat idle baseline recorded (pooled mean 8.335 W, std 1.122 W).
+  - 3-trial CUDA FP16 GEMM pilot verified (mean unclipped net energy 586.033 J, noise margin 38.24 J, all valid).
+  - Non-flaky memory-write assertion verified (<2.0s bounded).
+  - Mandatory energy label enforcement tested and active.
+- **Status**: Step 0 code and evidence complete. Step 0 remains UNCHECKED in `PLAN.md` pending owner's review and closure note sign-off.
+- **Open Issues**:
+  - Pending owner decision D12: Step 10 locked-test F run policy (free tier vs paid tier).
+
+---
+
+### 2026-11-18 — Step 0 Follow-ups: Gross Energy Counter, 10 Hz Polling & Manifest Verification
+- **Step**: Step 0 Follow-ups (PR 0)
+- **Branch**: `step-0-followups` (`kestrel-eval`)
+- **Result**:
+  - **0a (Gross Energy Counter & Sampling Rate)**:
+    - Shifted gross GPU energy measurement to NVML hardware cumulative counter `nvmlDeviceGetTotalEnergyConsumption()` returning millijoules ($10^{-3}\text{ J}$).
+    - Verified hardware support on NVIDIA GeForce RTX 3050 Laptop GPU (driver 615.78.08).
+    - Upgraded baseline power sampling interval from 1.0 s (~1 Hz) to 0.1 s (10.0 Hz).
+    - Persistent NVML device handle maintained during recording, achieving verified 10.0 Hz sampling rate without driver init/shutdown overhead.
+    - Added unit tests: `test_read_gpu_energy_mj_returns_none_when_nvml_unavailable`, `test_start_stop_uses_nvml_total_energy_counter`, `test_start_stop_computes_gpu_energy_fallback`. All 123 tests passing.
+    - Documented method in [`reports/step0_gross_energy_method.md`](file:///home/ash09/project_x/kestrel-eval/reports/step0_gross_energy_method.md).
+  - **0b (Idle Baseline Designation & Formal Protocol)**:
+    - Explicitly designated pilot baseline as "shortened baseline (3 x 60 s)" across `reports/step0/CHECKLIST.md`, `reports/step0/CLOSURE_PROPOSAL.md`, and `reports/step0_hardware_calibration.md`.
+    - Implemented formal 10-minute x 3 repeats (1800 s total at 10 Hz) measurement script in [`scripts/run_formal_idle_baseline.py`](file:///home/ash09/project_x/kestrel-eval/scripts/run_formal_idle_baseline.py).
+    - Formal 10-minute x 3 repeats idle baseline (1,800.00 s total, 17,943 samples at 10.0 Hz) executed on AC power: pooled mean $P_{\text{idle}} = 6.1444\text{ W}$, $\sigma_{\text{idle}} = 0.9472\text{ W}$, counter-derived power $6.1686\text{ W}$ ([`formal_idle_baseline.json`](file:///home/ash09/project_x/kestrel-eval/reports/step0/formal_idle_baseline.json)). Pilot table updated with formal baseline subtractions (net energy 610.93 J vs 32.29 J noise margin, 18.9x margin).
+  - **0c (Manifest Verification Against D1)**:
+    - Verified `evaluation/manifest.yaml` against co-owner decision D1: group sizes are math 200, science 200, knowledge MCQ 300, code 100, knowledge QA 300, memory probe 100 (total 1,200 items in locked-test and 1,200 in validation).
+    - `sizes_are: per_partition` confirmed; `partition_fractions: null` confirmed.
+    - Manifest v1.1 already matches D1 identically; no version bump or config change required.
+    - Config hash provenance noted: `ede58c9263678994d3493ca9122718ba873252ce6b904baf52f941d2bd357a74` corresponds to frozen manifest v1.1.
+  - **D12 (Exposure & Safeguards)**:
+    - Safeguards recorded in `docs/decisions/owner_decisions.md`: locked set is one-time use; reserve test set will be built later; send F only what it needs at Step 10.
+- **Status**: PR 0 implementation complete; preflight checks clean; 123 tests pass. Step 0 remains strictly UNCHECKED in `PLAN.md`.
+
+
+

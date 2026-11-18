@@ -18,6 +18,7 @@ from energy.harness import (
     HarnessConfig,
     IdleBaseline,
     check_nvml_available,
+    read_gpu_energy_mj,
     read_gpu_power_watts,
 )
 
@@ -77,6 +78,12 @@ def test_read_gpu_power_returns_none_when_nvml_unavailable() -> None:
         assert read_gpu_power_watts() is None
 
 
+def test_read_gpu_energy_mj_returns_none_when_nvml_unavailable() -> None:
+    """When NVML fails or is absent, read_gpu_energy_mj returns None."""
+    with patch.dict("sys.modules", {"pynvml": None}):
+        assert read_gpu_energy_mj() is None
+
+
 # ── EnergyHarness.check_counters ─────────────────────────────────────────────
 
 
@@ -119,6 +126,23 @@ def test_check_counters_ok_with_gpu_only() -> None:
     harness._nvml_available = True
     status = harness.check_counters()
     assert status["gpu_nvml_available"] is True
+    assert status["wall_meter_calibrated"] is False
+    assert status["relative_only"] is True
+    assert status["energy_status"] == "relative_only"
+
+
+def test_check_counters_defaults_match_manifest() -> None:
+    """HarnessConfig defaults must match manifest.yaml: wall_meter_calibrated=False, relative_only=True."""
+    config = HarnessConfig()
+    assert config.wall_meter_calibrated is False
+    assert config.relative_only is True
+    harness = EnergyHarness(config)
+    harness._cpu = _make_cpu_source(available=True, source="rapl")
+    harness._nvml_available = False
+    status = harness.check_counters()
+    assert status["wall_meter_calibrated"] is False
+    assert status["relative_only"] is True
+    assert status["energy_status"] == "relative_only"
 
 
 # ── EnergyHarness.record_idle_baseline ───────────────────────────────────────
@@ -189,14 +213,17 @@ def test_start_stop_produces_valid_sample() -> None:
     assert sample.energy_joules is None  # no counters available
 
 
-def test_start_stop_computes_gpu_energy() -> None:
-    """When GPU power is 20 W for ~0.1 s, energy is ~2 J."""
+def test_start_stop_computes_gpu_energy_fallback() -> None:
+    """When total-energy counter is absent, falls back to power × wall time."""
     config = HarnessConfig()
     harness = EnergyHarness(config)
     harness._cpu = _make_cpu_source(available=False)
     harness._nvml_available = True
 
-    with patch("energy.harness.read_gpu_power_watts", return_value=20.0):
+    with (
+        patch("energy.harness.read_gpu_energy_mj", return_value=None),
+        patch("energy.harness.read_gpu_power_watts", return_value=20.0),
+    ):
         token = harness.start()
         time.sleep(0.1)
         sample = harness.stop(token)
@@ -204,6 +231,27 @@ def test_start_stop_computes_gpu_energy() -> None:
     assert sample.gpu_energy_joules is not None
     assert sample.gpu_energy_joules == pytest.approx(20.0 * sample.wall_time_s, rel=0.1)
     assert sample.energy_joules == sample.gpu_energy_joules
+    assert sample.gpu_energy_method == "integrated_power_samples"
+
+
+def test_start_stop_uses_nvml_total_energy_counter() -> None:
+    """When nvml total energy counter is available, uses delta in millijoules."""
+    config = HarnessConfig()
+    harness = EnergyHarness(config)
+    harness._cpu = _make_cpu_source(available=False)
+    harness._nvml_available = True
+
+    energy_readings = [10_000, 15_500]  # delta = 5500 mJ = 5.5 J
+    reading_iter = iter(energy_readings)
+
+    with patch("energy.harness.read_gpu_energy_mj", side_effect=lambda: next(reading_iter)):
+        token = harness.start()
+        assert token.start_gpu_mj == 10_000
+        sample = harness.stop(token)
+
+    assert sample.gpu_energy_joules == pytest.approx(5.5)
+    assert sample.energy_joules == pytest.approx(5.5)
+    assert sample.gpu_energy_method == "nvml_total_energy_counter"
 
 
 # ── net_joules ────────────────────────────────────────────────────────────────

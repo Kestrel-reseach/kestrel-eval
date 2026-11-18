@@ -5,10 +5,12 @@ from __future__ import annotations
 import pytest
 
 from evaluation.metrics import (
+    MANDATORY_ENERGY_LABEL,
     accuracy,
     accuracy_by_group,
     compute_half_width,
     config_hash,
+    format_energy_table,
     format_half_widths_table,
     gate_q_accuracy,
     gate_q_energy,
@@ -228,3 +230,30 @@ class TestHalfWidth:
         assert "Reading B: per_partition" in table
         assert "math" in table
         assert "memory_probe" in table
+
+
+class TestEnergyReportLabelEnforcement:
+    def test_format_energy_table_refuses_without_mandatory_label(self):
+        headers = ["Model", "Energy (J)"]
+        rows = [["B-LLM", "50.0"]]
+
+        # Missing label raises ValueError
+        with pytest.raises(
+            ValueError, match="Refusing to generate energy report without mandatory label"
+        ):
+            format_energy_table(headers, rows)
+
+        # Incorrect label raises ValueError
+        with pytest.raises(
+            ValueError, match="Refusing to generate energy report without mandatory label"
+        ):
+            format_energy_table(headers, rows, mandatory_label="Some partial label")
+
+    def test_format_energy_table_succeeds_with_mandatory_label(self):
+        headers = ["Model", "Energy (J)"]
+        rows = [["B-LLM", "50.0"]]
+
+        out = format_energy_table(headers, rows, mandatory_label=MANDATORY_ENERGY_LABEL)
+        assert MANDATORY_ENERGY_LABEL in out
+        assert "| Model | Energy (J) |" in out
+        assert "| B-LLM | 50.0 |" in out

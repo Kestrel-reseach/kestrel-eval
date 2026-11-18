@@ -1,0 +1,41 @@
+{
+  "status": "COMPLETED",
+  "protocol": "formal_10min_x3",
+  "num_repeats": 3,
+  "total_duration_s": 1800.001,
+  "total_samples": 17943,
+  "overall_sample_rate_hz": 9.97,
+  "pooled_mean_idle_power_w": 6.1444,
+  "pooled_idle_power_std_w": 0.9472,
+  "total_counter_energy_j": 11103.561,
+  "counter_derived_power_w": 6.1686,
+  "repeats": [
+    {
+      "repeat": 1,
+      "duration_s": 600.001,
+      "samples": 5985,
+      "sample_rate_hz": 9.97,
+      "mean_gpu_power_w": 7.2849,
+      "gpu_power_std_w": 1.6317,
+      "counter_energy_j": 4362.721
+    },
+    {
+      "repeat": 2,
+      "duration_s": 600.001,
+      "samples": 5980,
+      "sample_rate_hz": 9.97,
+      "mean_gpu_power_w": 5.545,
+      "gpu_power_std_w": 0.135,
+      "counter_energy_j": 3357.839
+    },
+    {
+      "repeat": 3,
+      "duration_s": 600.0,
+      "samples": 5978,
+      "sample_rate_hz": 9.96,
+      "mean_gpu_power_w": 5.6033,
+      "gpu_power_std_w": 0.104,
+      "counter_energy_j": 3383.001
+    }
+  ]
+}

@@ -24,10 +24,12 @@ from pathlib import Path
 from typing import Any
 
 __all__ = [
+    "MANDATORY_ENERGY_LABEL",
     "accuracy",
     "accuracy_by_group",
     "compute_half_width",
     "config_hash",
+    "format_energy_table",
     "format_half_widths_table",
     "gate_q_accuracy",
     "gate_q_energy",
@@ -37,6 +39,8 @@ __all__ = [
     "peak_vram_gb",
     "percentile_latency",
 ]
+
+MANDATORY_ENERGY_LABEL: str = "Relative energy only; GPU NVML scope; same machine and session; not comparable across machines."
 
 Record = dict[str, Any]
 
@@ -299,3 +303,32 @@ def format_half_widths_table() -> str:
             f"{name:<14} | {listed:<6} | n={n_a:<3} (±{hw_a:.1f} pp)                  | n={n_b:<3} (±{hw_b:.1f} pp)"
         )
     return "\n".join(lines)
+
+
+def format_energy_table(
+    headers: list[str],
+    rows: list[list[Any]],
+    *,
+    mandatory_label: str | None = None,
+) -> str:
+    """Format a markdown table containing energy results.
+
+    Enforcement rule:
+    Any table or report presenting energy measurements MUST explicitly contain the exact
+    mandatory label:
+    'Relative energy only; GPU NVML scope; same machine and session; not comparable across machines.'
+    If the mandatory label is missing or incorrect, this function refuses to generate
+    the report and raises ValueError.
+    """
+    if mandatory_label != MANDATORY_ENERGY_LABEL:
+        raise ValueError(
+            "Refusing to generate energy report without mandatory label: "
+            f"'{MANDATORY_ENERGY_LABEL}'"
+        )
+
+    header_line = "| " + " | ".join(headers) + " |"
+    sep_line = "| " + " | ".join(["---"] * len(headers)) + " |"
+    row_lines = ["| " + " | ".join(str(c) for c in row) + " |" for row in rows]
+    return f"> [!IMPORTANT]\n> {mandatory_label}\n\n" + "\n".join(
+        [header_line, sep_line] + row_lines
+    )
