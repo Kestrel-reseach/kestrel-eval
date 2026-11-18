@@ -77,5 +77,33 @@ This log records dated progress, measurements, commits, and open issues for each
     - Safeguards recorded in `docs/decisions/owner_decisions.md`: locked set is one-time use; reserve test set will be built later; send F only what it needs at Step 10.
 - **Status**: PR 0 implementation complete; preflight checks clean; 123 tests pass. Step 0 remains strictly UNCHECKED in `PLAN.md`.
 
+---
+
+### 2026-11-18 — PR 1: Public Group Loaders & Official License Verification
+- **Step**: Step 1 (Public Group Loaders)
+- **Branch**: `step-1-public-loaders` (`kestrel-eval`)
+- **Result**:
+  - Implemented modular loaders in `evaluation/loaders/`:
+    - `math_loader.py`: GSM8K JSONL loader, `exact_numeric` answer extractor & validator.
+    - `science_mcq_loader.py`: ARC-Challenge JSONL loader, 4 choices, `answer_key` validator.
+    - `knowledge_mcq_loader.py`: MMLU loader across 10 defined subjects, `answer_key` validator.
+    - `code_loader.py`: Code loader with safe isolated unit test execution (`unit_tests_pass`).
+    - `sources.py`: Verified official license registry for all public datasets.
+    - `common.py`: Shared `SuiteItem` typed dict and verification helpers.
+  - Official License Verification:
+    - GSM8K: MIT License (`https://github.com/openai/grade-school-math/blob/master/LICENSE`)
+    - ARC-Challenge: CC BY-SA 4.0 (`https://creativecommons.org/licenses/by-sa/4.0/`)
+    - MMLU: MIT License (`https://github.com/hendrycks/test/blob/master/LICENSE`)
+    - HumanEval: MIT License (`https://github.com/openai/human-eval/blob/master/LICENSE`)
+    - MBPP: CC BY 4.0 (`https://creativecommons.org/licenses/by/4.0/`)
+  - Contamination & Code Proposal:
+    - Evaluated HumanEval (too small: N=164; heavily contaminated in all modern LLMs) and MBPP.
+    - Formally proposed generating fresh synthetic code tasks in PR 2 for the locked-test partition to guarantee zero leakage.
+  - Created verified sample data fixtures in `suite/public/{math,science_mcq,knowledge_mcq,code}/`.
+  - Added unit test suite [`tests/test_loaders.py`](file:///home/ash09/project_x/kestrel-eval/tests/test_loaders.py) (26 test cases).
+  - Documented findings in [`reports/step1_public_sources.md`](file:///home/ash09/project_x/kestrel-eval/reports/step1_public_sources.md).
+- **Status**: PR 1 complete; all 149 tests pass; repo rules pass. Ready for review.
+
+
 
 
