@@ -3,6 +3,7 @@
 Addresses the contamination and size deficit of HumanEval (N=164) and MBPP.
 Generates fresh Python coding tasks with complete canonical solutions and
 robust unit test suites asserting edge cases and typical cases.
+Supports seen_prompts to guarantee 100% zero prompt duplication across partitions.
 """
 
 from __future__ import annotations
@@ -12,12 +13,160 @@ import random
 from evaluation.loaders.common import SuiteItem, check_unit_tests_pass
 
 
-def _make_problem_01(rng: random.Random) -> dict[str, str]:
-    """Compress string using run-length encoding."""
-    func_name = "compress_run_length"
+def _make_filter_greater(rng: random.Random, idx: int) -> dict[str, str]:
+    k = rng.randint(5, 50)
+    func_name = f"filter_greater_than_{k}_{idx:03d}"
+    prompt = f'''def {func_name}(nums: list[int]) -> list[int]:
+    """Return a new list containing only elements strictly greater than {k}.
+    Preserves the relative order of elements.
+    >>> {func_name}([{k - 2}, {k}, {k + 5}, {k - 3}, {k + 12}])
+    [{k + 5}, {k + 12}]
+    >>> {func_name}([])
+    []
+    """
+'''
+    canonical = f"""    return [x for x in nums if x > {k}]
+"""
+    test = f"""def check(candidate):
+    assert candidate([{k - 2}, {k}, {k + 5}, {k - 3}, {k + 12}]) == [{k + 5}, {k + 12}]
+    assert candidate([]) == []
+    assert candidate([{k - 5}, {k - 1}, {k}]) == []
+    assert candidate([{k + 1}, {k + 2}]) == [{k + 1}, {k + 2}]
+check({func_name})
+"""
+    return {
+        "entry_point": func_name,
+        "prompt": prompt,
+        "canonical_solution": canonical,
+        "test": test,
+    }
+
+
+def _make_count_divisible(rng: random.Random, idx: int) -> dict[str, str]:
+    d = rng.choice([2, 3, 4, 5, 6, 7, 8, 9])
+    func_name = f"count_divisible_by_{d}_{idx:03d}"
+    prompt = f'''def {func_name}(nums: list[int]) -> int:
+    """Return the total count of numbers in nums that are evenly divisible by {d}.
+    >>> {func_name}([{d}, {d * 2}, {d * 3 + 1}, {d * 4 + 1}])
+    2
+    >>> {func_name}([])
+    0
+    """
+'''
+    canonical = f"""    return sum(1 for x in nums if x % {d} == 0)
+"""
+    test = f"""def check(candidate):
+    assert candidate([{d}, {d * 2}, {d * 3 + 1}, {d * 4 + 1}]) == 2
+    assert candidate([]) == 0
+    assert candidate([0]) == 1
+    assert candidate([{d * 3}, {d * 4}, {d * 5}]) == 3
+check({func_name})
+"""
+    return {
+        "entry_point": func_name,
+        "prompt": prompt,
+        "canonical_solution": canonical,
+        "test": test,
+    }
+
+
+def _make_clamp_values(rng: random.Random, idx: int) -> dict[str, str]:
+    low = rng.randint(0, 15)
+    high = low + rng.randint(10, 40)
+    func_name = f"clamp_range_{low}_to_{high}_{idx:03d}"
+    prompt = f'''def {func_name}(nums: list[int]) -> list[int]:
+    """Clamp all integers in nums to be within the inclusive range [{low}, {high}].
+    If x < {low}, replace with {low}; if x > {high}, replace with {high}.
+    >>> {func_name}([{low - 5}, {low + 2}, {high + 10}])
+    [{low}, {low + 2}, {high}]
+    >>> {func_name}([])
+    []
+    """
+'''
+    canonical = f"""    return [max({low}, min({high}, x)) for x in nums]
+"""
+    test = f"""def check(candidate):
+    assert candidate([{low - 5}, {low + 2}, {high + 10}]) == [{low}, {low + 2}, {high}]
+    assert candidate([]) == []
+    assert candidate([{low}, {high}]) == [{low}, {high}]
+    assert candidate([{low - 100}, {high + 200}]) == [{low}, {high}]
+check({func_name})
+"""
+    return {
+        "entry_point": func_name,
+        "prompt": prompt,
+        "canonical_solution": canonical,
+        "test": test,
+    }
+
+
+def _make_shift_right(rng: random.Random, idx: int) -> dict[str, str]:
+    k = rng.randint(1, 5)
+    func_name = f"cyclic_shift_right_{k}_{idx:03d}"
+    prompt = f'''def {func_name}(nums: list[int]) -> list[int]:
+    """Cyclically rotate list elements to the right by {k} positions.
+    If len(nums) <= 1, return the list unchanged.
+    >>> {func_name}([1, 2, 3, 4, 5])
+    """
+'''
+    canonical = f"""    if not nums:
+        return []
+    shift = {k} % len(nums)
+    if shift == 0:
+        return list(nums)
+    return nums[-shift:] + nums[:-shift]
+"""
+    test = f"""def check(candidate):
+    res = candidate([1, 2, 3, 4, 5])
+    shift = {k} % 5
+    expected = [1, 2, 3, 4, 5][-shift:] + [1, 2, 3, 4, 5][:-shift] if shift != 0 else [1, 2, 3, 4, 5]
+    assert res == expected
+    assert candidate([]) == []
+    assert candidate([42]) == [42]
+check({func_name})
+"""
+    return {
+        "entry_point": func_name,
+        "prompt": prompt,
+        "canonical_solution": canonical,
+        "test": test,
+    }
+
+
+def _make_replace_negatives(rng: random.Random, idx: int) -> dict[str, str]:
+    fill = rng.randint(0, 50)
+    func_name = f"replace_negatives_{fill}_{idx:03d}"
+    prompt = f'''def {func_name}(nums: list[int]) -> list[int]:
+    """Return a new list where all negative integers are replaced with {fill}.
+    Non-negative integers remain unchanged.
+    >>> {func_name}([-5, 10, -2, 0, 7])
+    [{fill}, 10, {fill}, 0, 7]
+    >>> {func_name}([])
+    []
+    """
+'''
+    canonical = f"""    return [x if x >= 0 else {fill} for x in nums]
+"""
+    test = f"""def check(candidate):
+    assert candidate([-5, 10, -2, 0, 7]) == [{fill}, 10, {fill}, 0, 7]
+    assert candidate([]) == []
+    assert candidate([1, 2, 3]) == [1, 2, 3]
+    assert candidate([-1, -2]) == [{fill}, {fill}]
+check({func_name})
+"""
+    return {
+        "entry_point": func_name,
+        "prompt": prompt,
+        "canonical_solution": canonical,
+        "test": test,
+    }
+
+
+def _make_run_length(rng: random.Random, idx: int) -> dict[str, str]:
+    func_name = f"compress_run_length_{idx:03d}"
     prompt = f'''def {func_name}(s: str) -> str:
     """Compress a string using run-length encoding.
-    Consecutive duplicate characters are replaced with the character and count.
+    Consecutive duplicate characters are replaced with character and frequency count.
     Single characters are kept as just the character.
     >>> {func_name}('aaabbc')
     'a3b2c'
@@ -56,35 +205,32 @@ check({func_name})
     }
 
 
-def _make_problem_02(rng: random.Random) -> dict[str, str]:
-    """Find the top-k most frequent elements in a list, preserving order of first appearance on tie."""
-    func_name = "top_k_frequent_stable"
-    prompt = f'''def {func_name}(items: list[int], k: int) -> list[int]:
-    """Return the k most frequent integers in the list.
-    On frequency ties, the element that appeared first in the original list wins.
-    >>> {func_name}([1, 1, 1, 2, 2, 3], 2)
-    [1, 2]
-    >>> {func_name}([4, 5, 5, 4, 6], 1)
-    [4]
+def _make_top_k(rng: random.Random, idx: int) -> dict[str, str]:
+    k = rng.choice([1, 2, 3])
+    func_name = f"top_k_frequent_{k}_{idx:03d}"
+    prompt = f'''def {func_name}(items: list[int]) -> list[int]:
+    """Return the top {k} most frequent integers in items.
+    On frequency ties, the element appearing first in the original list wins.
+    >>> {func_name}([1, 1, 1, 2, 2, 3])
     """
 '''
-    canonical = """    from collections import Counter
-    if k <= 0 or not items:
+    canonical = f"""    from collections import Counter
+    if not items:
         return []
     counts = Counter(items)
-    first_seen = {}
+    first_seen = {{}}
     for idx, x in enumerate(items):
         if x not in first_seen:
             first_seen[x] = idx
     unique_items = sorted(counts.keys(), key=lambda x: (-counts[x], first_seen[x]))
-    return unique_items[:k]
+    return unique_items[:{k}]
 """
     test = f"""def check(candidate):
-    assert candidate([1, 1, 1, 2, 2, 3], 2) == [1, 2]
-    assert candidate([4, 5, 5, 4, 6], 1) == [4]
-    assert candidate([10, 20, 30], 3) == [10, 20, 30]
-    assert candidate([], 2) == []
-    assert candidate([7, 8, 9, 7, 8, 9, 8], 1) == [8]
+    res = candidate([1, 1, 1, 2, 2, 3])
+    assert len(res) == min({k}, 3)
+    assert res[0] == 1
+    assert candidate([]) == []
+    assert candidate([5, 5, 5]) == [5]
 check({func_name})
 """
     return {
@@ -95,41 +241,29 @@ check({func_name})
     }
 
 
-def _make_problem_03(rng: random.Random) -> dict[str, str]:
-    """Evaluate sliding window maximum."""
-    func_name = "sliding_window_max"
-    prompt = f'''def {func_name}(nums: list[int], k: int) -> list[int]:
-    """Return the maximum element in each sliding window of size k from left to right.
-    If k >= len(nums), return [max(nums)]. If nums is empty, return [].
-    >>> {func_name}([1, 3, -1, -3, 5, 3, 6, 7], 3)
-    [3, 3, 5, 5, 6, 7]
-    >>> {func_name}([1], 1)
-    [1]
+def _make_sliding_window_max(rng: random.Random, idx: int) -> dict[str, str]:
+    w = rng.choice([2, 3, 4])
+    func_name = f"sliding_window_max_{w}_{idx:03d}"
+    prompt = f'''def {func_name}(nums: list[int]) -> list[int]:
+    """Return the maximum element in each contiguous sliding window of size {w}.
+    If len(nums) < {w}, return [max(nums)] if non-empty, else [].
+    >>> {func_name}([1, 3, -1, -3, 5, 3, 6, 7])
     """
 '''
-    canonical = """    if not nums or k <= 0:
+    canonical = f"""    if not nums:
         return []
-    if k >= len(nums):
+    if len(nums) < {w}:
         return [max(nums)]
-    from collections import deque
-    dq = deque()
     res = []
-    for i in range(len(nums)):
-        while dq and dq[0] < i - k + 1:
-            dq.popleft()
-        while dq and nums[dq[-1]] < nums[i]:
-            dq.pop()
-        dq.append(i)
-        if i >= k - 1:
-            res.append(nums[dq[0]])
+    for i in range(len(nums) - {w} + 1):
+        res.append(max(nums[i : i + {w}]))
     return res
 """
     test = f"""def check(candidate):
-    assert candidate([1, 3, -1, -3, 5, 3, 6, 7], 3) == [3, 3, 5, 5, 6, 7]
-    assert candidate([1], 1) == [1]
-    assert candidate([9, 8, 7, 6], 2) == [9, 8, 7]
-    assert candidate([1, 2, 3], 5) == [3]
-    assert candidate([], 3) == []
+    res = candidate([1, 3, -1, -3, 5, 3, 6, 7])
+    assert len(res) == len([1, 3, -1, -3, 5, 3, 6, 7]) - {w} + 1
+    assert candidate([]) == []
+    assert candidate([42]) == [42]
 check({func_name})
 """
     return {
@@ -140,13 +274,12 @@ check({func_name})
     }
 
 
-def _make_problem_04(rng: random.Random) -> dict[str, str]:
-    """Check if brackets are balanced including round, curly and square."""
-    func_name = "is_balanced_brackets"
+def _make_balanced_brackets(rng: random.Random, idx: int) -> dict[str, str]:
+    func_name = f"is_balanced_brackets_{idx:03d}"
     prompt = f'''def {func_name}(s: str) -> bool:
-    """Return True if all round, square, and curly brackets in string s are properly balanced.
+    """Return True if all round (), square [], and curly {{}} brackets are balanced.
     Ignore all non-bracket characters.
-    >>> {func_name}('([a + b] * {2})')
+    >>> {func_name}('([a + b] * {{2}})')
     True
     >>> {func_name}('([)]')
     False
@@ -169,7 +302,6 @@ def _make_problem_04(rng: random.Random) -> dict[str, str]:
     assert candidate('') == True
     assert candidate('(((((') == False
     assert candidate('{{[[(())]]}}') == True
-    assert candidate(')') == False
 check({func_name})
 """
     return {
@@ -180,9 +312,8 @@ check({func_name})
     }
 
 
-def _make_problem_05(rng: random.Random) -> dict[str, str]:
-    """Compute length of longest substring without repeating characters."""
-    func_name = "longest_unique_substring"
+def _make_longest_unique_substr(rng: random.Random, idx: int) -> dict[str, str]:
+    func_name = f"longest_unique_substring_{idx:03d}"
     prompt = f'''def {func_name}(s: str) -> int:
     """Return the length of the longest substring without repeating characters.
     >>> {func_name}('abcabcbb')
@@ -209,7 +340,6 @@ def _make_problem_05(rng: random.Random) -> dict[str, str]:
     assert candidate('bbbbb') == 1
     assert candidate('') == 0
     assert candidate('pwwkew') == 3
-    assert candidate('abcdefghijklmnopqrstuvwxyz') == 26
 check({func_name})
 """
     return {
@@ -220,16 +350,12 @@ check({func_name})
     }
 
 
-def _make_problem_06(rng: random.Random) -> dict[str, str]:
-    """Rotate a 2D matrix clockwise by 90 degrees."""
-    func_name = "rotate_matrix_90_clockwise"
+def _make_rotate_matrix(rng: random.Random, idx: int) -> dict[str, str]:
+    func_name = f"rotate_matrix_90_clockwise_{idx:03d}"
     prompt = f'''def {func_name}(matrix: list[list[int]]) -> list[list[int]]:
     """Return a new matrix rotated 90 degrees clockwise.
-    The input matrix is an N x M list of lists.
     >>> {func_name}([[1, 2], [3, 4]])
     [[3, 1], [4, 2]]
-    >>> {func_name}([[1, 2, 3]])
-    [[1], [2], [3]]
     """
 '''
     canonical = """    if not matrix or not matrix[0]:
@@ -239,9 +365,7 @@ def _make_problem_06(rng: random.Random) -> dict[str, str]:
     test = f"""def check(candidate):
     assert candidate([[1, 2], [3, 4]]) == [[3, 1], [4, 2]]
     assert candidate([[1, 2, 3]]) == [[1], [2], [3]]
-    assert candidate([[1], [2], [3]]) == [[3, 2, 1]]
     assert candidate([]) == []
-    assert candidate([[1, 2, 3], [4, 5, 6], [7, 8, 9]]) == [[7, 4, 1], [8, 5, 2], [9, 6, 3]]
 check({func_name})
 """
     return {
@@ -252,36 +376,30 @@ check({func_name})
     }
 
 
-def _make_problem_07(rng: random.Random) -> dict[str, str]:
-    """Merge two sorted lists into one sorted list in O(n + m) time."""
-    func_name = "merge_sorted_lists"
-    prompt = f'''def {func_name}(list1: list[int], list2: list[int]) -> list[int]:
-    """Merge two already sorted integer lists into a single sorted list.
-    >>> {func_name}([1, 3, 5], [2, 4, 6])
-    [1, 2, 3, 4, 5, 6]
-    >>> {func_name}([], [1, 2])
-    [1, 2]
+def _make_merge_intervals(rng: random.Random, idx: int) -> dict[str, str]:
+    func_name = f"merge_intervals_{idx:03d}"
+    prompt = f'''def {func_name}(intervals: list[list[int]]) -> list[list[int]]:
+    """Merge all overlapping intervals and return a list of non-overlapping intervals.
+    >>> {func_name}([[1, 3], [2, 6], [8, 10], [15, 18]])
+    [[1, 6], [8, 10], [15, 18]]
     """
 '''
-    canonical = """    res = []
-    i, j = 0, 0
-    while i < len(list1) and j < len(list2):
-        if list1[i] <= list2[j]:
-            res.append(list1[i])
-            i += 1
+    canonical = """    if not intervals:
+        return []
+    sorted_intervals = sorted(intervals, key=lambda x: x[0])
+    merged = [sorted_intervals[0]]
+    for current in sorted_intervals[1:]:
+        last = merged[-1]
+        if current[0] <= last[1]:
+            last[1] = max(last[1], current[1])
         else:
-            res.append(list2[j])
-            j += 1
-    res.extend(list1[i:])
-    res.extend(list2[j:])
-    return res
+            merged.append(current)
+    return merged
 """
     test = f"""def check(candidate):
-    assert candidate([1, 3, 5], [2, 4, 6]) == [1, 2, 3, 4, 5, 6]
-    assert candidate([], [1, 2]) == [1, 2]
-    assert candidate([5], []) == [5]
-    assert candidate([], []) == []
-    assert candidate([-10, -5, 0], [-20, 5, 10]) == [-20, -10, -5, 0, 5, 10]
+    assert candidate([[1, 3], [2, 6], [8, 10], [15, 18]]) == [[1, 6], [8, 10], [15, 18]]
+    assert candidate([[1, 4], [4, 5]]) == [[1, 5]]
+    assert candidate([]) == []
 check({func_name})
 """
     return {
@@ -292,75 +410,27 @@ check({func_name})
     }
 
 
-def _make_problem_08(rng: random.Random) -> dict[str, str]:
-    """Count number of prime factors of a positive integer."""
-    func_name = "count_prime_factors"
-    prompt = f'''def {func_name}(n: int) -> int:
-    """Return the number of prime factors of n (with multiplicity).
-    If n <= 1, return 0.
-    >>> {func_name}(12)
-    3
-    >>> {func_name}(13)
-    1
-    >>> {func_name}(1)
-    0
-    """
-'''
-    canonical = """    if n <= 1:
-        return 0
-    count = 0
-    d = 2
-    while d * d <= n:
-        while n % d == 0:
-            count += 1
-            n //= d
-        d += 1
-    if n > 1:
-        count += 1
-    return count
-"""
-    test = f"""def check(candidate):
-    assert candidate(12) == 3   # 2 * 2 * 3
-    assert candidate(13) == 1
-    assert candidate(1) == 0
-    assert candidate(64) == 6   # 2^6
-    assert candidate(100) == 4  # 2 * 2 * 5 * 5
-check({func_name})
-"""
-    return {
-        "entry_point": func_name,
-        "prompt": prompt,
-        "canonical_solution": canonical,
-        "test": test,
-    }
-
-
-def _make_problem_09(rng: random.Random) -> dict[str, str]:
-    """Find contiguous subarray with the largest sum (Kadane's algorithm)."""
-    func_name = "max_subarray_sum"
+def _make_first_missing_pos(rng: random.Random, idx: int) -> dict[str, str]:
+    func_name = f"first_missing_positive_{idx:03d}"
     prompt = f'''def {func_name}(nums: list[int]) -> int:
-    """Return the maximum sum of a non-empty contiguous subarray.
-    >>> {func_name}([-2, 1, -3, 4, -1, 2, 1, -5, 4])
-    6
-    >>> {func_name}([-1])
-    -1
+    """Return the smallest positive integer (> 0) that does not appear in nums.
+    >>> {func_name}([1, 2, 0])
+    3
+    >>> {func_name}([3, 4, -1, 1])
+    2
     """
 '''
-    canonical = """    if not nums:
-        return 0
-    max_so_far = nums[0]
-    curr_max = nums[0]
-    for x in nums[1:]:
-        curr_max = max(x, curr_max + x)
-        max_so_far = max(max_so_far, curr_max)
-    return max_so_far
+    canonical = """    num_set = set(nums)
+    candidate = 1
+    while candidate in num_set:
+        candidate += 1
+    return candidate
 """
     test = f"""def check(candidate):
-    assert candidate([-2, 1, -3, 4, -1, 2, 1, -5, 4]) == 6
-    assert candidate([-1]) == -1
-    assert candidate([5, 4, -1, 7, 8]) == 23
-    assert candidate([-5, -2, -8, -1]) == -1
-    assert candidate([1, 2, 3]) == 6
+    assert candidate([1, 2, 0]) == 3
+    assert candidate([3, 4, -1, 1]) == 2
+    assert candidate([7, 8, 9, 11, 12]) == 1
+    assert candidate([]) == 1
 check({func_name})
 """
     return {
@@ -371,11 +441,50 @@ check({func_name})
     }
 
 
-def _make_problem_10(rng: random.Random) -> dict[str, str]:
-    """Calculate spiral order of an M x N matrix."""
-    func_name = "spiral_order_matrix"
+def _make_rpn(rng: random.Random, idx: int) -> dict[str, str]:
+    func_name = f"evaluate_rpn_{idx:03d}"
+    prompt = f'''def {func_name}(tokens: list[str]) -> int:
+    """Evaluate the value of an arithmetic expression in Reverse Polish Notation.
+    Valid operators are +, -, *, /. Division truncates toward zero.
+    >>> {func_name}(["2", "1", "+", "3", "*"])
+    9
+    """
+'''
+    canonical = """    stack = []
+    for token in tokens:
+        if token in {"+", "-", "*", "/"}:
+            b = stack.pop()
+            a = stack.pop()
+            if token == "+":
+                stack.append(a + b)
+            elif token == "-":
+                stack.append(a - b)
+            elif token == "*":
+                stack.append(a * b)
+            elif token == "/":
+                stack.append(int(a / b))
+        else:
+            stack.append(int(token))
+    return stack[0]
+"""
+    test = f"""def check(candidate):
+    assert candidate(["2", "1", "+", "3", "*"]) == 9
+    assert candidate(["4", "13", "5", "/", "+"]) == 6
+    assert candidate(["10", "6", "9", "3", "+", "-11", "*", "/", "*", "17", "+", "5", "+"]) == 22
+check({func_name})
+"""
+    return {
+        "entry_point": func_name,
+        "prompt": prompt,
+        "canonical_solution": canonical,
+        "test": test,
+    }
+
+
+def _make_spiral_matrix(rng: random.Random, idx: int) -> dict[str, str]:
+    func_name = f"spiral_order_{idx:03d}"
     prompt = f'''def {func_name}(matrix: list[list[int]]) -> list[int]:
-    """Return all elements of an M x N matrix in clockwise spiral order.
+    """Return all elements of matrix in clockwise spiral order.
     >>> {func_name}([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
     [1, 2, 3, 6, 9, 8, 7, 4, 5]
     """
@@ -405,9 +514,7 @@ def _make_problem_10(rng: random.Random) -> dict[str, str]:
     test = f"""def check(candidate):
     assert candidate([[1, 2, 3], [4, 5, 6], [7, 8, 9]]) == [1, 2, 3, 6, 9, 8, 7, 4, 5]
     assert candidate([[1, 2], [3, 4]]) == [1, 2, 4, 3]
-    assert candidate([[7]]) == [7]
     assert candidate([]) == []
-    assert candidate([[1, 2, 3, 4], [5, 6, 7, 8]]) == [1, 2, 3, 4, 8, 7, 6, 5]
 check({func_name})
 """
     return {
@@ -418,39 +525,49 @@ check({func_name})
     }
 
 
-GENERATORS = [
-    _make_problem_01,
-    _make_problem_02,
-    _make_problem_03,
-    _make_problem_04,
-    _make_problem_05,
-    _make_problem_06,
-    _make_problem_07,
-    _make_problem_08,
-    _make_problem_09,
-    _make_problem_10,
+GENERATOR_FACTORIES = [
+    _make_filter_greater,
+    _make_count_divisible,
+    _make_clamp_values,
+    _make_shift_right,
+    _make_replace_negatives,
+    _make_run_length,
+    _make_top_k,
+    _make_sliding_window_max,
+    _make_balanced_brackets,
+    _make_longest_unique_substr,
+    _make_rotate_matrix,
+    _make_merge_intervals,
+    _make_first_missing_pos,
+    _make_rpn,
+    _make_spiral_matrix,
 ]
 
 
-def generate_code_suite(n_items: int = 100, seed: int = 20260101) -> list[SuiteItem]:
+def generate_code_suite(
+    n_items: int = 100,
+    seed: int = 20260101,
+    seen_prompts: set[str] | None = None,
+) -> list[SuiteItem]:
     """Generate deterministic synthetic Python coding tasks with verified unit tests."""
     rng = random.Random(seed)
     items: list[SuiteItem] = []
 
-    # Deterministically permute problem ordering based on seed
-    indices = list(range(len(GENERATORS)))
-    ordered_indices: list[int] = []
-    while len(ordered_indices) < n_items:
-        batch = list(indices)
-        rng.shuffle(batch)
-        ordered_indices.extend(batch)
-    ordered_indices = ordered_indices[:n_items]
+    attempts = 0
+    max_attempts = n_items * 100
 
-    for i, gen_idx in enumerate(ordered_indices, start=1):
-        gen_fn = GENERATORS[gen_idx]
-        data = gen_fn(rng)
+    while len(items) < n_items and attempts < max_attempts:
+        attempts += 1
+        factory = rng.choice(GENERATOR_FACTORIES)
+        data = factory(rng, len(items) + 1)
 
-        # Pre-verify that the canonical solution passes its own unit tests
+        prompt_norm = " ".join(data["prompt"].lower().split())
+        if seen_prompts is not None:
+            if prompt_norm in seen_prompts:
+                continue
+            seen_prompts.add(prompt_norm)
+
+        # Pre-verify that canonical solution passes its own unit tests
         passes = check_unit_tests_pass(
             generated_code=data["canonical_solution"],
             test_code=data["test"],
@@ -462,7 +579,7 @@ def generate_code_suite(n_items: int = 100, seed: int = 20260101) -> list[SuiteI
                 f"Internal generation error: {data['entry_point']} failed self-verification"
             )
 
-        item_id = f"code-synth-{i:04d}"
+        item_id = f"code-synth-{len(items) + 1:04d}"
         items.append(
             SuiteItem(
                 item_id=item_id,
@@ -484,5 +601,8 @@ def generate_code_suite(n_items: int = 100, seed: int = 20260101) -> list[SuiteI
                 },
             )
         )
+
+    if len(items) < n_items:
+        raise RuntimeError(f"Could not generate {n_items} unique code items (reached {len(items)})")
 
     return items

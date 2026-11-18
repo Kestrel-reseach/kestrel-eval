@@ -376,6 +376,11 @@ def generate_knowledge_qa_suite(
             ), f"Span mismatch in item {idx}"
             record = dict(item)
             record["id"] = f"{prefix}_{idx:04d}"
+            record["group"] = "knowledge_qa"
+            record["prompt"] = (
+                f"Passage:\n{item['passage']}\n\nQuestion: {item['question']}\nAnswer:"
+            )
+            record["target"] = item["answer"]
             record["split"] = split_name
             partition.append(record)
         return partition

@@ -186,7 +186,23 @@ def generate_math_problem(rng: random.Random, index: int) -> SuiteItem:
     )
 
 
-def generate_math_suite(n_items: int, seed: int = 20260101) -> list[SuiteItem]:
+def generate_math_suite(
+    n_items: int,
+    seed: int = 20260101,
+    seen_prompts: set[str] | None = None,
+) -> list[SuiteItem]:
     """Generate n_items deterministic synthetic math word problems using seed."""
     rng = random.Random(seed)
-    return [generate_math_problem(rng, i) for i in range(1, n_items + 1)]
+    items: list[SuiteItem] = []
+    i = 1
+    while len(items) < n_items:
+        problem = generate_math_problem(rng, i)
+        prompt_norm = " ".join(problem["prompt"].lower().split())
+        if seen_prompts is not None:
+            if prompt_norm in seen_prompts:
+                i += 1
+                continue
+            seen_prompts.add(prompt_norm)
+        items.append(problem)
+        i += 1
+    return items

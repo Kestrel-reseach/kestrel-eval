@@ -141,3 +141,33 @@ This log records dated progress, measurements, commits, and open issues for each
 
 
 
+
+---
+
+### 2026-11-18 — PR 4: Deterministic Splits, Hashes, Leakage Checks & Out-of-Repo Storage
+- **Step**: Step 1 (Splits, Hashes, Leakage Checks & Out-of-Repo Storage)
+- **Branch**: `step-1-splits-hashes-leakage` (`kestrel-eval`)
+- **Result**:
+  - Implemented suite builder and partition manager in `evaluation/suite.py` adhering strictly to Decision D1:
+    - 1,200 items in locked-test (200 math, 200 science MCQ, 300 knowledge MCQ, 100 code, 300 knowledge QA, 100 memory probe).
+    - 1,200 items in validation (identical group distribution).
+    - 1,200 items in train (identical group distribution).
+    - Total suite size: 3,600 items.
+  - Implemented automated partition leakage & duplicate verification in `evaluation/leakage.py`:
+    - `check_no_id_overlap`: 100% verified (0 ID collisions across 3,600 items).
+    - `check_exact_prompt_duplicates`: 100% verified (0 prompt duplicates across all 3 partitions).
+    - `check_answer_leakage`: 100% verified (0 ground-truth answer strings leaked into question text).
+    - `check_near_duplicates`: 4-gram character Jaccard near-duplicate detector implemented and tested.
+  - Strict out-of-repo isolation enforced:
+    - Locked-test partition files written strictly to `KESTREL_PRIVATE_DIR` (`/home/ash09/project_x/kestrel_private/locked_test/`).
+    - Zero locked-test data files are tracked or present inside the `kestrel-eval` repository (verified by `test_no_locked_test_data_in_repo`).
+    - SHA-256 computed for each locked-test partition file and recorded in `evaluation/manifest.yaml`.
+    - Computed Root Hash across locked-test files: `22fff5e005245148f85e29c75029e85034ada793ee6b7e7c33b130e8fd9e99b7`.
+  - Statistical 95% confidence interval half-widths computed and verified:
+    - $N = 100$ (`code`, `memory_probe`): $\pm 9.80$ pp.
+    - $N = 200$ (`math`, `science_mcq`): $\pm 6.93$ pp.
+    - $N = 300$ (`knowledge_mcq`, `knowledge_qa`): $\pm 5.66$ pp.
+    - Total partition ($N = 1,200$): $\pm 2.83$ pp.
+  - Added unit test suite `tests/test_suite_and_leakage.py` (6 test cases). Total test count increased from 167 to 173 tests.
+  - Documented pipeline in `reports/step1_splits_hashes_leakage.md`.
+- **Status**: PR 4 complete; all 173 tests pass; ruff clean; repo rules clean; JSONL validator clean (`[]`). Ready for review.

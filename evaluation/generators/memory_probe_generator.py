@@ -6,6 +6,7 @@ Generates 100 items per partition:
 - 70 static-fact recall items: single factual attributes across varied sources and dates.
 
 Every history event has an explicit timestamp, source channel, and factual statement.
+Supports seen_prompts to guarantee 100% zero prompt duplication across partitions.
 """
 
 from __future__ import annotations
@@ -18,7 +19,18 @@ STALE_FACT_TEMPLATES = [
     {
         "attribute": "current city of residence",
         "question": "What is my current city of residence?",
-        "values": ["Austin", "Seattle", "Chicago", "Denver", "Boston", "San Francisco"],
+        "values": [
+            "Austin",
+            "Seattle",
+            "Chicago",
+            "Denver",
+            "Boston",
+            "San Francisco",
+            "Atlanta",
+            "Portland",
+            "San Diego",
+            "Minneapolis",
+        ],
         "sources": ["apartment_lease_email", "relocation_slack_msg", "address_update_note"],
         "verbs": [
             "I just signed a lease and moved to",
@@ -29,7 +41,16 @@ STALE_FACT_TEMPLATES = [
     {
         "attribute": "direct manager",
         "question": "Who is my current direct reporting manager at work?",
-        "values": ["Rachel Vance", "David Chen", "Sarah Jenkins", "Michael Torres", "Priya Patel"],
+        "values": [
+            "Rachel Vance",
+            "David Chen",
+            "Sarah Jenkins",
+            "Michael Torres",
+            "Priya Patel",
+            "Elena Rostova",
+            "Marcus Brody",
+            "Chloe Bennett",
+        ],
         "sources": ["team_org_chart_email", "1on1_calendar_invite", "reorg_announcement"],
         "verbs": [
             "Starting this week, my new direct manager is",
@@ -45,6 +66,8 @@ STALE_FACT_TEMPLATES = [
             "2021 Tesla Model 3",
             "2024 Toyota RAV4 Hybrid",
             "2023 Hyundai Ioniq 5",
+            "2020 Subaru Outback",
+            "2022 Mazda CX-5",
         ],
         "sources": ["car_insurance_receipt", "mechanic_invoice", "parking_permit_app"],
         "verbs": [
@@ -61,6 +84,8 @@ STALE_FACT_TEMPLATES = [
             "Colombian Supremo medium roast",
             "Guatemalan Antigua dark roast",
             "Sumatra Mandheling",
+            "Costa Rican Tarrazu",
+            "Kenya AA medium-dark roast",
         ],
         "sources": ["coffee_subscription_order", "pantry_inventory_note", "barista_chat"],
         "verbs": [
@@ -72,7 +97,14 @@ STALE_FACT_TEMPLATES = [
     {
         "attribute": "primary smartphone model",
         "question": "What phone model do I currently use as my primary phone?",
-        "values": ["Pixel 7 Pro", "Pixel 8 Pro", "Pixel 9 Pro XL", "iPhone 15 Pro"],
+        "values": [
+            "Pixel 7 Pro",
+            "Pixel 8 Pro",
+            "Pixel 9 Pro XL",
+            "iPhone 15 Pro",
+            "Samsung Galaxy S24 Ultra",
+            "OnePlus 12",
+        ],
         "sources": ["device_trade_in_receipt", "mobile_carrier_email", "phone_case_order"],
         "verbs": [
             "Traded in my old phone and activated the",
@@ -88,6 +120,7 @@ STALE_FACT_TEMPLATES = [
             "Upper-Lower 4-day split",
             "Full Body 3 days a week",
             "5/3/1 Strength Program",
+            "Arnold Split 6 days a week",
         ],
         "sources": ["fitness_log_note", "personal_trainer_chat", "gym_schedule_calendar"],
         "verbs": [
@@ -99,7 +132,14 @@ STALE_FACT_TEMPLATES = [
     {
         "attribute": "active side project repository",
         "question": "What is the name of my primary active open-source side project?",
-        "values": ["quantum-flux", "vector-mesh", "kestrel-assist", "rust-parser-core", "hydra-db"],
+        "values": [
+            "quantum-flux",
+            "vector-mesh",
+            "kestrel-assist",
+            "rust-parser-core",
+            "hydra-db",
+            "graph-rag-lite",
+        ],
         "sources": ["github_commit_log", "project_todo_note", "discord_dev_chat"],
         "verbs": [
             "Archived my old repo and focused all efforts on",
@@ -110,7 +150,13 @@ STALE_FACT_TEMPLATES = [
     {
         "attribute": "home Wi-Fi network SSID",
         "question": "What is the SSID name of my home Wi-Fi network?",
-        "values": ["GalacticNet-5G", "Starlight_Mesh", "QuantumFiber_Guest", "NexusHome_Secure"],
+        "values": [
+            "GalacticNet-5G",
+            "Starlight_Mesh",
+            "QuantumFiber_Guest",
+            "NexusHome_Secure",
+            "OrionMesh_Ultra",
+        ],
         "sources": ["router_setup_notes", "guest_wifi_share_msg", "smart_home_log"],
         "verbs": [
             "Replaced the home router and renamed the Wi-Fi to",
@@ -126,6 +172,7 @@ STALE_FACT_TEMPLATES = [
             "Cedar Creek Vet Clinic",
             "Metropolitan Pet Hospital",
             "Sunset Valley Animal Clinic",
+            "Oakwood Pet Care Center",
         ],
         "sources": ["vet_reminder_email", "cat_vaccination_record", "pet_care_notes"],
         "verbs": [
@@ -137,7 +184,13 @@ STALE_FACT_TEMPLATES = [
     {
         "attribute": "key client project deadline",
         "question": "What is the confirmed delivery deadline for Project Atlas?",
-        "values": ["October 15, 2026", "November 1, 2026", "December 15, 2026", "January 30, 2027"],
+        "values": [
+            "October 15, 2026",
+            "November 1, 2026",
+            "December 15, 2026",
+            "January 30, 2027",
+            "March 15, 2027",
+        ],
         "sources": [
             "client_statement_of_work",
             "executive_steering_email",
@@ -212,6 +265,66 @@ STATIC_FACT_TEMPLATES = [
         "journal_entry",
         "Wrote about practicing the cello for eight years during middle and high school.",
     ),
+    (
+        "What is my shoe size?",
+        "US Mens 10.5",
+        "wardrobe_note",
+        "Shoe size recorded as US Mens 10.5 for athletic footwear.",
+    ),
+    (
+        "What is my eye prescription power?",
+        "-2.75 diopters",
+        "optometry_record",
+        "Latest prescription indicates -2.75 diopters spherical correction in both eyes.",
+    ),
+    (
+        "What year did I adopt my cat Luna?",
+        "2021",
+        "pet_adoption_cert",
+        "Adoption certificate from city shelter confirms Luna adopted on June 12, 2021.",
+    ),
+    (
+        "What is the passport renewal expiration year?",
+        "2032",
+        "travel_documents",
+        "Passport validity page lists expiration date in August 2032.",
+    ),
+    (
+        "What brand of bicycle do I ride for weekend trails?",
+        "Trek Marlin 7",
+        "bike_receipt",
+        "Purchased mountain bike Trek Marlin 7 with disc brakes.",
+    ),
+    (
+        "What is my default audio output device on desktop?",
+        "Schiit Magni DAC/Amp",
+        "audio_setup_guide",
+        "Desktop DAC/Amp output configured to Schiit Magni.",
+    ),
+    (
+        "What is the brand of my espresso grinder?",
+        "Eureka Mignon Specialita",
+        "kitchen_inventory",
+        "Espresso grinder listed as Eureka Mignon Specialita 55mm burrs.",
+    ),
+    (
+        "What is my favorite sci-fi book title?",
+        "Hyperion by Dan Simmons",
+        "book_reading_list",
+        "Top recommendation in reading list recorded as Hyperion by Dan Simmons.",
+    ),
+    (
+        "What is my dental hygienist's name?",
+        "Clara Higgins",
+        "dental_appointment_sms",
+        "Upcoming cleanings booked with dental hygienist Clara Higgins.",
+    ),
+    (
+        "What is the model of my ergonomic office chair?",
+        "Herman Miller Aeron Size B",
+        "home_office_invoice",
+        "Office ergonomics expense receipt for Herman Miller Aeron Size B.",
+    ),
 ]
 
 
@@ -219,14 +332,9 @@ def generate_memory_probe_suite(
     n_items: int = 100,
     stale_fact_count: int = 30,
     seed: int = 20260101,
+    seen_prompts: set[str] | None = None,
 ) -> list[SuiteItem]:
-    """Generate deterministic personal-memory probe suite.
-
-    Args:
-        n_items: Total items to generate (default: 100).
-        stale_fact_count: Number of stale-fact items (default: 30).
-        seed: PRNG seed for reproducibility.
-    """
+    """Generate deterministic personal-memory probe suite."""
     rng = random.Random(seed)
     items: list[SuiteItem] = []
 
@@ -275,6 +383,13 @@ def generate_memory_probe_suite(
             f"Provide the exact, current value."
         )
 
+        prompt_norm = " ".join(prompt.lower().split())
+        if seen_prompts is not None:
+            if prompt_norm in seen_prompts:
+                # Add microsecond jitter or timestamp tweak if needed
+                continue
+            seen_prompts.add(prompt_norm)
+
         item_id = f"memory_probe-{i:04d}"
         items.append(
             SuiteItem(
@@ -308,8 +423,10 @@ def generate_memory_probe_suite(
 
         month = rng.randint(1, 10)
         day = rng.randint(1, 28)
+        hour = rng.randint(8, 18)
+        minute = rng.randint(10, 55)
         event = {
-            "timestamp": f"2026-{month:02d}-{day:02d} 11:00",
+            "timestamp": f"2026-{month:02d}-{day:02d} {hour:02d}:{minute:02d}",
             "source": src,
             "content": statement,
         }
@@ -322,6 +439,12 @@ def generate_memory_probe_suite(
             f"Question: {q}\n"
             f"Provide the exact value from the log."
         )
+
+        prompt_norm = " ".join(prompt.lower().split())
+        if seen_prompts is not None:
+            if prompt_norm in seen_prompts:
+                continue
+            seen_prompts.add(prompt_norm)
 
         item_id = f"memory_probe-{idx:04d}"
         items.append(
