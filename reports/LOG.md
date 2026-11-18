@@ -34,3 +34,21 @@ This log records dated progress, measurements, commits, and open issues for each
   - Owner written approval of pass gates and non-inferiority margin (Decision D4).
   - Owner choice on CPU energy path (Decision D7: Option a or b).
 
+---
+
+### 2026-11-18 — Co-Owner Decisions D1–D11 Recorded & Manifest Frozen
+- **Step**: Step 0 (Closure & Handoff Preparation)
+- **Commit**: `f261bae` (`kestrel-eval` PR #8), `4ed0afa` (`kestrel` PR #7)
+- **Result**:
+  - Co-owners (Member A and Member B) confirmed Decisions D1–D11.
+  - Manifest version bumped to 1.1; `frozen: true` set per Decision D4.
+  - Config hash updated: `ede58c9263678994d3493ca9122718ba873252ce6b904baf52f941d2bd357a74`.
+  - Canonical 3-repeat idle baseline recorded (pooled mean 8.335 W, std 1.122 W).
+  - 3-trial CUDA FP16 GEMM pilot verified (mean unclipped net energy 586.033 J, noise margin 38.24 J, all valid).
+  - Non-flaky memory-write assertion verified (<2.0s bounded).
+  - Mandatory energy label enforcement tested and active.
+- **Status**: Step 0 code and evidence complete. Step 0 remains UNCHECKED in `PLAN.md` pending owner's review and closure note sign-off.
+- **Open Issues**:
+  - Pending owner decision D12: Step 10 locked-test F run policy (free tier vs paid tier).
+
+

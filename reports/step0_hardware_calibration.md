@@ -98,8 +98,8 @@ The mean run produced the following schema-validated record in `reports/step0_ha
 ```json
 {
   "run_id": "run-step0-pilot-hw-20261118",
-  "git_commit": "6963226b879e6dadfbe62e671a9b9c646a3c2491",
-  "config_hash": "d98502c6a97302641647f20221460cb9870d8cf4341502e9fa198f0914de1deb",
+  "git_commit": "1b4d53cb16a4f89d380726d152504b8feec85741",
+  "config_hash": "ede58c9263678994d3493ca9122718ba873252ce6b904baf52f941d2bd357a74",
   "seed": 42,
   "split": "validation",
   "group": "pilot_hardware_calibration",
