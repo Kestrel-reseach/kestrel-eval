@@ -43,12 +43,39 @@ This log records dated progress, measurements, commits, and open issues for each
   - Co-owners (Member A and Member B) confirmed Decisions D1–D11.
   - Manifest version bumped to 1.1; `frozen: true` set per Decision D4.
   - Config hash updated: `ede58c9263678994d3493ca9122718ba873252ce6b904baf52f941d2bd357a74`.
-  - Canonical 3-repeat idle baseline recorded (pooled mean 8.335 W, std 1.122 W).
+  - Shortened pilot 3-repeat idle baseline recorded (pooled mean 8.335 W, std 1.122 W).
   - 3-trial CUDA FP16 GEMM pilot verified (mean unclipped net energy 586.033 J, noise margin 38.24 J, all valid).
   - Non-flaky memory-write assertion verified (<2.0s bounded).
   - Mandatory energy label enforcement tested and active.
 - **Status**: Step 0 code and evidence complete. Step 0 remains UNCHECKED in `PLAN.md` pending owner's review and closure note sign-off.
 - **Open Issues**:
   - Pending owner decision D12: Step 10 locked-test F run policy (free tier vs paid tier).
+
+---
+
+### 2026-11-18 — Step 0 Follow-ups: Gross Energy Counter, 10 Hz Polling & Manifest Verification
+- **Step**: Step 0 Follow-ups (PR 0)
+- **Branch**: `step-0-followups` (`kestrel-eval`)
+- **Result**:
+  - **0a (Gross Energy Counter & Sampling Rate)**:
+    - Shifted gross GPU energy measurement to NVML hardware cumulative counter `nvmlDeviceGetTotalEnergyConsumption()` returning millijoules ($10^{-3}\text{ J}$).
+    - Verified hardware support on NVIDIA GeForce RTX 3050 Laptop GPU (driver 615.78.08).
+    - Upgraded baseline power sampling interval from 1.0 s (~1 Hz) to 0.1 s (10.0 Hz).
+    - Persistent NVML device handle maintained during recording, achieving verified 10.0 Hz sampling rate without driver init/shutdown overhead.
+    - Added unit tests: `test_read_gpu_energy_mj_returns_none_when_nvml_unavailable`, `test_start_stop_uses_nvml_total_energy_counter`, `test_start_stop_computes_gpu_energy_fallback`. All 123 tests passing.
+    - Documented method in [`reports/step0_gross_energy_method.md`](file:///home/ash09/project_x/kestrel-eval/reports/step0_gross_energy_method.md).
+  - **0b (Idle Baseline Designation & Formal Protocol)**:
+    - Explicitly designated pilot baseline as "shortened baseline (3 x 60 s)" across `reports/step0/CHECKLIST.md`, `reports/step0/CLOSURE_PROPOSAL.md`, and `reports/step0_hardware_calibration.md`.
+    - Implemented formal 10-minute x 3 repeats (1800 s total at 10 Hz) measurement script in [`scripts/run_formal_idle_baseline.py`](file:///home/ash09/project_x/kestrel-eval/scripts/run_formal_idle_baseline.py).
+    - Waiting for user instruction with "IDLE READY" under AC power.
+  - **0c (Manifest Verification Against D1)**:
+    - Verified `evaluation/manifest.yaml` against co-owner decision D1: group sizes are math 200, science 200, knowledge MCQ 300, code 100, knowledge QA 300, memory probe 100 (total 1,200 items in locked-test and 1,200 in validation).
+    - `sizes_are: per_partition` confirmed; `partition_fractions: null` confirmed.
+    - Manifest v1.1 already matches D1 identically; no version bump or config change required.
+    - Config hash provenance noted: `ede58c9263678994d3493ca9122718ba873252ce6b904baf52f941d2bd357a74` corresponds to frozen manifest v1.1.
+  - **D12 (Exposure & Safeguards)**:
+    - Safeguards recorded in `docs/decisions/owner_decisions.md`: locked set is one-time use; reserve test set will be built later; send F only what it needs at Step 10.
+- **Status**: PR 0 implementation complete; preflight checks clean; 123 tests pass. Step 0 remains strictly UNCHECKED in `PLAN.md`.
+
 
 

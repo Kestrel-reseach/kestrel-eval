@@ -68,5 +68,12 @@
 
 ## Pending Decision
 
-- **D12 (Step 10 Locked-Test F Run Policy)**:
-  > *PENDING OWNER DECISION: whether the Step 10 locked-test F run uses the free tier (locked items exposed to Google's product improvement) or a paid tier. Do not run F on locked items.*
+- **D12 (Step 10 Locked-Test F Run Policy & Free-Tier Exposure Safeguards)**:
+  > *PENDING OWNER WRITTEN CONFIRMATION: whether the Step 10 locked-test F run uses the Google AI Studio free tier (where content may be used for product improvement) or a paid tier.*
+  - **Consequences & Safeguards to Record**:
+    1. **Exposure**: Any locked item sent to F on the free tier at Step 10 is exposed to Google and may enter future training corpora.
+    2. **One-Time Use**: The locked test partition is strictly one-time use for evaluation claims; it cannot be reused for new claims after exposure.
+    3. **Reserve Test Set**: A reserve test set will be constructed later, written after Step 10 and never sent to any external API.
+    4. **Minimal Send**: At Step 10, send F only what it strictly needs to be scored on.
+    5. **Credits / Paid Tier Exploration**: Co-owners will explore startup cloud credits for a zero-data-retention paid tier prior to Step 10. If unavailable, free-tier execution proceeds under the one-time-use constraint.
+

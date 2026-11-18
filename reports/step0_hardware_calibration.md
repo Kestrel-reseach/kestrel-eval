@@ -54,16 +54,21 @@ Raw output of `check_counters(strict=True)`:
 
 ---
 
-## 3. Canonical Idle Baseline Measurement (`record_idle_baseline`)
+## 3. Shortened Idle Baseline Measurement (3 x 60 s Pilot)
 
-Idle baseline was sampled across 3 repeated intervals under the same AC power plan:
+> [!NOTE]
+> This baseline is designated as a **shortened pilot baseline (3 x 60 s, 180 s total)**.
+> The Prototype 1 plan specifies a formal 10-minute (600 s) x 3 baseline (~30 minutes total, ~18,000 samples at 10 Hz).
+> The formal measurement script `scripts/run_formal_idle_baseline.py` is prepared; executing the full 30-minute baseline requires leaving the machine idle on AC power under the same power plan (pending user confirmation with "IDLE READY").
+
+The shortened pilot idle baseline was sampled across 3 repeated intervals under the same AC power plan:
 - **Repeat 1**: 60.0 s | Mean GPU power: 8.689 W (std: 1.649 W)
 - **Repeat 2**: 60.0 s | Mean GPU power: 8.281 W (std: 1.024 W)
 - **Repeat 3**: 60.0 s | Mean GPU power: 8.036 W (std: 0.082 W)
 
-### Canonical Pooled Idle Parameters:
+### Shortened Pilot Pooled Idle Parameters:
 - **Total Duration Sampled**: 180.1 seconds (174 samples)
-- **Canonical Mean Idle Power ($P_{\text{idle}}$)**: **8.335 W**
+- **Pilot Mean Idle Power ($P_{\text{idle}}$)**: **8.335 W**
 - **Pooled Idle Standard Deviation ($\sigma_{\text{idle}}$)**: **1.122 W**
 - **Canonical Definition**: Single pooled mean sample rate is used for all idle energy subtractions. Competing sampling windows are eliminated.
 

@@ -187,7 +187,7 @@ def validate_record(
 
 
 def validate_jsonl_file(
-    path: Path,
+    path: Path | str,
     *,
     allow_locked_test: bool = False,
     manifest_frozen: bool = False,
@@ -205,6 +205,7 @@ def validate_jsonl_file(
         expected_config_hash: Passed through to :func:`validate_record`.
     """
     errors: list[str] = []
+    path = Path(path)
     with path.open(encoding="utf-8") as fh:
         for line_number, raw_line in enumerate(fh, start=1):
             line = raw_line.strip()

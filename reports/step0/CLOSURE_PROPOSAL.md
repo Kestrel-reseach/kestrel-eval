@@ -19,16 +19,17 @@ Per the project owner's decision relayed on 2026-11-18 (*"Vendam software laye p
 
 1. **Evaluation Manifest (`evaluation/manifest.yaml`)**:
    - Split seeds, partition sizes (math 200, science 200, knowledge MCQ 300, code 100, store QA 300, memory probe 100), budgets, and hardware cards frozen in schema.
-   - Status of `frozen` flag: Set to `frozen: false` pending the owner's written confirmation of pass gates (Decision D4).
+   - Status of `frozen` flag: Set to `frozen: true` (version `1.1`) per co-owner decision D4. Non-inferiority margin confirmed at 3 pp.
 2. **Evaluation JSONL Schema (`evaluation/schema.py`)**:
    - Enforces all 19 schema fields.
    - Validates that item evaluation records require `run_id`, `git_commit`, `config_hash`, `seed`, `split`, `group`, `item_id`, `system`, `git_dirty`, `tokens_generated`, `passes`, `verifier_score`, `retrieval_hits`, `bytes_read_from_ssd`, `energy_joules`, `energy_status`, `wall_time_ms`, `peak_vram_mb`, `correct`.
 3. **Locked-Test Guard**:
    - Protects the locked evaluation partition. Any attempt to write or evaluate `split: "locked_test"` requires `allow_locked_test=True`, environment variable `KESTREL_LOCKED_RUN=1`, `manifest.frozen=True`, and a matching config hash.
 4. **Energy Harness (`energy/harness.py`)**:
-   - Discovers and monitors GPU power via NVIDIA NVML (`pynvml` / `nvidia-ml-py`).
+   - Primary gross GPU energy measurement via hardware cumulative total-energy counter `nvmlDeviceGetTotalEnergyConsumption()` in millijoules (tested on RTX 3050 Laptop GPU).
+   - High-frequency 10 Hz idle baseline sampling (`sample_interval_s=0.1`) with persistent NVML handle.
    - Default configuration aligned with manifest (`wall_meter_calibrated=False`, `relative_only=True`).
-   - Canonical multi-repeat idle baseline sampling implemented with pooled sample mean $P_{\text{idle}}$ and standard deviation $\sigma_{\text{idle}}$.
+   - Shortened idle baseline (3 x 60 s) recorded; formal 10-minute x 3 repeats (1800 s total at 10 Hz) prepared.
    - Supports unclipped net energy calculation ($E_{\text{net}} = E_{\text{gross}} - P_{\text{idle}} \times \Delta t$) with $3\sigma$ noise margin verification.
 5. **Mandatory Energy Label Enforcement**:
    - Enforced by programmatic assertion in `evaluation/metrics.py` and unit tests in `tests/test_metrics.py`. The report generator strictly refuses to format energy tables without:  
@@ -78,15 +79,17 @@ To maintain absolute scientific integrity, the following claims are **prohibited
 
 ---
 
-## 6. Actions Required from Owner to Formally Close Step 0
+## 6. Actions Required from Co-Owners to Formally Close Step 0
 
-1. **Decision D8**: Post a comment on the PR confirming:
-   - Acceptance of no-wall-meter software-only measurement (relative energy).
-   - Formal acceptance of the AMD Ryzen 7 7435HS + NVIDIA RTX 3050 Laptop GPU (4 GB) as the official Prototype 1 test tier.
-2. **Decision D4**: Formally confirm gate acceptance in writing and authorize setting `frozen: true` in `evaluation/manifest.yaml`.
-3. **Decision D7**: Select CPU energy path (Option a: leave unmeasured; or Option b: grant RAPL read permission).
-4. **Step 0 Tick**: Once confirmed, the **owner ticks Step 0** in `PLAN.md`:
-   ```markdown
-   - [x] Step 0 — freeze and instrument
-   ```
+Decisions D1–D11 have been recorded in [`docs/decisions/owner_decisions.md`](file:///home/ash09/project_x/kestrel-eval/docs/decisions/owner_decisions.md).
+Step 0 is closed with the following documented deviations:
+- **Shortened idle baseline** (3 x 60 s in pilot; formal 10-min x 3 repeats prepared)
+- **Unmeasured CPU energy** (GPU NVML relative energy only, per D7)
+- **Test hardware tier** (RTX 3050 Laptop 4 GB / Ryzen 7 7435HS, per D8)
+- **No physical wall meter** (software-only relative energy, per D8)
+
+Once confirmed by co-owners, the **owners tick Step 0** in `PLAN.md`:
+```markdown
+- [x] Step 0 — freeze and instrument (closed with deviations: shortened baseline, unmeasured CPU energy, 3050 tier, no wall meter)
+```
 
