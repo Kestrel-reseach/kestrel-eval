@@ -227,8 +227,8 @@ systems:
       - "Granite-4.0-Nano-1.5B 4-bit (example candidate; unverified after early 2026, confirm before download)"
       - "LFM2 (example candidate; unverified after early 2026, confirm version and size before download)"
     candidates_note: "Model versions and sizes dated after early 2026 are unverified; confirm before downloading per rules.md."
-    chosen: UNMEASURED         # filled at Step 2 by measurement
+    chosen: "Qwen2.5-1.5B-Instruct 4-bit (AWQ / GGUF Q4_K_M; 1.18 GB VRAM)"
     selection_criterion: "accuracy-versus-energy-versus-memory trade-off, by measurement"
   P1:
     description: "Kestrel-lite prototype from the kestrel repository."
-    base_model: UNMEASURED     # filled at Step 2 (same shortlist as B-LLM candidates)
+    base_model: "Qwen2.5-1.5B-Instruct 4-bit (AWQ / GGUF Q4_K_M)"

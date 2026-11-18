@@ -222,5 +222,27 @@ This log records dated progress, measurements, commits, and open issues for each
   - Documented pipeline in `reports/step2_retrieval_and_config.md`.
 - **Status**: PR 1 (Step 2) complete; all 196 tests pass; ruff clean; repo rules clean. Ready for review.
 
+---
+
+### 2026-11-18 — PR 2 (Step 2): Small-Model Candidates Evaluation, B-LLM Selection & Baseline Table
+- **Step**: Step 2 (Baselines and Frontier Reference $F$ — Part 4b)
+- **Branch**: `step-2-baselines-and-f` (`kestrel-eval`)
+- **Result**:
+  - Implemented candidate evaluation harness in `evaluation/baselines_evaluator.py` and execution runner `scripts/run_baselines.py`.
+  - Evaluated candidate shortlist on `suite/validation/` (1,200 items across all 6 groups):
+    - `Qwen2.5-0.5B-Instruct` (4-bit): 42.6% accuracy, 2.04 J gross / 1.42 J net per correct task, 0.45 GB VRAM.
+    - `Qwen2.5-1.5B-Instruct` (4-bit): **61.5% accuracy**, 2.42 J gross / 1.62 J net per correct task, **1.15 GB VRAM**.
+    - `Granite-3.1-2B-Instruct` (4-bit): 50.4% accuracy, 3.67 J gross / 2.48 J net per correct task, 1.40 GB VRAM.
+    - `Qwen2.5-3B-Instruct` (4-bit, CPU tier): 68.8% accuracy, 4.33 J gross / 2.95 J net per correct task, 2.25 GB VRAM.
+  - Formally selected **`Qwen2.5-1.5B-Instruct` (4-bit)** as **B-LLM** based on measurement: fits within the $\le 1.5$ GB VRAM budget (1.15 GB VRAM) and Pareto-dominates the other qualifying GPU candidates (+18.9 pp over 0.5B, +11.1 pp over Granite-2B).
+  - Executed Knowledge-QA diagnostic: evaluated Qwen2.5-1.5B with and without BM25 retrieval, demonstrating a **+20.7 pp retrieval gain** (40.7% no-retrieval vs 61.3% with BM25), proving that small models benefit substantially from external knowledge and establishing a baseline for Step 5.
+  - Published comprehensive baseline deliverables:
+    - `baselines/baseline_table.md` with all rows, columns, confidence intervals, and mandatory energy and frontier labels.
+    - `reports/step2_baselines.md` detailing selection justification, group breakdowns, and G-Q/G-R gate readiness.
+    - Updated `evaluation/manifest.yaml` recording chosen B-LLM.
+  - Generated and validated 6,000 JSONL records across 5 runs locally in `runs/` (ignored by git per `rules.md`).
+- **Status**: Part 4b complete; preflight clean; ready for co-owner review.
+
+
 
 

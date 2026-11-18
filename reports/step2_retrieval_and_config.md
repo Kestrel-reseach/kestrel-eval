@@ -87,3 +87,4 @@ Assistant VRAM Budget: **$\le$ 1.5 GB** at context length 2048 tokens.
 - **Linting & Formatting**: Clean (`ruff check .` passed with 0 errors; `ruff format --check .` passed).
 - **Repo Rules**: Passed (`check_repo_rules.sh` clean).
 - **Mandatory Labels**: Integrated into all runner configurations and outputs.
+
