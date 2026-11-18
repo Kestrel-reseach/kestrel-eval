@@ -74,3 +74,4 @@ Per instructions, permissions have **not** been modified by the agent. The follo
    ```
 3. **Hardware Encrypted Volume for Step 10**:
    For production runs or multi-user environments, move `kestrel_private` to an encrypted loopback volume or GPG-encrypted tarball (`locked_test.tar.gz.gpg`), decrypted strictly in memory at Step 10.
+

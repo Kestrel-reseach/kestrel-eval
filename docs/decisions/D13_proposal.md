@@ -53,3 +53,4 @@ To ensure that the +10 pp retrieval gate is testable and reflects genuine retrie
 ## 4. Next Step for Owners
 
 Review this analysis before baseline runs are finalized. This proposal is recorded for discussion and does not alter the frozen manifest or existing suite hashes.
+
