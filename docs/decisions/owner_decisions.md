@@ -21,6 +21,12 @@
 - **D2 (Knowledge-QA Corpus)**:
   > "one dated English Wikipedia dump, URL + sha256, ~5k-article abstract subset"
   - Fixed public corpus backing the knowledge store.
+  - **Pinned Dump URL**: `https://dumps.wikimedia.org/enwiki/20261101/enwiki-20261101-pages-articles1.xml-p1p41242.bz2`
+  - **Date**: 2026-11-01 (English Wikipedia foundational articles partition, pages 1 to 41,242)
+  - **File Size**: 300,158,691 bytes (286.25 MB)
+  - **Official Wikimedia MD5**: `0409fa36394b206b3f9940688e7b08ba`
+  - **Official Wikimedia SHA-1**: `eda718207f2a9596f42745ee70433767bf3e1fb8`
+  - **Authoritative SHA-256 Checksum**: `e3fd5a837f2a6b3a26c3596d0667600073a86c9fc29dc60ef0b2de605c754387`
 
 - **D3 (Personal Data in Memory Probe)**:
   > "synthetic histories only"

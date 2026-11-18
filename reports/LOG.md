@@ -120,6 +120,23 @@ This log records dated progress, measurements, commits, and open issues for each
   - Documented generator architectures in [`reports/step1_synthetic_generators.md`](file:///home/ash09/project_x/kestrel-eval/reports/step1_synthetic_generators.md).
 - **Status**: PR 2 complete; all 160 tests pass; preflight checks clean; repo rules pass. Ready for review.
 
+---
+
+### 2026-11-18 — PR 3: Knowledge QA from Wikipedia Snapshot & Span Verification
+- **Step**: Step 1 (Knowledge QA from Wikipedia Snapshot)
+- **Branch**: `step-1-knowledge-qa` (`kestrel-eval`)
+- **Result**:
+  - Pinned Decision D2 corpus: English Wikipedia snapshot partition (`enwiki-20261101-pages-articles1.xml-p1p41242.bz2`, 300,158,691 bytes).
+  - Verified official Wikimedia MD5 (`0409fa36...`) and SHA-1 (`eda71820...`), and computed authoritative SHA-256 (`e3fd5a837f2a6b3a26c3596d0667600073a86c9fc29dc60ef0b2de605c754387`).
+  - Updated [`docs/decisions/owner_decisions.md`](file:///home/ash09/project_x/kestrel-eval/docs/decisions/owner_decisions.md) and [`evaluation/manifest.yaml`](file:///home/ash09/project_x/kestrel-eval/evaluation/manifest.yaml).
+  - Implemented streaming XML abstract extractor [`evaluation/generators/wiki_extractor.py`](file:///home/ash09/project_x/kestrel-eval/evaluation/generators/wiki_extractor.py), extracting 6,000 clean lead abstracts in 24.01 seconds.
+  - Implemented rule-based factual QA generator [`evaluation/generators/knowledge_qa_generator.py`](file:///home/ash09/project_x/kestrel-eval/evaluation/generators/knowledge_qa_generator.py) covering 10 semantic rule families with 100% automated character span verification (`passage[start:end] == answer`).
+  - Generated partitions (300 validation, 300 locked-test, 300 train).
+  - Output 50 random sample items per partition for human review in [`reports/step1_knowledge_qa_samples.md`](file:///home/ash09/project_x/kestrel-eval/reports/step1_knowledge_qa_samples.md).
+  - Added unit test suite [`tests/test_knowledge_qa.py`](file:///home/ash09/project_x/kestrel-eval/tests/test_knowledge_qa.py) (7 test cases).
+  - Documented complete pipeline in [`reports/step1_knowledge_qa.md`](file:///home/ash09/project_x/kestrel-eval/reports/step1_knowledge_qa.md).
+- **Status**: PR 3 complete; all 167 tests pass; preflight checks clean; repo rules pass. Ready for review.
+
 
 
 
