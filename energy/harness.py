@@ -28,6 +28,7 @@ Usage::
 
 from __future__ import annotations
 
+import math
 import os
 import time
 from dataclasses import dataclass, field
@@ -40,10 +41,13 @@ __all__ = [
     "EnergySample",
     "HarnessConfig",
     "IdleBaseline",
+    "MANDATORY_ENERGY_LABEL",
     "check_nvml_available",
     "read_cpu_energy_joules",
     "read_gpu_power_watts",
 ]
+
+MANDATORY_ENERGY_LABEL: str = "Relative energy only; GPU NVML scope; same machine and session; not comparable across machines."
 
 # ── CPU energy counter discovery ───────────────────────────────────────────────
 
@@ -257,6 +261,9 @@ class IdleBaseline:
     samples: int = 0
     """Number of power samples collected."""
 
+    gpu_power_std_w: float | None = None
+    """Standard deviation of idle GPU power samples in watts."""
+
     @property
     def energy_rate_joules_per_s(self) -> float | None:
         """Idle power in watts = joules per second."""
@@ -405,6 +412,11 @@ class EnergyHarness:
         else:
             total_power_w = None
 
+        gpu_power_std_w: float | None = None
+        if len(gpu_powers) > 1 and gpu_power_w is not None:
+            variance = sum((p - gpu_power_w) ** 2 for p in gpu_powers) / (len(gpu_powers) - 1)
+            gpu_power_std_w = math.sqrt(variance)
+
         return IdleBaseline(
             duration_s=elapsed,
             cpu_power_w=cpu_power_w,
@@ -412,6 +424,7 @@ class EnergyHarness:
             total_power_w=total_power_w,
             relative_only=self.config.relative_only,
             samples=len(cpu_powers) + len(gpu_powers),
+            gpu_power_std_w=gpu_power_std_w,
         )
 
     # ── Per-task measurement ────────────────────────────────────────────────
@@ -469,8 +482,19 @@ class EnergyHarness:
     # ── Convenience: net joules (idle-subtracted) ───────────────────────────
 
     @staticmethod
-    def net_joules(sample: EnergySample, baseline: IdleBaseline) -> float | None:
+    def net_joules(
+        sample: EnergySample,
+        baseline: IdleBaseline,
+        *,
+        clip_zero: bool = True,
+    ) -> float | None:
         """Return task energy minus idle power × wall time.
+
+        Args:
+            sample: Task measurement.
+            baseline: Recorded idle baseline.
+            clip_zero: If True, clip negative net energy to 0.0 (legacy default).
+                       If False, return unclipped net energy.
 
         Returns None when energy is not measured.
         """
@@ -479,7 +503,8 @@ class EnergyHarness:
         if baseline.energy_rate_joules_per_s is None:
             return sample.energy_joules  # cannot subtract; return gross
         idle_during_task = baseline.energy_rate_joules_per_s * sample.wall_time_s
-        return max(0.0, sample.energy_joules - idle_during_task)
+        net = sample.energy_joules - idle_during_task
+        return max(0.0, net) if clip_zero else net
 
     # ── Wall-meter calibration record ──────────────────────────────────────
 
