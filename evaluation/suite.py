@@ -15,7 +15,10 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 from evaluation.generators.code_generator import generate_code_suite
 from evaluation.generators.knowledge_mcq_generator import generate_knowledge_mcq_suite
@@ -90,7 +93,7 @@ def get_private_dir() -> Path:
     return dest
 
 
-def _reprefix_items(items: list[dict[str, Any]], prefix: str, split: str) -> list[dict[str, Any]]:
+def _reprefix_items(items: Sequence[Any], prefix: str, split: str) -> list[dict[str, Any]]:
     """Format items with canonical partition ID prefix and split field."""
     formatted = []
     for idx, raw in enumerate(items, 1):
