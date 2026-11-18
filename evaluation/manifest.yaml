@@ -2,7 +2,8 @@
 # Step 0: freeze and instrument.
 #
 # OWNER DECISIONS — resolved 2026-11-17:
-#   1. F and its cost cap: DEFERRED to Step 2 (model/cost stay UNDEFINED).
+#   1. F (2026-11-18): Gemini 2.5 Pro via Google AI Studio free tier, cost cap $0.
+#      Free quota is unpublished and paced; results labelled "free-tier reference".
 #   2. Gates: ACCEPTED as written below (status: ACCEPTED).
 #   3. Wall meter: NO — relative-only energy, labelled on every result.
 #   4. Cloud escalation: OFF.
@@ -11,6 +12,9 @@
 #   7. Knowledge-QA corpus: small fixed public Wikipedia snapshot (see corpus field).
 #   8. Test hardware (2026-11-18): accept Ryzen 7 7435HS + RTX 3050 Laptop 4 GB
 #      because the RTX 3060 target is unavailable. G-R unchanged; label results by tier.
+#   9. Context length 2048 tokens (2026-11-18).
+#  10. CPU energy UNMEASURED; GPU-only relative energy (D7, 2026-11-18).
+#  11. Non-inferiority margin = 3 pp, same as no-regression (D4, 2026-11-18).
 #
 # These decisions are frozen. Do not change a threshold after seeing results.
 
@@ -24,6 +28,8 @@ seeds:
   suite_split: 20260101      # used to split items into train / val / locked-test
   eval_run:    20260102      # used for any randomness inside evaluation (e.g. sampling)
   verifier_train: 20260103   # used when training the verifier head
+
+context_length: 2048         # owner decision 2026-11-18; fits 4 GB / 1.5 GB test tier
 
 # ── Suite groups and partition sizes ──────────────────────────────────────────
 # CRITICAL DECISION REQUIRED: sizes_are
@@ -90,11 +96,10 @@ groups:
     answer_check: "key_from_source_history"
     personal_data: synthetic_only  # change to real_approved only if owner approves item by item
 
-# Partition fractions (applies when sizes_are is 'total' or as partition proportions)
-partition_fractions:
-  train: 0.60
-  validation: 0.20
-  locked_test: 0.20
+# Under sizes_are: per_partition the listed group sizes apply to EACH partition:
+# locked-test = listed size, validation = same size, train = public train splits
+# plus synthetic items. The old 60/20/20 fractions do NOT apply; do not use them.
+partition_fractions: null
 
 # Hashes of the locked-test partition files (filled by suite_hash.py at Step 1).
 # Never run or tune against the locked-test partition before Step 10.
@@ -160,8 +165,10 @@ gates:
   no_regression:
     description: >
       Adding a component must not drop earlier-step results by more than 3
-      percentage points.
-    threshold_pp: 3           # accepted 2026-11-17
+      percentage points. This is also the non-inferiority margin confirmed by
+      the owner on 2026-11-18 (D4). Note that proving equality within 3 points
+      on 300 items is hard and may be inconclusive; report the interval.
+    threshold_pp: 3           # accepted 2026-11-17; non-inferiority margin 2026-11-18
     status: ACCEPTED
 
 # ── Energy measurement ─────────────────────────────────────────────────────────
@@ -171,19 +178,28 @@ energy:
   wall_meter_calibrated: false        # owner decision 2026-11-17: no wall meter
   relative_only: true                 # all energy results must say "relative energy only"
   counter_sources:
-    cpu: "RAPL via /sys/class/powercap/intel-rapl or ryzen_smu or hwmon"
-    gpu: "NVML via pynvml"
+    cpu: "UNMEASURED"          # RAPL is root-only (0400) and k10temp has no power files on test tier
+    gpu: "NVML via pynvml"     # GPU-only relative energy
   note: >
-    Owner chose relative-only energy on 2026-11-17. No wall-meter calibration
-    will be performed. Every result and report must state "relative energy
-    only" and comparisons are between systems measured with the same counters.
+    Owner chose relative-only energy on 2026-11-17; D7 confirmed 2026-11-18:
+    CPU energy is UNMEASURED and only GPU energy from NVML is recorded, as
+    relative energy. No wall-meter calibration. Every result and report must
+    state "relative energy only" and comparisons must use the same counters.
 
 # ── Reference systems ─────────────────────────────────────────────────────────
 systems:
   F:
     description: "Frontier model, run once on public and synthetic items only."
-    model: UNDEFINED           # owner deferred F to Step 2 — choose before running F
-    cost_cap_usd: UNDEFINED    # owner deferred cost cap to Step 2
+    model: "gemini-2.5-pro (Google AI Studio free tier, OpenAI-compatible endpoint)"
+    cost_cap_usd: 0            # free tier; no paid calls
+    free_tier_notes: >
+      Run once on public + synthetic items only, paced across days to stay
+      inside the unpublished per-project free-tier quota. Record the exact
+      model version and run date, because free-tier models can change. Label
+      G-F as the gap to a free-tier reference, not to the current frontier.
+      Free-tier content may be used to improve the provider's products, so
+      send only public and synthetic items (no real personal data).
+    api_key_env: GEMINI_API_KEY  # key in environment variable, never in the repo
     memory_probe_runs: ["no_history", "full_history"]
   B_LLM:
     description: "Best quantized small model from the shortlist, plain retrieval."
