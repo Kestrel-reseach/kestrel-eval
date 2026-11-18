@@ -104,6 +104,23 @@ This log records dated progress, measurements, commits, and open issues for each
   - Documented findings in [`reports/step1_public_sources.md`](file:///home/ash09/project_x/kestrel-eval/reports/step1_public_sources.md).
 - **Status**: PR 1 complete; all 149 tests pass; repo rules pass. Ready for review.
 
+---
+
+### 2026-11-18 — PR 2: Synthetic Task Generators & Stale-Fact Rejection Scorer
+- **Step**: Step 1 (Synthetic Generators)
+- **Branch**: `step-1-synthetic-generators` (`kestrel-eval`)
+- **Result**:
+  - Implemented deterministic synthetic generators in `evaluation/generators/`:
+    - `math_generator.py`: Multi-step word problems (6 problem families) with exact numeric answers and step-by-step scratchpad derivations (`exact_numeric`).
+    - `memory_probe_generator.py`: Synthetic chronological interaction histories (Decision D3: synthetic only) with 30 stale-fact items and 70 static recall items. Each event has timestamp, source channel, and factual statement.
+    - `stale_fact_scorer.py`: Specialized evaluation scorer that enforces latest value retrieval and explicitly penalizes outdated/stale values (`stale_fact_error=True`, `score=0.0`) to measure gate G-M.
+    - `code_generator.py`: Uncontaminated synthetic Python coding problems with complete canonical solutions and robust unit test suites (`unit_tests_pass`).
+  - Bitwise reproducibility verified: fixed PRNG seeds ensure deterministic generation.
+  - Added unit test suite [`tests/test_generators.py`](file:///home/ash09/project_x/kestrel-eval/tests/test_generators.py) (11 test cases).
+  - Documented generator architectures in [`reports/step1_synthetic_generators.md`](file:///home/ash09/project_x/kestrel-eval/reports/step1_synthetic_generators.md).
+- **Status**: PR 2 complete; all 160 tests pass; preflight checks clean; repo rules pass. Ready for review.
+
+
 
 
 
