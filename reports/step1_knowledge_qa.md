@@ -77,7 +77,7 @@ $$\text{passage}[\text{span}[0] : \text{span}[1]] \equiv \text{answer}$$
 
 - **Partition Slicing**:
   - `validation`: 300 items (`kqa_val_0001` through `kqa_val_0300`)
-  - `locked_test`: 300 items (`kqa_lock_0001` through `kqa_lock_0300`)
+  - `locked_test`: 300 items (stored privately out of repository in `kestrel_private/`; hash recorded in `manifest.yaml`)
   - `train`: 300 items (`kqa_train_0001` through `kqa_train_0300`)
 - **Human Review Document**:
-  - 50 randomly sampled items from each partition have been written to [`reports/step1_knowledge_qa_samples.md`](file:///home/ash09/project_x/kestrel-eval/reports/step1_knowledge_qa_samples.md) for human inspection.
+  - 50 randomly sampled items from the `validation` partition have been written to `reports/step1_knowledge_qa_validation_samples.md` for human inspection.

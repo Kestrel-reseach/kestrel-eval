@@ -188,3 +188,22 @@ This log records dated progress, measurements, commits, and open issues for each
   - Added unit test suite `tests/test_suite_v0.py` covering partition loading, group filtering, invalid argument handling, and locked-test permission guards. Total test count increased to 179 passing tests.
 - **Status**: PR 5 complete; all 179 tests pass; ruff clean; repo rules clean; JSONL validator clean (`[]`). Ready for review.
 
+---
+
+### 2026-11-18 — Step 1 Closing Pass (Part 3B)
+- **Step**: Step 1 (Closing Pass: Quarantine Audit, Near-Duplicate Analysis & Security Policies)
+- **Branch**: `step-1-closing-pass` (`kestrel-eval`)
+- **Result**:
+  - Executed automated locked data leakage check across entire repository.
+  - Detected and contained accidental inclusion of 50 locked Knowledge QA review samples: executed `git rm reports/step1_knowledge_qa_samples.md` without history rewriting.
+  - Refactored review generator `scripts/generate_kqa_samples.py` to sample strictly from the `validation` partition (`reports/step1_knowledge_qa_validation_samples.md`).
+  - Added automated CI security regression test in `tests/test_leak_guard.py` asserting zero locked test item IDs appear in `reports/` or `docs/`.
+  - Authored burn-and-replace proposal in `docs/decisions/burn_and_replace_proposal.md` for co-owner approval.
+  - Confirmed and documented formal 10-minute x 3 idle baseline results (pooled mean 6.1444 W, std 0.9472 W, 17,943 samples at 9.97 Hz) and verified active hardware cumulative energy counter (`read_gpu_energy_mj` returning mJ deltas).
+  - Executed 4-gram Jaccard near-duplicate prompt analysis across all 3,600 items, reporting cross-partition counts per group and top pairs.
+  - Authored Decision D13 proposal in `docs/decisions/D13_proposal.md` evaluating memorization risk across the 10 Knowledge QA rule families and proposing a counter-contamination diagnostic split for Step 5 retrieval gate verification.
+  - Documented private data handling and agent access invariants in `docs/security/private_data_handling.md` with permissions report and hardening recommendations.
+  - All 180 unit tests pass cleanly.
+- **Status**: Part 3B complete; preflight clean; ready for co-owner review.
+
+
