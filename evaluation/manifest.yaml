@@ -90,8 +90,9 @@ groups:
     description: "Knowledge QA over a fixed corpus snapshot"
     size: 300
     answer_check: "key_match"
-    corpus: "wikipedia_en_2024-01_abstracts_5k"  # owner chose a small fixed public snapshot;
-                                                  # pin exact dump URL + SHA-256 at Step 1
+    corpus: "wikipedia_en_2026-11_abstracts_5k"
+    corpus_dump_url: "https://dumps.wikimedia.org/enwiki/20261101/enwiki-20261101-pages-articles1.xml-p1p41242.bz2"
+    corpus_sha256: "e3fd5a837f2a6b3a26c3596d0667600073a86c9fc29dc60ef0b2de605c754387"
   memory_probe:
     description: "Personal-memory probe (30 stale-fact items)"
     size: 100
@@ -106,8 +107,14 @@ partition_fractions: null
 
 # Hashes of the locked-test partition files (filled by suite_hash.py at Step 1).
 # Never run or tune against the locked-test partition before Step 10.
-locked_test_hashes: {}
-
+locked_test_hashes:
+  math: "25c052ee25cac22aa193d8386f425ec334bf89de9f0598064ae2f9dff1a52f1d"
+  science_mcq: "08e82a53794b6314d74aaefcd9bf58a21bef0ab2940579e2c2da7565bdd84172"
+  knowledge_mcq: "4fc1c7de12ea4f9da57b50733eb78f77369c856e46e1e23d4a4629a5871c10a6"
+  code: "3ea39eaea70d62d2cd77f533633a307a45e195e7d5a57a903ae8fcb471b9c7da"
+  knowledge_qa: "f994d4793291d59e4809a1e7588324fc1842a4d726900446e7394feffaa532b0"
+  memory_probe: "f0f819178d78523a8640161651816d8d50c50ce76974a6cc1ad39932cf019acd"
+root_hash: "22fff5e005245148f85e29c75029e85034ada793ee6b7e7c33b130e8fd9e99b7"
 # ── Hardware budget ────────────────────────────────────────────────────────────
 hardware:
   gpu_tier:

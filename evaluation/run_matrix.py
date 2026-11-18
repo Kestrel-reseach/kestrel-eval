@@ -173,7 +173,9 @@ class RunMatrix:
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         done_ids = load_checkpoint(output_path)
-        remaining = [item for item in items if item["item_id"] not in done_ids]
+        remaining = [
+            item for item in items if (item.get("item_id") or item.get("id")) not in done_ids
+        ]
 
         new_records: list[Record] = []
         with output_path.open("a", encoding="utf-8") as fh:
@@ -186,7 +188,8 @@ class RunMatrix:
                     expected_config_hash=config.config_hash,
                 )
                 if errors:
-                    raise ValueError(f"Invalid record for {item['item_id']!r}: {errors}")
+                    item_key = item.get("item_id") or item.get("id")
+                    raise ValueError(f"Invalid record for {item_key!r}: {errors}")
                 line = json.dumps(record) + "\n"
                 fh.write(line)
                 fh.flush()
@@ -215,7 +218,7 @@ class RunMatrix:
                 "wall_time_ms": 0.0,
             }
 
-        item_id = item["item_id"]
+        item_id = item.get("item_id") or item.get("id", "")
         group = item.get("group", item_id.split("-")[0] if "-" in item_id else item_id)
         energy_status = partial.pop("energy_status", config.energy_status)
 
