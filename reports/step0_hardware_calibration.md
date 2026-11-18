@@ -3,7 +3,7 @@
 **Date**: 2026-11-17  
 **Host Identification**:
 - **CPU**: AMD Ryzen 7 7435HS (16 vCPUs, 8 cores, 16 threads)
-- **GPU**: NVIDIA GeForce RTX 3050 Laptop GPU (4,096 MiB VRAM, UUID `GPU-409f90c9-6ae1-444d-c201-7fa1803e5a2b`)
+- **GPU**: NVIDIA GeForce RTX 3050 Laptop GPU (4,096 MiB VRAM, UUID `REDACTED`)
 - **NVIDIA Driver**: 615.78.08 | **CUDA**: 13.4
 - **OS / Kernel**: Linux 7.2.9-zen1-1-zen (x86_64)
 
