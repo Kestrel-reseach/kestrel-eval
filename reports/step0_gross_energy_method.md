@@ -66,3 +66,4 @@ $$\text{Noise Margin} = 3 \times \sigma_{\text{idle}} \times \Delta t_{\text{wor
   - `test_start_stop_computes_gpu_energy_fallback`
   - `test_record_idle_baseline_computes_mean_gpu_power`
 - **Test Status**: All 123 tests passing cleanly.
+
