@@ -361,3 +361,66 @@ def write_suite_files(
         "root_hash": root_hash,
         "private_dir": str(private_dir),
     }
+
+
+def load_suite_partition(
+    split: str = "validation",
+    group: str | None = None,
+    repo_root: Path | None = None,
+) -> list[dict[str, Any]]:
+    """Load items from a suite partition for evaluation.
+
+    Parameters:
+      split: 'validation', 'train', or 'locked_test'.
+      group: Optional group name ('math', 'science_mcq', 'knowledge_mcq',
+             'code', 'knowledge_qa', 'memory_probe'). If None, loads all 6 groups.
+      repo_root: Optional repository root path.
+
+    Returns:
+      List of item dicts with both 'id' and 'item_id' normalized.
+
+    Raises:
+      PermissionError: If split == 'locked_test' and KESTREL_ALLOW_LOCKED_TEST != '1'.
+      ValueError: If split or group is unrecognized.
+      FileNotFoundError: If partition files are not found.
+    """
+    if split == "locked_test":
+        if os.environ.get("KESTREL_ALLOW_LOCKED_TEST") != "1":
+            raise PermissionError(
+                "Access to locked-test partition is forbidden until Step 10 "
+                "(KESTREL_ALLOW_LOCKED_TEST != '1'). Use split='validation' for evaluation and development."
+            )
+        base_dir = get_private_dir() / "locked_test"
+    elif split in ("validation", "train"):
+        if repo_root is None:
+            repo_root = Path(__file__).resolve().parent.parent
+        base_dir = repo_root / "suite" / split
+    else:
+        raise ValueError(
+            f"Unknown split: {split!r}. Must be 'validation', 'train', or 'locked_test'."
+        )
+
+    if group is not None:
+        if group not in GROUPS:
+            raise ValueError(f"Unknown group: {group!r}. Must be one of {GROUPS}")
+        target_groups = [group]
+    else:
+        target_groups = list(GROUPS)
+
+    items: list[dict[str, Any]] = []
+    for grp in target_groups:
+        file_path = base_dir / f"{grp}.jsonl"
+        if not file_path.exists():
+            raise FileNotFoundError(f"Partition file not found: {file_path}")
+        with open(file_path, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    it = json.loads(line)
+                    # Normalize both item_id and id
+                    if "item_id" not in it and "id" in it:
+                        it["item_id"] = it["id"]
+                    elif "id" not in it and "item_id" in it:
+                        it["id"] = it["item_id"]
+                    items.append(it)
+    return items

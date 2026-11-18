@@ -171,3 +171,20 @@ This log records dated progress, measurements, commits, and open issues for each
   - Added unit test suite `tests/test_suite_and_leakage.py` (6 test cases). Total test count increased from 167 to 173 tests.
   - Documented pipeline in `reports/step1_splits_hashes_leakage.md`.
 - **Status**: PR 4 complete; all 173 tests pass; ruff clean; repo rules clean; JSONL validator clean (`[]`). Ready for review.
+
+---
+
+### 2026-11-18 — PR 5: Contamination Note & Validation Suite v0 Handoff for Member B
+- **Step**: Step 1 (Contamination Note & Validation Suite v0 Handoff)
+- **Branch**: `step-1-contamination-suite-v0` (`kestrel-eval`)
+- **Result**:
+  - Published comprehensive benchmark contamination analysis in `reports/CONTAMINATION.md` and `reports/step1_contamination_note.md`.
+  - Analyzed public benchmark contamination risk across GSM8K, ARC-Challenge, MMLU, and HumanEval/MBPP, establishing that public web crawl mixtures heavily contaminate public benchmark sets.
+  - Established procedural synthetic generation strategy providing zero-contamination evaluation across all 6 task groups for Kestrel Prototype 1.
+  - Defined mandatory evaluation reporting protocol: future evaluation tables must report $\text{Acc}_{\text{public}}$ and $\text{Acc}_{\text{synthetic}}$ separately alongside the gap $\Delta_{\text{contam}}$.
+  - Shipped Validation Suite v0 handoff guide in `suite/README.md` for Member B with schema definitions, individual group file hashes, and Python invocation examples.
+  - Implemented `load_suite_partition(split="validation", group=None, repo_root=None)` in `evaluation/suite.py` with strict permission guard preventing unauthorized access to `locked_test` prior to Step 10.
+  - Updated `evaluation/run_matrix.py` to support items keyed by either `item_id` or `id`.
+  - Added unit test suite `tests/test_suite_v0.py` covering partition loading, group filtering, invalid argument handling, and locked-test permission guards. Total test count increased to 179 passing tests.
+- **Status**: PR 5 complete; all 179 tests pass; ruff clean; repo rules clean; JSONL validator clean (`[]`). Ready for review.
+
