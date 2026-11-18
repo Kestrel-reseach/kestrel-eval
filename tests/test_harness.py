@@ -119,6 +119,23 @@ def test_check_counters_ok_with_gpu_only() -> None:
     harness._nvml_available = True
     status = harness.check_counters()
     assert status["gpu_nvml_available"] is True
+    assert status["wall_meter_calibrated"] is False
+    assert status["relative_only"] is True
+    assert status["energy_status"] == "relative_only"
+
+
+def test_check_counters_defaults_match_manifest() -> None:
+    """HarnessConfig defaults must match manifest.yaml: wall_meter_calibrated=False, relative_only=True."""
+    config = HarnessConfig()
+    assert config.wall_meter_calibrated is False
+    assert config.relative_only is True
+    harness = EnergyHarness(config)
+    harness._cpu = _make_cpu_source(available=True, source="rapl")
+    harness._nvml_available = False
+    status = harness.check_counters()
+    assert status["wall_meter_calibrated"] is False
+    assert status["relative_only"] is True
+    assert status["energy_status"] == "relative_only"
 
 
 # ── EnergyHarness.record_idle_baseline ───────────────────────────────────────

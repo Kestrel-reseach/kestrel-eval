@@ -198,16 +198,17 @@ class HarnessConfig:
     sample_interval_s: float = 1.0
     """How often to poll power counters during a measurement window."""
 
-    wall_meter_calibrated: bool | None = None
+    wall_meter_calibrated: bool = False
     """
     Set to True after calibrating counters against a plug-in wall meter.
-    Set to False to record relative-only energy and label results accordingly.
-    None means 'not yet determined' (Step 0 initial state).
+    Set to False when no wall meter is used; results are relative-only.
+    Defaults to False to match the frozen evaluation manifest (owner decision 2026-11-17).
     """
 
-    relative_only: bool = False
-    """True when wall-meter calibration was not possible.  Every result
-    labelled with this flag must include 'relative energy only' in reports."""
+    relative_only: bool = True
+    """True when wall-meter calibration was not done. Every result
+    labelled with this flag must include 'relative energy only' in reports.
+    Defaults to True when wall_meter_calibrated is False."""
 
 
 @dataclass
@@ -313,14 +314,14 @@ class EnergyHarness:
         cpu_ok = self._cpu.available
         gpu_ok = self._nvml_available
 
-        if self.config.wall_meter_calibrated:
+        if not cpu_ok and not gpu_ok:
+            energy_status = "unmeasured"
+        elif self.config.wall_meter_calibrated:
             energy_status = "measured_calibrated"
         elif self.config.relative_only or (self.config.wall_meter_calibrated is False):
             energy_status = "relative_only"
-        elif cpu_ok or gpu_ok:
-            energy_status = "measured_uncalibrated"
         else:
-            energy_status = "unmeasured"
+            energy_status = "measured_uncalibrated"
 
         status: dict[str, Any] = {
             "cpu_available": cpu_ok,
