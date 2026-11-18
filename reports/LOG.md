@@ -67,7 +67,7 @@ This log records dated progress, measurements, commits, and open issues for each
   - **0b (Idle Baseline Designation & Formal Protocol)**:
     - Explicitly designated pilot baseline as "shortened baseline (3 x 60 s)" across `reports/step0/CHECKLIST.md`, `reports/step0/CLOSURE_PROPOSAL.md`, and `reports/step0_hardware_calibration.md`.
     - Implemented formal 10-minute x 3 repeats (1800 s total at 10 Hz) measurement script in [`scripts/run_formal_idle_baseline.py`](file:///home/ash09/project_x/kestrel-eval/scripts/run_formal_idle_baseline.py).
-    - Waiting for user instruction with "IDLE READY" under AC power.
+    - Formal 10-minute x 3 repeats idle baseline (1,800.00 s total, 17,943 samples at 10.0 Hz) executed on AC power: pooled mean $P_{\text{idle}} = 6.1444\text{ W}$, $\sigma_{\text{idle}} = 0.9472\text{ W}$, counter-derived power $6.1686\text{ W}$ ([`formal_idle_baseline.json`](file:///home/ash09/project_x/kestrel-eval/reports/step0/formal_idle_baseline.json)). Pilot table updated with formal baseline subtractions (net energy 610.93 J vs 32.29 J noise margin, 18.9x margin).
   - **0c (Manifest Verification Against D1)**:
     - Verified `evaluation/manifest.yaml` against co-owner decision D1: group sizes are math 200, science 200, knowledge MCQ 300, code 100, knowledge QA 300, memory probe 100 (total 1,200 items in locked-test and 1,200 in validation).
     - `sizes_are: per_partition` confirmed; `partition_fractions: null` confirmed.

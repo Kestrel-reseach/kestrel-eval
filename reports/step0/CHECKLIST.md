@@ -16,7 +16,7 @@
 | **Energy Harness Core** | **DONE** | [`energy/harness.py`](file:///home/ash09/project_x/kestrel-eval/energy/harness.py) (commit `1affa57`, `57b0df2`) | None. Implements `check_counters()`, `record_idle_baseline()`, `start()`, `stop()`, and `net_joules()`. Defaults aligned with manifest (`wall_meter_calibrated=False`, `relative_only=True`). |
 | **CPU Energy Counter** | **PARTIAL** | [`energy/harness.py`](file:///home/ash09/project_x/kestrel-eval/energy/harness.py#L180-L245) (`_find_rapl_path`) | On Linux AMD Zen (Ryzen 7 7435HS), `/sys/class/powercap/intel-rapl:0/energy_uj` is mode `0400` (root-only). Non-root user has no read permission; `k10temp` exposes no power files. CPU energy is currently unmeasured without owner granting read permissions or using an uncalibrated battery discharge cross-check. |
 | **GPU Power Counter (NVML)** | **DONE** | [`energy/harness.py`](file:///home/ash09/project_x/kestrel-eval/energy/harness.py#L140-L175), [`reports/step0_hardware_calibration.md`](file:///home/ash09/project_x/kestrel-eval/reports/step0_hardware_calibration.md) | None. Reads milliwatt power draw via NVML (`pynvml` / `nvidia-ml-py`) on NVIDIA RTX 3050 Laptop GPU. Tested under load (~60 W) and idle (~10 W). |
-| **10-Minute Idle Baseline** | **PARTIAL** | [`scripts/record_hardware_pilot.py`](file:///home/ash09/project_x/kestrel-eval/scripts/record_hardware_pilot.py), [`reports/step0_hardware_calibration.md`](file:///home/ash09/project_x/kestrel-eval/reports/step0_hardware_calibration.md) | Shortened baseline (3 x 60 s, 180 s total) recorded in pilot. Formal 10-minute x 3 repeats (1800 s total at 10 Hz) script prepared; pending idle machine run. |
+| **10-Minute Idle Baseline** | **DONE (Relative Path)** | [`reports/step0/formal_idle_baseline.json`](file:///home/ash09/project_x/kestrel-eval/reports/step0/formal_idle_baseline.json), [`reports/step0_hardware_calibration.md`](file:///home/ash09/project_x/kestrel-eval/reports/step0_hardware_calibration.md) | Formal 10-minute x 3 baseline completed (1,800.00 s total, 17,943 samples at 10.0 Hz). Pooled mean idle power: 6.1444 W (std: 0.9472 W); hardware cumulative counter power: 6.1686 W (delta 0.0242 W). |
 | **Wall-Meter Calibration** | **OWNER DECISION** | [`docs/decisions/energy_measurement.md`](file:///home/ash09/project_x/kestrel-eval/docs/decisions/energy_measurement.md) | **SKIPPED BY OWNER DECISION (pending written confirmation); plan kill gate applies: relative-only energy**. Owner quote: *"Vendam software laye pananum / Laptop oda own sensors vachi dhan"*. |
 | **Integration Test: Future Leakage** | **DONE** | [`tests/test_step0.py::test_no_future_leakage_in_validation_and_train`](file:///home/ash09/project_x/kestrel-eval/tests/test_step0.py#L25-L48) | None. Confirms test partition items are completely disjoint from train/validation and inaccessible during earlier steps. |
 | **Integration Test: Checkpoint Resume** | **DONE** | [`tests/test_step0.py::test_checkpoint_resume_integrity`](file:///home/ash09/project_x/kestrel-eval/tests/test_step0.py#L50-L75) | None. Verifies deterministic recovery of optimizer, step count, and PRNG state from saved state. |
@@ -30,10 +30,11 @@
 
 ## 2. Summary Status
 
-- **Fully Satisfied**: Manifest, JSONL Schema, Locked-Test Guard, GPU NVML Counter, All 4 Integration Tests, Kill Gate Enforcement.
-- **Pending Implementation / Extension**:
-  1. Shortened baseline (3 x 60 s) is recorded; formal 10-minute x 3 repeats (1800 s total at 10 Hz) script prepared, waiting for user "IDLE READY" on AC power.
-  2. Owner decision D7 confirmed CPU energy is UNMEASURED.
-  3. Single canonical definition of idle subtraction implemented in harness; hardware cumulative energy counter (`nvmlDeviceGetTotalEnergyConsumption`) integrated at sub-millijoule resolution.
-- **Step 0 Gate Status in PLAN.md**: **UNCHECKED** (`- [ ] Step 0 — freeze and instrument`), pending owner confirmation and Part 2 execution.
+- **Fully Satisfied**: Manifest (v1.1 frozen), JSONL Schema (19 fields), Locked-Test Guard, GPU NVML Counter, Formal 10-Minute x 3 Idle Baseline (1800 s, 10 Hz), All 4 Integration Tests, Kill Gate Enforcement (relative-only energy).
+- **Closed with Deviations**:
+  1. Formal 10-minute x 3 baseline completed (6.1444 W pooled mean, 0.9472 W std).
+  2. Owner decision D7 confirmed CPU energy is UNMEASURED (GPU NVML relative energy only).
+  3. Alternate test tier confirmed (RTX 3050 Laptop 4 GB / Ryzen 7 7435HS, D8).
+  4. Wall meter skipped per owner decision (D8).
+- **Step 0 Gate Status in PLAN.md**: **UNCHECKED** (`- [ ] Step 0 — freeze and instrument`). Co-owners tick it with the documented deviations when ready.
 
