@@ -124,3 +124,22 @@ def test_generate_knowledge_qa_suite_distinct_questions() -> None:
         it["question"] for s in ("train", "validation", "locked_test") for it in suite[s]
     ]
     assert len(all_questions) == len(set(all_questions))
+
+
+def test_knowledge_qa_prompt_leak_guard() -> None:
+    """F8d: Enforce that no-retrieval knowledge_qa prompts contain no passage text from item['prompt']."""
+    from evaluation.prompts import extract_question_text, format_user_prompt
+    from evaluation.suite import load_suite_partition
+
+    val_items = load_suite_partition("validation", group="knowledge_qa")
+    for it in val_items:
+        prompt = format_user_prompt(it, use_retrieval=False)
+        # The formatted prompt must not contain 'Passage:'
+        assert "Passage:" not in prompt
+        # The formatted prompt must contain the question
+        q = extract_question_text(it)
+        assert q in prompt
+        # If the item had a passage in 'passage', that passage must not appear in format_user_prompt
+        passage = it.get("passage", "")
+        if len(passage) > 30:
+            assert passage[:30] not in prompt

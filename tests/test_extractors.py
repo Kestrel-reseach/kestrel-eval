@@ -78,6 +78,40 @@ class TestMCQExtractor:
             got = extract_mcq_answer(text)
             assert got == expected, f"Failed for {text!r}: expected {expected}, got {got}"
 
+    def test_f8a_option_list_precedence_and_regression(self) -> None:
+        """F8a: Option lists without declarative statements must return None; declarative wins; single option line succeeds."""
+        # Several option lines without declarative statement -> None
+        know_val_0074_raw = (
+            "To determine the correct answer, let's analyze each option:\n\n"
+            "A) Receptor tyrosine kinase (RTK): RTKs are involved in signal transduction pathways but do not typically dimerize to undergo trans-autophosphorylation.\n\n"
+            "B) Adenylate cyclase: This enzyme catalyzes"
+        )
+        assert extract_mcq_answer(know_val_0074_raw) is None
+
+        sci_val_0005_raw = (
+            "To determine which eukaryotic cellular structure generates cellular ATP via oxidative phosphorylation and contains its own circular DNA genome, let's analyze each option:\n\n"
+            "A) Chloroplast - While chloroplasts contain their own DNA, they do not generate ATP through oxidative phosphorylation.\n"
+            "B) Golgi apparatus - The Golgi apparatus"
+        )
+        assert extract_mcq_answer(sci_val_0005_raw) is None
+
+        # Generic option list -> None
+        assert extract_mcq_answer("A) First option\nB) Second option\nC) Third option") is None
+
+        # Single option line -> succeeds
+        assert extract_mcq_answer("C) Metamorphic rock") == "C"
+        assert extract_mcq_answer("A. Post-transition metal") == "A"
+        assert extract_mcq_answer("(D) Sophisticated vigesimal mathematics") == "D"
+
+        # Option list with explicit declarative statement -> declarative statement wins
+        list_with_declaration = (
+            "A) Receptor tyrosine kinase\n"
+            "B) Adenylate cyclase\n"
+            "C) G-protein coupled receptor\n"
+            "The correct answer is B) Adenylate cyclase."
+        )
+        assert extract_mcq_answer(list_with_declaration) == "B"
+
     def test_valid_mcq_formats(self) -> None:
         """Verify standard answer representations are correctly extracted."""
         assert extract_mcq_answer("Answer: C") == "C"

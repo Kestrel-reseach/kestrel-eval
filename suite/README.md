@@ -95,3 +95,11 @@ uv run python -m evaluation.run_matrix \
 ```
 
 The run matrix handles resume checkpoints, NVML energy instrumentation (if GPU is present), latency tracking, and schema validation.
+
+---
+
+## 5. Knowledge-QA Prompt Construction Protocol
+
+Knowledge-QA evaluation prompts presented to models must be constructed from `item['question']` only:
+- **No-Retrieval Setting**: The prompt presented to the model contains strictly `Question: {question}\nAnswer:`. Legacy `item['prompt']` fields (which pre-baked gold passages into the JSONL) must never be passed directly to the model.
+- **Retrieval-Augmented Setting**: When retrieval is enabled, context passages are retrieved dynamically from the external abstract store (via BM25 or embedding retriever) and prepended as `Context:\n[1] ...\n\nQuestion: {question}\nAnswer:`. The gold passage is never leaked. Enforced by `test_knowledge_qa_prompt_leak_guard`.

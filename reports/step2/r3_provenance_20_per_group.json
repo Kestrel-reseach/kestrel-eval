@@ -1,0 +1,758 @@
+{
+  "math": {
+    "total_in_partition": 200,
+    "sampled_count": 20,
+    "samples": [
+      {
+        "line_index": 17,
+        "item_id": "math_val_0017",
+        "prompt_hash": "fb48f5b8586e817f3dc2dc0073c9863828b5aee92ce71924da6c40079895e287",
+        "prompt_preview": "The school's Robotics Team scored 60 points in the opening r..."
+      },
+      {
+        "line_index": 24,
+        "item_id": "math_val_0024",
+        "prompt_hash": "f30053075b06c9c22888137d144708bdaeec3f93a6ff84c366600410f2f181f5",
+        "prompt_preview": "Elena drives on a cross-country trip. For the first leg of t..."
+      },
+      {
+        "line_index": 28,
+        "item_id": "math_val_0028",
+        "prompt_hash": "bd54c16ba95ea6b15e78806a42af2fdd2866ba6d631bfb118f63a914edc0ae15",
+        "prompt_preview": "Carlos starts a savings account with an initial deposit of $..."
+      },
+      {
+        "line_index": 41,
+        "item_id": "math_val_0041",
+        "prompt_hash": "a175e1d5c3c41e08ac68e2b29a6f4125e7fb5a85b9b4d9864b6740fddfed33dd",
+        "prompt_preview": "Zoe starts a savings account with an initial deposit of $324..."
+      },
+      {
+        "line_index": 45,
+        "item_id": "math_val_0045",
+        "prompt_hash": "652a7543f32f2b6e4e969622bd8c3900b246f963a691961c0505e0cfe56597a9",
+        "prompt_preview": "Jordan has $298 to spend at a stationery store. Jordan purch..."
+      },
+      {
+        "line_index": 69,
+        "item_id": "math_val_0069",
+        "prompt_hash": "53c316a48dc190eeabf8afb78dace7e01a502fbbcb40b10948e347e5b7fbedf8",
+        "prompt_preview": "Marcus drives on a cross-country trip. For the first leg of ..."
+      },
+      {
+        "line_index": 73,
+        "item_id": "math_val_0073",
+        "prompt_hash": "47031c6276d1756cb8376556cb3ef0747006f85a44a7202a72318779903b35d6",
+        "prompt_preview": "The school's Quiz Bowl Team scored 89 points in the opening ..."
+      },
+      {
+        "line_index": 83,
+        "item_id": "math_val_0083",
+        "prompt_hash": "32c897273a8b3f9b5d4b67434b913ae20db52e2fc30aade75ac543f97d8d2214",
+        "prompt_preview": "A craftsman makes 16 pottery mugs per hour and works for 4 h..."
+      },
+      {
+        "line_index": 90,
+        "item_id": "math_val_0090",
+        "prompt_hash": "3109fdad2e8c8231503c914ec339fed7da07c2962af5ab71ccfc5b2c2d81c6ae",
+        "prompt_preview": "A craftsman makes 31 solar panels per hour and works for 7 h..."
+      },
+      {
+        "line_index": 96,
+        "item_id": "math_val_0096",
+        "prompt_hash": "125bda61907960f4df75d43824366dc3644da300d92cd73ee2db2231eb8453ab",
+        "prompt_preview": "Zoe starts a savings account with an initial deposit of $376..."
+      },
+      {
+        "line_index": 97,
+        "item_id": "math_val_0097",
+        "prompt_hash": "9aa6e4f414d23ab5b8f1e3e0ff3401751b91d52cc9c32a132d3a49db09e83cf0",
+        "prompt_preview": "Jordan has $241 to spend at a stationery store. Jordan purch..."
+      },
+      {
+        "line_index": 99,
+        "item_id": "math_val_0099",
+        "prompt_hash": "c4215e4c4153d33e94cf668f83cbbf9456252792968097ab79f7ff3f2138b65f",
+        "prompt_preview": "The school's Robotics Team scored 81 points in the opening r..."
+      },
+      {
+        "line_index": 125,
+        "item_id": "math_val_0125",
+        "prompt_hash": "992997ce3668395d2f4c0a9dc4000b5c9e053f86f194a8131bd18187bc153168",
+        "prompt_preview": "A craftsman makes 35 wooden toys per hour and works for 4 ho..."
+      },
+      {
+        "line_index": 133,
+        "item_id": "math_val_0133",
+        "prompt_hash": "a0edd7baeab48b2679c2f6ced842bc004f5bda92a7cfd47e461289ac4c2aae95",
+        "prompt_preview": "Chloe drives on a cross-country trip. For the first leg of t..."
+      },
+      {
+        "line_index": 137,
+        "item_id": "math_val_0137",
+        "prompt_hash": "f31f236b25a77e1564c4659ba96564e7911e30a1b7011a881607891bc7126168",
+        "prompt_preview": "Jordan has $240 to spend at a stationery store. Jordan purch..."
+      },
+      {
+        "line_index": 138,
+        "item_id": "math_val_0138",
+        "prompt_hash": "ce755137cc3a4b4cab30f2d716a56007e1d4373a3b5bff92443e735975700080",
+        "prompt_preview": "A rectangular community garden measures 12 feet long and 7 f..."
+      },
+      {
+        "line_index": 155,
+        "item_id": "math_val_0155",
+        "prompt_hash": "a20bc5b494cbf68e06f560ab366e5c2048ecafbd446ad54a345ebc94bc869b1c",
+        "prompt_preview": "Kei starts a savings account with an initial deposit of $483..."
+      },
+      {
+        "line_index": 164,
+        "item_id": "math_val_0164",
+        "prompt_hash": "97e37192db8a1ac8f999b8e5eb40e932c1e95e1c94cae8adf24f13b29fe4f97a",
+        "prompt_preview": "Jordan has $274 to spend at a stationery store. Jordan purch..."
+      },
+      {
+        "line_index": 192,
+        "item_id": "math_val_0192",
+        "prompt_hash": "c3cedf1490bef239fd60888c0f6766c82f7b39478db5acc172197f2c8ffc9290",
+        "prompt_preview": "Priya starts a savings account with an initial deposit of $2..."
+      },
+      {
+        "line_index": 193,
+        "item_id": "math_val_0193",
+        "prompt_hash": "d3576cbd685fcb527c004b636ec75fd4f4662940ed644994ed754728684a24d9",
+        "prompt_preview": "A craftsman makes 24 woven baskets per hour and works for 3 ..."
+      }
+    ]
+  },
+  "science_mcq": {
+    "total_in_partition": 200,
+    "sampled_count": 20,
+    "samples": [
+      {
+        "line_index": 1,
+        "item_id": "sci_val_0001",
+        "prompt_hash": "1e02eb7c00f09b7e4d911f6f6876dde3c478ccf98b828a6523087bb0491459a1",
+        "prompt_preview": "In astrophysical terminology, what is defined as 'the gravit..."
+      },
+      {
+        "line_index": 3,
+        "item_id": "sci_val_0003",
+        "prompt_hash": "08f493c8388e4c71196c95bf7aaa181de9c426937c610e79ff7eb5c12543b561",
+        "prompt_preview": "What is the total mass in grams of 3 moles of ammonia (NH\u2083) ..."
+      },
+      {
+        "line_index": 32,
+        "item_id": "sci_val_0032",
+        "prompt_hash": "8fb8c3b67877be70b01a856866c2d2028ce1e4c06bf9786f0a91cc097c458c17",
+        "prompt_preview": "An electrical circuit contains a steady load of 30 \u03a9 with a ..."
+      },
+      {
+        "line_index": 41,
+        "item_id": "sci_val_0041",
+        "prompt_hash": "4b04e7ba4429ec77a49f464bf545ff9fae29e32123cfefa3ebc8b2b527a77bb2",
+        "prompt_preview": "In Earth sciences, which geological feature or structure is ..."
+      },
+      {
+        "line_index": 42,
+        "item_id": "sci_val_0042",
+        "prompt_hash": "4ce71539ee10ce269a5ad38fe348495b7d090168095a934d6404752b0249b114",
+        "prompt_preview": "What is the atomic number (number of nuclear protons) of the..."
+      },
+      {
+        "line_index": 43,
+        "item_id": "sci_val_0043",
+        "prompt_hash": "9085132d83905d0abcd152c2e8673f9589d8c95cc10da7be742ce7ea1c75fb5f",
+        "prompt_preview": "What is the total mass in grams of 2 moles of sodium chlorid..."
+      },
+      {
+        "line_index": 48,
+        "item_id": "sci_val_0048",
+        "prompt_hash": "ca5ec3c52e050044393f041668733dd44ad6d6f7623e5155b5bf35442a2c281f",
+        "prompt_preview": "During which specific stage of eukaryotic mitosis do nuclear..."
+      },
+      {
+        "line_index": 79,
+        "item_id": "sci_val_0079",
+        "prompt_hash": "41ee61c6ebed4e00510effe66eb3eb98d3e0e5a6f1581d1e8f3f1e4b31411e99",
+        "prompt_preview": "At 25 \u00b0C, an aqueous experimental solution exhibits a measur..."
+      },
+      {
+        "line_index": 83,
+        "item_id": "sci_val_0083",
+        "prompt_hash": "29e8130a6994bd5f2a951e8e7c470716577d910a2637d098624b92610bc43419",
+        "prompt_preview": "A sample of ideal gas occupies an initial volume of 4 L at a..."
+      },
+      {
+        "line_index": 85,
+        "item_id": "sci_val_0085",
+        "prompt_hash": "05df0d384ac6df93df5c0ddd32daef068ec862daf20a8bb4cad8e2219bd50f26",
+        "prompt_preview": "What is the total mass in grams of 5 moles of carbon dioxide..."
+      },
+      {
+        "line_index": 92,
+        "item_id": "sci_val_0092",
+        "prompt_hash": "f1121597ed177f1983bed7d7b2d929bf9d1974813ebb89c647b9c8f6bc2c4829",
+        "prompt_preview": "What is the total mass in grams of 3 moles of glucose (C\u2086H\u2081\u2082..."
+      },
+      {
+        "line_index": 96,
+        "item_id": "sci_val_0096",
+        "prompt_hash": "0b61e43a05a6f4fdaea0d3b9268c9a5962fce6c3f4a140f886a2f7281e452d88",
+        "prompt_preview": "A normal force of 4000 N is uniformly distributed over a pla..."
+      },
+      {
+        "line_index": 100,
+        "item_id": "sci_val_0100",
+        "prompt_hash": "8d528910ccf11795e4913c89fd4f81b7e96285ee6ff05a599dd7e099777ef02a",
+        "prompt_preview": "What is the kinetic energy of a 2 kg body traveling at a vel..."
+      },
+      {
+        "line_index": 108,
+        "item_id": "sci_val_0108",
+        "prompt_hash": "43aef8828c60bc8290206dd028d93626e44f82bf535521ca27334386b5e5440a",
+        "prompt_preview": "An electric motor completes 500 J of mechanical work in a du..."
+      },
+      {
+        "line_index": 119,
+        "item_id": "sci_val_0119",
+        "prompt_hash": "e5a9154d712337eb7f2007c78acbd59fb03df5713bd439092cca9f8357a7ab06",
+        "prompt_preview": "A mechanical crane exerts an upward force of 83 N to lift a ..."
+      },
+      {
+        "line_index": 158,
+        "item_id": "sci_val_0158",
+        "prompt_hash": "0207630e93db170fbe5b89edb0a8a653f4a9216b6918cc414b0b6832d18c3935",
+        "prompt_preview": "What is the magnitude of linear momentum for an object of ma..."
+      },
+      {
+        "line_index": 174,
+        "item_id": "sci_val_0174",
+        "prompt_hash": "66dd0873ec2ca3f7e1a3fc71fdcd992cdaf103163e976ac1c084ecd6709d6244",
+        "prompt_preview": "At 25 \u00b0C, an aqueous experimental solution exhibits a measur..."
+      },
+      {
+        "line_index": 180,
+        "item_id": "sci_val_0180",
+        "prompt_hash": "da5fc8f12fc6615912eaa91187b6b483abfb0d033a017030452e0a741c63bb35",
+        "prompt_preview": "At 25 \u00b0C, an aqueous experimental solution exhibits a measur..."
+      },
+      {
+        "line_index": 183,
+        "item_id": "sci_val_0183",
+        "prompt_hash": "750a401c65cfbdc3836d36e7f515fcb676b977c1dd6a2965a8a508ad9ef3bced",
+        "prompt_preview": "What is the total mass in grams of 3 moles of carbon dioxide..."
+      },
+      {
+        "line_index": 195,
+        "item_id": "sci_val_0195",
+        "prompt_hash": "2b37aabef507057b335d936a0235ed7c31c63c4e4c939fb4b1d0335eedce99f0",
+        "prompt_preview": "A mass of 29 kg accelerates at 16 m/s\u00b2 on a horizontal frict..."
+      }
+    ]
+  },
+  "knowledge_mcq": {
+    "total_in_partition": 300,
+    "sampled_count": 20,
+    "samples": [
+      {
+        "line_index": 5,
+        "item_id": "know_val_0005",
+        "prompt_hash": "6d9810a05a2f7df2f4027caf93383825195ee75c64b19448681091dff689bac4",
+        "prompt_preview": "[College Computer Science] In theoretical computer science, ..."
+      },
+      {
+        "line_index": 19,
+        "item_id": "know_val_0019",
+        "prompt_hash": "25b559dece1dc8e1d96f3f1712398aa9ab5907c1165324bb49e8fe1fe1095209",
+        "prompt_preview": "[College Computer Science] A direct-mapped CPU data cache ha..."
+      },
+      {
+        "line_index": 28,
+        "item_id": "know_val_0028",
+        "prompt_hash": "69518bf73601fd8ffc7ab53b440e60d198a129d42671153daed5993f6a05f305",
+        "prompt_preview": "[College Computer Science] In relational database design the..."
+      },
+      {
+        "line_index": 34,
+        "item_id": "know_val_0034",
+        "prompt_hash": "18ad3f996aa22bc786e554d002d63d8a1347a8ce4195d36b6a958f5b5a3666b9",
+        "prompt_preview": "[College Physics] According to the Bohr model of the hydroge..."
+      },
+      {
+        "line_index": 35,
+        "item_id": "know_val_0035",
+        "prompt_hash": "857d43b63e0cede80e2bd0f558dca6b3a8302ee94f07f420ba0c143f4996734e",
+        "prompt_preview": "[College Physics] An optical object is positioned 50 cm in f..."
+      },
+      {
+        "line_index": 57,
+        "item_id": "know_val_0057",
+        "prompt_hash": "e24416e49c119f6ed84f257f7c10b5befac703624105556fa45628291bc0af53",
+        "prompt_preview": "[College Physics] A charged particle carrying charge q = +20..."
+      },
+      {
+        "line_index": 65,
+        "item_id": "know_val_0065",
+        "prompt_hash": "a88db03be767949647f4bb400cd92688005a637421624301fc8e073759d7e003",
+        "prompt_preview": "[College Biology] A double-stranded DNA sample is analyzed a..."
+      },
+      {
+        "line_index": 76,
+        "item_id": "know_val_0076",
+        "prompt_hash": "3fdf5583a73b544c603606ac3cbfe9e4439b69e32cfae86b56231d3b0bb61d17",
+        "prompt_preview": "[College Biology] A double-stranded DNA sample is analyzed a..."
+      },
+      {
+        "line_index": 80,
+        "item_id": "know_val_0080",
+        "prompt_hash": "87bcc1946536d3c16f02dce3acc6f57224275392cda0293d4a2751471466a5c2",
+        "prompt_preview": "[College Biology] In eukaryotic cell signaling cascades, whi..."
+      },
+      {
+        "line_index": 123,
+        "item_id": "know_val_0123",
+        "prompt_hash": "72f3f40050c6d1463a8c536ee904e62f7ba8fa4f571ac6f18959704d14a997a9",
+        "prompt_preview": "[Elementary Mathematics] What is the area in square centimet..."
+      },
+      {
+        "line_index": 126,
+        "item_id": "know_val_0126",
+        "prompt_hash": "1d9290e9141df3d70e2a4dccf5f76c8c7f7234333f171833bb778671cd2b9317",
+        "prompt_preview": "[Elementary Mathematics] Solve for the unknown variable x in..."
+      },
+      {
+        "line_index": 147,
+        "item_id": "know_val_0147",
+        "prompt_hash": "8314f0f91d4ae399fbb1ba12f83727bb4b635cb8b67f65266373ee0b1459267e",
+        "prompt_preview": "[Elementary Mathematics] A rectangular fenced yard has a len..."
+      },
+      {
+        "line_index": 192,
+        "item_id": "know_val_0192",
+        "prompt_hash": "c73f07dfe668acfe7f5d9a4e7f199c73f6884d55bc2e10394adefda66b0c8bd3",
+        "prompt_preview": "[High School Geography] What is the official sovereign capit..."
+      },
+      {
+        "line_index": 235,
+        "item_id": "know_val_0235",
+        "prompt_hash": "76606962ce33c793c7e8a557e5396decb6f861da7689392874cc9070e02b692e",
+        "prompt_preview": "[Professional Law] Carl breaks the window latch of Derek's d..."
+      },
+      {
+        "line_index": 241,
+        "item_id": "know_val_0241",
+        "prompt_hash": "6913269c515d9aad2401a723c8b37c23e88c53af2ffa8685037fa7320abc747d",
+        "prompt_preview": "[Clinical Knowledge] A 45-year-old male presents with vital ..."
+      },
+      {
+        "line_index": 255,
+        "item_id": "know_val_0255",
+        "prompt_hash": "935da9426302d0d371bd5e644ee3fe9a44d98d42ea4b82ad18b5252c71835158",
+        "prompt_preview": "[Clinical Knowledge] A 56-year-old female presents with vita..."
+      },
+      {
+        "line_index": 267,
+        "item_id": "know_val_0267",
+        "prompt_hash": "f002ae7f3f238fd4aff42349da51b0a3f60b559258446b284659c1afc1801195",
+        "prompt_preview": "[Clinical Knowledge] A 23-year-old male presents with vital ..."
+      },
+      {
+        "line_index": 273,
+        "item_id": "know_val_0273",
+        "prompt_hash": "5842c41ec3506120256d32203f855d5b042e350a78bbdbf62dac52afc5a85479",
+        "prompt_preview": "[Econometrics] In an Ordinary Least Squares (OLS) multiple l..."
+      },
+      {
+        "line_index": 275,
+        "item_id": "know_val_0275",
+        "prompt_hash": "8f0f01d65964d62c03986fd6f1fabe154cb20d235ff9adb24c8770448789e5ee",
+        "prompt_preview": "[Econometrics] In a linear regression analysis, the Total Su..."
+      },
+      {
+        "line_index": 281,
+        "item_id": "know_val_0281",
+        "prompt_hash": "ae2cb7efb9f10aa4e66c1412c5c490c7ab673c81392edb535c1c069d744e672c",
+        "prompt_preview": "[Econometrics] In an Ordinary Least Squares (OLS) multiple l..."
+      }
+    ]
+  },
+  "code": {
+    "total_in_partition": 100,
+    "sampled_count": 20,
+    "samples": [
+      {
+        "line_index": 7,
+        "item_id": "code_val_0007",
+        "prompt_hash": "0ef20d9d550377dca24a00c89f8b85ff0eedc1822721896ab43da56f12012c2f",
+        "prompt_preview": "def filter_greater_than_7_007(nums: list[int]) -> list[int]:..."
+      },
+      {
+        "line_index": 17,
+        "item_id": "code_val_0017",
+        "prompt_hash": "b36595be1b3ce447270a5ec4c23fe3e8506a9796c5520278c62450d6d04ef99b",
+        "prompt_preview": "def first_missing_positive_017(nums: list[int]) -> int:     ..."
+      },
+      {
+        "line_index": 20,
+        "item_id": "code_val_0020",
+        "prompt_hash": "d90027689fecc562b3223efe6a9e5cba4babbeba841f423a0806f497f27219d5",
+        "prompt_preview": "def spiral_order_020(matrix: list[list[int]]) -> list[int]: ..."
+      },
+      {
+        "line_index": 26,
+        "item_id": "code_val_0026",
+        "prompt_hash": "ce2dc2e5365a7874814af47b23c452f18b17798f67493129a6c00decfb16d867",
+        "prompt_preview": "def first_missing_positive_026(nums: list[int]) -> int:     ..."
+      },
+      {
+        "line_index": 27,
+        "item_id": "code_val_0027",
+        "prompt_hash": "eb4923142d3fd8eb1418b5c566c80fc60554072668a60f1f0eaf4ed091adaf40",
+        "prompt_preview": "def is_balanced_brackets_027(s: str) -> bool:     \"\"\"Return ..."
+      },
+      {
+        "line_index": 28,
+        "item_id": "code_val_0028",
+        "prompt_hash": "450d84dc334123ba7b63e8bbee0db06b9037852ac22ed6cc51b04ad5815894e7",
+        "prompt_preview": "def count_divisible_by_7_028(nums: list[int]) -> int:     \"\"..."
+      },
+      {
+        "line_index": 33,
+        "item_id": "code_val_0033",
+        "prompt_hash": "b3ab8408d8b3367a5bc742317de210353286f821e1ee72f239e211cb3291ee91",
+        "prompt_preview": "def evaluate_rpn_033(tokens: list[str]) -> int:     \"\"\"Evalu..."
+      },
+      {
+        "line_index": 34,
+        "item_id": "code_val_0034",
+        "prompt_hash": "e62886edc3a9767ab2ca44510e8429d9dd8b4c0e2d7f05bf36ed38e463bf49d5",
+        "prompt_preview": "def cyclic_shift_right_1_034(nums: list[int]) -> list[int]: ..."
+      },
+      {
+        "line_index": 35,
+        "item_id": "code_val_0035",
+        "prompt_hash": "0bfb096b04a1c7fc4db6a483a69155d11f50ee8de9dabad968a62679c1bf2185",
+        "prompt_preview": "def sliding_window_max_2_035(nums: list[int]) -> list[int]: ..."
+      },
+      {
+        "line_index": 40,
+        "item_id": "code_val_0040",
+        "prompt_hash": "eda574f3a75fd1709711b4c3564aed5f9303e27ef8aaa00e28d43b4468de9350",
+        "prompt_preview": "def compress_run_length_040(s: str) -> str:     \"\"\"Compress ..."
+      },
+      {
+        "line_index": 57,
+        "item_id": "code_val_0057",
+        "prompt_hash": "6c57c172643a7a0d4a7b94244206fc8a53cb1234e5902a7d5c31c59591df5083",
+        "prompt_preview": "def longest_unique_substring_057(s: str) -> int:     \"\"\"Retu..."
+      },
+      {
+        "line_index": 60,
+        "item_id": "code_val_0060",
+        "prompt_hash": "eb92e1c6ebdbc400dfc7a1c078f48b727e9ab1099c5b2cbc8ec63ef67f204801",
+        "prompt_preview": "def first_missing_positive_060(nums: list[int]) -> int:     ..."
+      },
+      {
+        "line_index": 61,
+        "item_id": "code_val_0061",
+        "prompt_hash": "5e2bbc8268650a63aa5fb00c237d74b9588bb851537cbfbe8168eaaa8e4fc59c",
+        "prompt_preview": "def compress_run_length_061(s: str) -> str:     \"\"\"Compress ..."
+      },
+      {
+        "line_index": 66,
+        "item_id": "code_val_0066",
+        "prompt_hash": "7da9a35172cef801bdbcd8b92298de0786704f8ad7017a4b84a05640b3f3dde3",
+        "prompt_preview": "def rotate_matrix_90_clockwise_066(matrix: list[list[int]]) ..."
+      },
+      {
+        "line_index": 67,
+        "item_id": "code_val_0067",
+        "prompt_hash": "efda13acb485c9df3d4ae21372980c84f905f196f4be4b461fb7bd57bf585bd0",
+        "prompt_preview": "def spiral_order_067(matrix: list[list[int]]) -> list[int]: ..."
+      },
+      {
+        "line_index": 68,
+        "item_id": "code_val_0068",
+        "prompt_hash": "e9c1e50194654ce2382b74c31e733c926c78f4e69c982320c0f65ed4706b33a1",
+        "prompt_preview": "def rotate_matrix_90_clockwise_068(matrix: list[list[int]]) ..."
+      },
+      {
+        "line_index": 71,
+        "item_id": "code_val_0071",
+        "prompt_hash": "935940027def06796b991b9e7f7c5c8098c829fedbd1cdad37ca3bd1d56462d1",
+        "prompt_preview": "def rotate_matrix_90_clockwise_071(matrix: list[list[int]]) ..."
+      },
+      {
+        "line_index": 79,
+        "item_id": "code_val_0079",
+        "prompt_hash": "96a9bf644953f49441eb6d1a949c74475e05a575350e86a53ee73be42d1556ca",
+        "prompt_preview": "def is_balanced_brackets_079(s: str) -> bool:     \"\"\"Return ..."
+      },
+      {
+        "line_index": 84,
+        "item_id": "code_val_0084",
+        "prompt_hash": "fbca5ffe01c66d5c053975fc931f48e4fddda05494d4fec1e6c3e826c554ac72",
+        "prompt_preview": "def longest_unique_substring_084(s: str) -> int:     \"\"\"Retu..."
+      },
+      {
+        "line_index": 94,
+        "item_id": "code_val_0094",
+        "prompt_hash": "ec1475ffd37a053643a3aea42bbe64f37cf8166d0f203b606bc2ca501d88f63d",
+        "prompt_preview": "def merge_intervals_094(intervals: list[list[int]]) -> list[..."
+      }
+    ]
+  },
+  "knowledge_qa": {
+    "total_in_partition": 300,
+    "sampled_count": 20,
+    "samples": [
+      {
+        "line_index": 13,
+        "item_id": "kqa_val_0013",
+        "prompt_hash": "e8f13843988afc1a355139b07ca38bdc0356bd20b413941494c1ab495245cf40",
+        "prompt_preview": "Passage: According to the United Nations, Costa Rica had an ..."
+      },
+      {
+        "line_index": 24,
+        "item_id": "kqa_val_0024",
+        "prompt_hash": "4bb315481a7c2fc2b8f0417f9508e32a3718bafe6689331b6699e5a820075a75",
+        "prompt_preview": "Passage: Andersonville is a city in Sumter County, Georgia, ..."
+      },
+      {
+        "line_index": 54,
+        "item_id": "kqa_val_0054",
+        "prompt_hash": "23f017f078f77de029b9980b7fd6c5e3d96269244fb0cff8046ec0624dc631e9",
+        "prompt_preview": "Passage: Julius Henry \"Groucho\" Marx (; October 2, 1890 \u2013 Au..."
+      },
+      {
+        "line_index": 64,
+        "item_id": "kqa_val_0064",
+        "prompt_hash": "ad7b3157909fb11b1d835bfdcb5996dbd425fb599c590a3932828965b659fc62",
+        "prompt_preview": "Passage: Cesare Borgia (13 September 1475 \u2013 12 March 1507) w..."
+      },
+      {
+        "line_index": 69,
+        "item_id": "kqa_val_0069",
+        "prompt_hash": "3116d12ecd48f867d4c455d7038cdb1ceba2ceaaca14eeac67d236cd4b8d6210",
+        "prompt_preview": "Passage: Edwin Abbott Abbott (20 December 1838&nbsp;\u2013 12 Oct..."
+      },
+      {
+        "line_index": 88,
+        "item_id": "kqa_val_0088",
+        "prompt_hash": "686c70654ae631f9a09827ec9bb799c6362cc40c6f16996a0aaac7aba5a6e814",
+        "prompt_preview": "Passage: Hook of Holland (, ) is a coastal village in the so..."
+      },
+      {
+        "line_index": 103,
+        "item_id": "kqa_val_0103",
+        "prompt_hash": "745e9d212343c1c56999b0cc984da2333f9c2fe5bee1eaf825d531e6298a761f",
+        "prompt_preview": "Passage: Douglas Carl Engelbart (January 30, 1925 \u2013 July 2, ..."
+      },
+      {
+        "line_index": 115,
+        "item_id": "kqa_val_0115",
+        "prompt_hash": "defbf9e466469b8e96290d97b018f92a9fa2276c54a9338bc4e4105328aed12f",
+        "prompt_preview": "Passage: Daniel Jones (12 September 1881 \u2013 4 December 1967) ..."
+      },
+      {
+        "line_index": 123,
+        "item_id": "kqa_val_0123",
+        "prompt_hash": "c0690c84b37c90264221f96d7851eb183b524608610d36f6afed066d35a6314d",
+        "prompt_preview": "Passage: Eugene Paul Wigner (, ; November 17, 1902 \u2013 January..."
+      },
+      {
+        "line_index": 156,
+        "item_id": "kqa_val_0156",
+        "prompt_hash": "52805b0c5c19baf63202f2b4c7634c31a488e5f66ad29c7721808b520aeb0c2b",
+        "prompt_preview": "Passage: Ghent is a city and a municipality in the East Flan..."
+      },
+      {
+        "line_index": 158,
+        "item_id": "kqa_val_0158",
+        "prompt_hash": "dff924f3f73457c6b0cb77afdc5fefea97e0b947702bb66b4ca6459138b3f0b4",
+        "prompt_preview": "Passage: Anita Faye Hill (born July 30, 1956) is an American..."
+      },
+      {
+        "line_index": 178,
+        "item_id": "kqa_val_0178",
+        "prompt_hash": "b55dd6816c7dcbaf913a15294659874d6ed16f891bea450718e4fa86dcfdc9a6",
+        "prompt_preview": "Passage: Irwin Allen Ginsberg (; June 3, 1926 \u2013 April 5, 199..."
+      },
+      {
+        "line_index": 184,
+        "item_id": "kqa_val_0184",
+        "prompt_hash": "eb0f3293b9294f43565251f70f701827b5802a873c2bdb1a15bdde20c8633abd",
+        "prompt_preview": "Passage: Irwin Allen Ginsberg (; June 3, 1926 \u2013 April 5, 199..."
+      },
+      {
+        "line_index": 186,
+        "item_id": "kqa_val_0186",
+        "prompt_hash": "33b1a088bcb76c71b17ee339bac1254379f72979692ffac1aa7556500aaca070",
+        "prompt_preview": "Passage: Immanuel Kant (born Emanuel Kant; 22 April 1724&nbs..."
+      },
+      {
+        "line_index": 252,
+        "item_id": "kqa_val_0252",
+        "prompt_hash": "84e5b37b3c607aa68d340de671023a797bfc8235bc0782154ee490f229b30e31",
+        "prompt_preview": "Passage: Alp Arslan (Persian: \u0622\u0644\u067e \u0627\u0631\u0633\u0644\u0627\u0646; full name: Muhamma..."
+      },
+      {
+        "line_index": 256,
+        "item_id": "kqa_val_0256",
+        "prompt_hash": "3c5f377b88e9e152d39c32df5e2a7e2e5fdecc2b38c964fe7bb6de60f1be358d",
+        "prompt_preview": "Passage: Agostino Carracci ( , , ; also Caracci; 16 August 1..."
+      },
+      {
+        "line_index": 257,
+        "item_id": "kqa_val_0257",
+        "prompt_hash": "ec027f8dc779ecd24c8a13c595cf11aded8b447487788f9f340c64ab7a75d035",
+        "prompt_preview": "Passage: Aage Niels Bohr (; 19 June 1922 \u2013 8 September 2009)..."
+      },
+      {
+        "line_index": 271,
+        "item_id": "kqa_val_0271",
+        "prompt_hash": "2a096e4e4ec035bdd94ae7d4a2884dcb4946f835755e2acbacd7739366b5dd9d",
+        "prompt_preview": "Passage: Cyril of Alexandria (; or or \u2ca1\u2c93\u0300\u2c81\u2c85\u2c93\u2c9f\u2ca5 \u2c94\u2c93\u2ca3\u2c93\u2c97\u2c97\u2c9f\u2ca5; &nb..."
+      },
+      {
+        "line_index": 289,
+        "item_id": "kqa_val_0289",
+        "prompt_hash": "78d9c845961aa05be9bb7289031968cdc28061a4a96bf765c6b025c099297f2d",
+        "prompt_preview": "Passage: Gavin MacLeod ( ; born Allan George See; February 2..."
+      },
+      {
+        "line_index": 298,
+        "item_id": "kqa_val_0298",
+        "prompt_hash": "3f9a0ee8c96db07cc778522a421af178930e7bb99a7cefdc42e6b8aa203c9500",
+        "prompt_preview": "Passage: Graham Chapman (8 January 1941 \u2013 4 October 1989) wa..."
+      }
+    ]
+  },
+  "memory_probe": {
+    "total_in_partition": 100,
+    "sampled_count": 20,
+    "samples": [
+      {
+        "line_index": 11,
+        "item_id": "mem_val_0011",
+        "prompt_hash": "3afcf7e90c3cb90fe3760b5557f30eea92e1b06dca56801215f6b8eee4d52d84",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      },
+      {
+        "line_index": 26,
+        "item_id": "mem_val_0026",
+        "prompt_hash": "c76f5ea79a48576a00240771fd2f502bd68e24999940c4a22db1ae34afaf46e7",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      },
+      {
+        "line_index": 27,
+        "item_id": "mem_val_0027",
+        "prompt_hash": "d0672fa0bf431c8c782b27c4f47c1125d9bc5d932106978f457b8c842b665c48",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      },
+      {
+        "line_index": 34,
+        "item_id": "mem_val_0034",
+        "prompt_hash": "9e3406bdb820f041f08f82e2096aa087b906939dd8a660986c418ff5adf0fc86",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      },
+      {
+        "line_index": 37,
+        "item_id": "mem_val_0037",
+        "prompt_hash": "c4f5f4405a55ddf86cb5f3c55c43daa03f8c786ef554b810fc93bd623ed143dc",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      },
+      {
+        "line_index": 39,
+        "item_id": "mem_val_0039",
+        "prompt_hash": "1a99de455502a64438568fc3aa58ddd55ae96d872e98084dcbe9211b2cba9d43",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      },
+      {
+        "line_index": 42,
+        "item_id": "mem_val_0042",
+        "prompt_hash": "791206b126c2683485f3229690c7ff5556bd978fc91b85810118a6d8a64558a0",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      },
+      {
+        "line_index": 45,
+        "item_id": "mem_val_0045",
+        "prompt_hash": "9908df8c415525b5af8ab00e369a44dff651a255fa64f7006529327faf892706",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      },
+      {
+        "line_index": 46,
+        "item_id": "mem_val_0046",
+        "prompt_hash": "d2c14a8ecab811dd63aa0f7c60495106226d11eba717220b05a2caecb6ead037",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      },
+      {
+        "line_index": 57,
+        "item_id": "mem_val_0057",
+        "prompt_hash": "dff5d340aade3aeadaa58f7e588896e418d6eb8997a36f3fda0fcf77947db798",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      },
+      {
+        "line_index": 61,
+        "item_id": "mem_val_0061",
+        "prompt_hash": "0403ecf1fea0fec125c87721f27a410b27610a8e21395bc999b9cd7781e4d8cb",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      },
+      {
+        "line_index": 62,
+        "item_id": "mem_val_0062",
+        "prompt_hash": "bb2668f0841d0b6c3ab835894a1bc696f155221bb511f8b33b8d4dc2b8dc35e5",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      },
+      {
+        "line_index": 66,
+        "item_id": "mem_val_0066",
+        "prompt_hash": "ae574f4cdafa5a61e46e9e7b9600822e53dad66707823d647c478f3d18a0e266",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      },
+      {
+        "line_index": 83,
+        "item_id": "mem_val_0083",
+        "prompt_hash": "c56c35a2b2f3e5289f46d22476575e36ae806e7ee928c5f6851573c5cee62965",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      },
+      {
+        "line_index": 84,
+        "item_id": "mem_val_0084",
+        "prompt_hash": "31520e3796dc22fdc5c45bb500ec2d387f5cc51d2eea324189f90619b3d853d5",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      },
+      {
+        "line_index": 85,
+        "item_id": "mem_val_0085",
+        "prompt_hash": "af278b4300e93d96a565d03429617b3edf14f50f52177026b82046e9a90c4995",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      },
+      {
+        "line_index": 88,
+        "item_id": "mem_val_0088",
+        "prompt_hash": "c7f6571f9251d9d7e4e26f564953b295fc4a11f26914c7a6eaf1058834ac6cb7",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      },
+      {
+        "line_index": 92,
+        "item_id": "mem_val_0092",
+        "prompt_hash": "606cb4870bac2eb54626c3d888872bb85ab82189b85808bddda70d3ee6e35e87",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      },
+      {
+        "line_index": 93,
+        "item_id": "mem_val_0093",
+        "prompt_hash": "2a8369cd130a9cf17367242c3ff5289afc69ed883755f27f359ac46eefdf5922",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      },
+      {
+        "line_index": 95,
+        "item_id": "mem_val_0095",
+        "prompt_hash": "0bde29813ecc3c8df3d9e7423f29aaf4160da7b5add7ba1660fdb31605cb8943",
+        "prompt_preview": "Review the personal history log below and answer the questio..."
+      }
+    ]
+  }
+}

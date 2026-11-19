@@ -42,37 +42,41 @@ def extract_mcq_answer(text: str) -> str | None:
     if boxed_match:
         return boxed_match.group(1).upper()
 
-    # 3. Explicit answer declarations:
-    # Matches "The correct answer is C)", "correct answer is A", "the answer is B", "Answer: D", "Final Answer: C"
+    lines = [ln.strip() for ln in clean.splitlines() if ln.strip()]
+
+    # 3. Explicit declarative answer statements (wins over leading-option lines)
+    # Operates strictly single-line (never matching across newlines)
+    # Matches: "The correct answer is C)", "correct answer is A", "the answer is B", "Answer: D", "Final Answer: C"
     decl_pattern = re.compile(
-        r"(?i)(?:the\s+)?(?:correct\s+)?(?:final\s+)?(?:answer|choice|option)\s*(?:is|are|[:=\*])\s*[\(\[]?\s*([A-D])(?:\)|\.|\s|$)"
+        r"(?i)\b(?:the\s+)?(?:correct\s+)?(?:final\s+)?(?:answer|choice|option)\s*(?:is|are|[:=\*])\s*[\(\[]?\s*([A-D])(?:\)|\.|\s|$)"
     )
     # Search backwards through lines so the concluding answer wins if multiple
-    lines = [ln.strip() for ln in clean.splitlines() if ln.strip()]
     for line in reversed(lines):
         m = decl_pattern.search(line)
         if m:
             return m.group(1).upper()
 
-    # Also check full text if line breaks split words
-    m_full = decl_pattern.search(clean)
-    if m_full:
-        return m_full.group(1).upper()
-
-    # 4. Leading option format on any line: "A) ...", "(B) ...", "C. ...", "**D**"
+    # 4. Leading option rule: applies ONLY when output has a single option line.
+    # Several option lines without a declarative statement return None (option-list output).
+    lead_options = []
     for line in lines:
-        m_lead = re.match(r"^[\(\[]?\s*([A-D])\s*[\)\.\:\-]\s*", line)
+        m_lead = re.match(r"^[\(\[]?\s*([A-D])\s*[\)\.\:\-](?:\s+|$)", line)
         if m_lead:
-            return m_lead.group(1).upper()
+            lead_options.append(m_lead.group(1).upper())
 
-    # 5. Bold option marker: "**A**" or "__B__"
+    if len(lead_options) == 1:
+        return lead_options[0]
+    elif len(lead_options) > 1:
+        return None
+
+    # 5. Bold option marker: "**A**" or "__B__" (only if single unique marker)
     bold_matches = re.findall(r"(?:\*\*|__)\s*([A-D])\s*(?:\*\*|__)", clean)
-    if bold_matches:
-        return bold_matches[-1].upper()
+    if len(bold_matches) == 1:
+        return bold_matches[0].upper()
 
-    # 6. Standalone isolated letter if text is short (at most 6 words)
+    # 6. Standalone isolated letter if text is very short (at most 2 lines, <= 6 words, exactly 1 letter)
     end_matches = re.findall(r"\b([A-D])\b", clean)
-    if len(lines) <= 2 and len(clean.split()) <= 6 and end_matches:
+    if len(lines) <= 2 and len(clean.split()) <= 6 and len(end_matches) == 1:
         return end_matches[0].upper()
 
     return None
