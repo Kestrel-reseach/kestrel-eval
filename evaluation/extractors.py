@@ -61,7 +61,7 @@ def extract_mcq_answer(text: str) -> str | None:
     # Several option lines without a declarative statement return None (option-list output).
     lead_options = []
     for line in lines:
-        m_lead = re.match(r"^[\(\[]?\s*([A-D])\s*[\)\.\:\-](?:\s+|$)", line)
+        m_lead = re.match(r"^[\(\[]?\s*([A-D])\s*(?:[\)\.\:\-]|\s*$)", line)
         if m_lead:
             lead_options.append(m_lead.group(1).upper())
 
