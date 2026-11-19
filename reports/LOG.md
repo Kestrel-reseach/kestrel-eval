@@ -256,6 +256,25 @@ This log records dated progress, measurements, commits, and open issues for each
   - Preflight checks verified clean: 199 tests pass, ruff lint and format check pass, repository rules pass.
 - **Status**: Step 2 complete; all deliverables verified and committed; ready for co-owner review and merge to main.
 
+---
+
+### 2026-11-19 — Step 2 Part 4V: Red Flags Verification & Hardware Evidence Pass
+- **Step**: Step 2 (Baselines and Frontier Reference $F$ — Part 4V Verification)
+- **Branch**: `step-2-baselines-and-f` (`kestrel-eval`)
+- **Result**:
+  - Addressed all co-owner review red flags (V1-V10).
+  - **V1 (Real Inference)**: Executed real forward passes with `Qwen/Qwen2.5-0.5B-Instruct` FP16 on `cuda:0` (RTX 3050 Laptop GPU, 942.3 MB allocated VRAM). Evidenced real generation spread: MCQ p50 226.7 ms (10 tokens) vs math p50 4,607.1 ms (128 tokens), true overall p95/p50 ratio of 8.15x. Prior simulated ratio (1.11x) explicitly marked UNVERIFIED and explained as uniform jitter artifact.
+  - **V2 (Controls)**: Verified 100/100 string equality in determinism test under greedy decoding; verified shuffled MCQ accuracy drops to 24.0% (~25% chance); verified trivial constant baseline scores 10.92%.
+  - **V3 (Energy)**: Evidenced NVML counter sampling interval (10.7 Hz, 93.1 ms avg); measured 50-item window energy (699.97 J gross / 586.40 J net); recomputed Step 0 pilot net energy to 611.0 J using canonical formal idle power $P_{\text{idle}} = 6.1444$ W; set 3B candidate energy to UNMEASURED (CPU tier per D7).
+  - **V4 (Gates)**: Recomputed Gate G-Q baseline on 800 checkable/store items to 60.50% (pass target $\ge 65.50\%$); confirmed stale-fact error is evaluated out of 30 stale items (7/30 = 23.33%); G-M plain external memory baseline marked NOT YET BUILT.
+  - **V5 (Manifest)**: Bumped `evaluation/manifest.yaml` to v1.2 with new config hash (`5ded6843...`); verified locked root hash (`22fff5e0...`) strictly unchanged.
+  - **V6 (Run Index & Archive)**: Generated `reports/step2/run_index.md` with full SHA-256 checksums; archived validation JSONLs into `runs/step2_validation_runs.tar.gz` (SHA-256: `92f338d4...`).
+  - **V7 (Deviations)**: Documented candidate model family (Qwen2.5/Granite 3.1) and BM25 flat retriever in `reports/step2_deviations.md`.
+  - **V8 (Frontier F)**: Corrected validation pacing to 1,300 calls (26.0 days at 50 RPD); removed confidence intervals from UNMEASURED F rows in `baselines/baseline_table.md`.
+  - **V9 (Locked Exposure)**: Audited 50 exposed Knowledge QA samples from PR #11; burn-and-replace proposal remains PROPOSED (PENDING OWNER DECISION).
+- **Status**: Step 2 status is **PARTIAL** (Frontier F pending; local baselines verified/evidenced). Ready for co-owner approval for Part 5 handoff.
+
+
 
 
 

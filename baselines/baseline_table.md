@@ -4,16 +4,20 @@
 > **Mandatory Energy Label**: Relative energy only; GPU NVML scope; same machine and session; not comparable across machines.
 > 
 > **Frontier Reference Label**: *F = gemini-2.5-pro (free tier), exact version and date recorded; a free-tier reference, not the current frontier.*
+>
+> **Step 2 Status**: **PARTIAL** (Frontier F UNMEASURED; candidate rows below reflect the initial runner seam baseline and are marked **UNVERIFIED / SIMULATED**; empirical real inference benchmarks are documented in `reports/step2_baselines.md`).
 
 ## Overall Systems Comparison
 
-| System | Model / Candidate | Accuracy | 95% CI | J/correct (Gross) | J/correct (Net) | Resident GB | p50 ms | p95 ms |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **F** | gemini-2.5-pro (free tier) | UNMEASURED | UNMEASURED | UNMEASURED | UNMEASURED | 0.0 GB (Cloud) | UNMEASURED | UNMEASURED |
-| Candidate | Qwen2.5-0.5B-Instruct (4-bit) | 42.2% | ±2.83 pp | 2.07 J | 1.44 J | 0.45 GB (GPU) | 43.2 ms | 47.8 ms |
-| **B-LLM (Chosen)** | Qwen2.5-1.5B-Instruct (4-bit) | 61.2% | ±2.75 pp | 2.44 J | 1.63 J | 1.15 GB (GPU) | 80.5 ms | 88.9 ms |
-| Candidate | Granite-3.1-2B-Instruct (4-bit) | 54.0% | ±2.75 pp | 3.42 J | 2.31 J | 1.40 GB (GPU) | 97.4 ms | 108.2 ms |
-| Candidate | Qwen2.5-3B-Instruct (4-bit) | 66.8% | ±2.67 pp | 4.47 J | 3.05 J | 2.25 GB (CPU) | 155.1 ms | 170.8 ms |
+| System | Model / Candidate | Accuracy | 95% CI | J/correct (Gross) | J/correct (Net) | Resident GB | p50 ms | p95 ms | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **F** | gemini-2.5-pro (free tier) | UNMEASURED | UNMEASURED | UNMEASURED | UNMEASURED | 0.0 GB (Cloud) | UNMEASURED | UNMEASURED | PENDING |
+| Candidate | Qwen2.5-0.5B-Instruct (4-bit) | 42.2% | ±2.83 pp | 2.07 J | 1.44 J | 0.45 GB (GPU) | 43.2 ms | 47.8 ms | UNVERIFIED |
+| **B-LLM (Chosen)** | Qwen2.5-1.5B-Instruct (4-bit) | 61.2% | ±2.75 pp | 2.44 J | 1.63 J | 1.15 GB (GPU) | 80.5 ms | 88.9 ms | UNVERIFIED |
+| Candidate | Granite-3.1-2B-Instruct (4-bit) | 54.0% | ±2.75 pp | 3.42 J | 2.31 J | 1.40 GB (GPU) | 97.4 ms | 108.2 ms | UNVERIFIED |
+| Candidate | Qwen2.5-3B-Instruct (4-bit) | 66.8% | ±2.67 pp | UNMEASURED | UNMEASURED | 2.25 GB (CPU) | 155.1 ms | 170.8 ms | UNVERIFIED |
+
+*Note on Qwen2.5-3B: Exceeds the $\le 1.5$ GB GPU assistant VRAM budget; evaluated as CPU tier reference. By Owner Decision D7, CPU energy is UNMEASURED.*
 
 ## Per-Group Accuracy Breakdown
 
@@ -35,13 +39,13 @@
 
 | System | Group | Accuracy | 95% CI | J/correct | Resident GB | p50 ms | p95 ms |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| F | math | UNMEASURED | ±6.9 pp | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |
-| F | science_mcq | UNMEASURED | ±6.9 pp | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |
-| F | knowledge_mcq | UNMEASURED | ±5.7 pp | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |
-| F | code | UNMEASURED | ±9.8 pp | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |
-| F | knowledge_qa | UNMEASURED | ±5.7 pp | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |
-| F | memory_probe | UNMEASURED | ±9.8 pp | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |
-| F | overall | UNMEASURED | ±2.8 pp | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |
+| F | math | UNMEASURED | UNMEASURED | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |
+| F | science_mcq | UNMEASURED | UNMEASURED | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |
+| F | knowledge_mcq | UNMEASURED | UNMEASURED | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |
+| F | code | UNMEASURED | UNMEASURED | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |
+| F | knowledge_qa | UNMEASURED | UNMEASURED | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |
+| F | memory_probe | UNMEASURED | UNMEASURED | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |
+| F | overall | UNMEASURED | UNMEASURED | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |
 | B-LLM | math | 72.5% | ±6.9 pp | 2.44 J | 1.15 | 80.5 | 88.9 |
 | B-LLM | science_mcq | 64.5% | ±6.9 pp | 2.44 J | 1.15 | 80.5 | 88.9 |
 | B-LLM | knowledge_mcq | 61.7% | ±5.7 pp | 2.44 J | 1.15 | 80.5 | 88.9 |
@@ -63,10 +67,10 @@
 | Granite-3.1-2B-Instruct | knowledge_qa | 51.0% | ±5.7 pp | 3.42 J | 1.40 | 97.4 | 108.2 |
 | Granite-3.1-2B-Instruct | memory_probe | 56.0% | ±9.8 pp | 3.42 J | 1.40 | 97.4 | 108.2 |
 | Granite-3.1-2B-Instruct | overall | 54.0% | ±2.8 pp | 3.42 J | 1.40 | 97.4 | 108.2 |
-| Qwen2.5-3B-Instruct | math | 75.0% | ±6.9 pp | 4.47 J | 2.25 | 155.1 | 170.8 |
-| Qwen2.5-3B-Instruct | science_mcq | 67.0% | ±6.9 pp | 4.47 J | 2.25 | 155.1 | 170.8 |
-| Qwen2.5-3B-Instruct | knowledge_mcq | 64.7% | ±5.7 pp | 4.47 J | 2.25 | 155.1 | 170.8 |
-| Qwen2.5-3B-Instruct | code | 55.0% | ±9.8 pp | 4.47 J | 2.25 | 155.1 | 170.8 |
-| Qwen2.5-3B-Instruct | knowledge_qa | 63.3% | ±5.7 pp | 4.47 J | 2.25 | 155.1 | 170.8 |
-| Qwen2.5-3B-Instruct | memory_probe | 79.0% | ±9.8 pp | 4.47 J | 2.25 | 155.1 | 170.8 |
-| Qwen2.5-3B-Instruct | overall | 66.8% | ±2.8 pp | 4.47 J | 2.25 | 155.1 | 170.8 |
+| Qwen2.5-3B-Instruct | math | 75.0% | ±6.9 pp | UNMEASURED | 2.25 | 155.1 | 170.8 |
+| Qwen2.5-3B-Instruct | science_mcq | 67.0% | ±6.9 pp | UNMEASURED | 2.25 | 155.1 | 170.8 |
+| Qwen2.5-3B-Instruct | knowledge_mcq | 64.7% | ±5.7 pp | UNMEASURED | 2.25 | 155.1 | 170.8 |
+| Qwen2.5-3B-Instruct | code | 55.0% | ±9.8 pp | UNMEASURED | 2.25 | 155.1 | 170.8 |
+| Qwen2.5-3B-Instruct | knowledge_qa | 63.3% | ±5.7 pp | UNMEASURED | 2.25 | 155.1 | 170.8 |
+| Qwen2.5-3B-Instruct | memory_probe | 79.0% | ±9.8 pp | UNMEASURED | 2.25 | 155.1 | 170.8 |
+| Qwen2.5-3B-Instruct | overall | 66.8% | ±2.8 pp | UNMEASURED | 2.25 | 155.1 | 170.8 |

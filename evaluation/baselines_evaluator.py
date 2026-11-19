@@ -312,6 +312,8 @@ def generate_baseline_table(
         f"> **Mandatory Energy Label**: {MANDATORY_ENERGY_LABEL}",
         "> ",
         "> **Frontier Reference Label**: *F = gemini-2.5-pro (free tier), exact version and date recorded; a free-tier reference, not the current frontier.*",
+        "> ",
+        "> **Step 2 Status**: PARTIAL (Frontier F UNMEASURED; candidate results marked UNVERIFIED/SIMULATED pending full verification pass).",
         "",
         "## Overall Systems Comparison",
         "",
@@ -331,8 +333,12 @@ def generate_baseline_table(
         cand = get_candidate(cid)
         acc_pct = f"{s.overall_accuracy * 100:.1f}%"
         ci_str = f"±{abs(s.ci_95[1] - s.overall_accuracy * 100):.2f} pp"
-        gross_j = f"{s.gross_joules_per_correct} J" if s.gross_joules_per_correct else "N/A"
-        net_j = f"{s.net_joules_per_correct} J" if s.net_joules_per_correct else "N/A"
+        if cand.tier == "cpu":
+            gross_j = "UNMEASURED"
+            net_j = "UNMEASURED"
+        else:
+            gross_j = f"{s.gross_joules_per_correct} J" if s.gross_joules_per_correct else "N/A"
+            net_j = f"{s.net_joules_per_correct} J" if s.net_joules_per_correct else "N/A"
         tier_label = f"{s.resident_vram_gb:.2f} GB ({cand.tier.upper()})"
 
         lines.append(
@@ -401,10 +407,10 @@ def generate_baseline_table(
         ("overall", "±2.8 pp"),
     ]
 
-    # F rows
-    for grp, ci_hw in canonical_groups:
+    # F rows (no CI while UNMEASURED per verification audit V8)
+    for grp, _ in canonical_groups:
         lines.append(
-            f"| F | {grp} | UNMEASURED | {ci_hw} | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |"
+            f"| F | {grp} | UNMEASURED | UNMEASURED | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |"
         )
 
     # B-LLM rows
@@ -445,7 +451,10 @@ def generate_baseline_table(
                 acc_val = f"{s.overall_accuracy * 100:.1f}%"
             else:
                 acc_val = f"{s.group_accuracies.get(grp, 0.0) * 100:.1f}%"
-            j_val = f"{s.gross_joules_per_correct} J" if s.gross_joules_per_correct else "N/A"
+            if cand.tier == "cpu":
+                j_val = "UNMEASURED"
+            else:
+                j_val = f"{s.gross_joules_per_correct} J" if s.gross_joules_per_correct else "N/A"
             res_gb = f"{s.resident_vram_gb:.2f}"
             lines.append(
                 f"| {cand.model_name} | {grp} | {acc_val} | {ci_hw} | {j_val} | {res_gb} | {s.p50_latency_ms} | {s.p95_latency_ms} |"
