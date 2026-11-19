@@ -1,13 +1,17 @@
-# Project Kestrel — Step 2 Complete Summary Report: Baselines and Frontier Reference F
+# Project Kestrel — Step 2 Summary Report: Baselines and Frontier Reference F — INVALID (SIMULATED)
+
+> [!CAUTION]
+> **AUDIT INVALIDATION NOTICE**: All numbers, candidate rankings, the B-LLM selection (Qwen2.5-1.5B), the +19 pp retrieval diagnostic, and energy figures in this report are **INVALID (SIMULATED)**.
+> They originated from a mock runner seam and are retracted. Step 2 is being re-executed under real autoregressive inference on branch `step-2r` (Part 4R).
 
 **Date**: 2026-11-19  
-**Step**: Step 2 (Baselines and Frontier Reference $F$) — Part 4V Verification  
-**Branch**: `step-2-baselines-and-f`  
+**Step**: Step 2 (Baselines and Frontier Reference $F$) — Part 4R Re-Execution  
+**Branch**: `step-2r`  
 **Repository**: `kestrel-eval`  
 **Hardware Tier**: AMD Ryzen 7 7435HS + NVIDIA GeForce RTX 3050 Laptop GPU (4 GB VRAM)  
 **Assistant VRAM Budget**: $\le 1.5$ GB (Context window: 2048 tokens)  
 **Evaluation Partition**: `suite/validation/` (1,200 items across all 6 task groups)  
-**Step 2 Status**: **PARTIAL** (Baselines verified; Frontier $F$ UNMEASURED; candidate rows marked UNVERIFIED/SIMULATED; real inference benchmarks evidenced on GPU)
+**Step 2 Status**: **INVALID (SIMULATED)** — Under Active Real Re-Execution
 
 ---
 

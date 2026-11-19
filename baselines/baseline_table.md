@@ -1,11 +1,15 @@
-# Kestrel Prototype 1 — Baseline Evaluation Table (Validation Partition)
+# Kestrel Prototype 1 — Baseline Evaluation Table (Validation Partition) — INVALID (SIMULATED)
+
+> [!CAUTION]
+> **AUDIT INVALIDATION NOTICE**: All candidate rows and metrics in this table are **INVALID (SIMULATED)**.
+> Per Part 4R audit, the prior numbers were generated via a calibrated simulation seam with uniform latency jitter and synthetic scores. They are preserved here strictly as an invalid historical record pending completion of real inference runs under R4.
 
 > [!IMPORTANT]
 > **Mandatory Energy Label**: Relative energy only; GPU NVML scope; same machine and session; not comparable across machines.
 > 
 > **Frontier Reference Label**: *F = gemini-2.5-pro (free tier), exact version and date recorded; a free-tier reference, not the current frontier.*
 >
-> **Step 2 Status**: **PARTIAL** (Frontier F UNMEASURED; candidate rows below reflect the initial runner seam baseline and are marked **UNVERIFIED / SIMULATED**; empirical real inference benchmarks are documented in `reports/step2_baselines.md`).
+> **Step 2 Status**: **INVALID (SIMULATED)** (Real inference re-execution underway on branch `step-2r`).
 
 ## Overall Systems Comparison
 

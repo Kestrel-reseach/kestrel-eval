@@ -60,3 +60,4 @@
 ### Implementation:
 - Evaluated both the 300-item `knowledge_qa` subset and recorded the full 1,200 validation suite with retrieval disabled (`run-qwen2.5-1.5b-instruct-q4_no_retrieval.jsonl`).
 - Both records are archived in `runs/step2_validation_runs.tar.gz`.
+

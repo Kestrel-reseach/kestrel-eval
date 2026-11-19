@@ -21,7 +21,7 @@
 # These decisions are frozen. Do not change a threshold after seeing results.
 
 schema_version: "1"
-manifest_version: "1.2"       # v1.2: Record chosen B-LLM Qwen2.5-1.5B-Instruct and candidate measurements (Step 2 Part 4b/4V)
+manifest_version: "1.3"       # v1.3: Invalidate mock Step 2 results; reset chosen B-LLM pending real inference under Part 4R
 git_commit: UNSET            # filled by run_matrix.py at run time
 created_at: "2026-11-18"
 frozen: true                 # confirmed by owner decision D4 on 2026-11-18; non-inferiority margin 3 pp
@@ -227,8 +227,8 @@ systems:
       - "Granite-4.0-Nano-1.5B 4-bit (example candidate; unverified after early 2026, confirm before download)"
       - "LFM2 (example candidate; unverified after early 2026, confirm version and size before download)"
     candidates_note: "Model versions and sizes dated after early 2026 are unverified; confirm before downloading per rules.md."
-    chosen: "Qwen2.5-1.5B-Instruct 4-bit (AWQ / GGUF Q4_K_M; 1.18 GB VRAM)"
+    chosen: "PENDING_REAL_RUN"
     selection_criterion: "accuracy-versus-energy-versus-memory trade-off, by measurement"
   P1:
     description: "Kestrel-lite prototype from the kestrel repository."
-    base_model: "Qwen2.5-1.5B-Instruct 4-bit (AWQ / GGUF Q4_K_M)"
+    base_model: "PENDING_REAL_RUN"
