@@ -254,3 +254,27 @@ class TestKnowledgeQAExtractor:
         res, gran4 = parse_date_strict("Invalid Date")
         assert gran4 == "none"
         assert res is None
+
+    def test_profession_list_vs_single_target(self) -> None:
+        """Emitting a broad list of professions does not match a single target under normalized match."""
+        # A list containing commas and 'and' must NOT match single target 'actress'
+        assert score_frozen_exact_match("singer, actress, dancer, and model", "actress") is False
+        assert score_frozen_exact_match("singer and actress", "actress") is False
+        # Exact match or alias matches
+        assert score_frozen_exact_match("actress", "actress") is True
+        assert score_frozen_exact_match("film actress", "actress", aliases=["film actress"]) is True
+
+    def test_year_only_rejected_for_full_date(self) -> None:
+        """Year-only prediction is rejected when target specifies a full date."""
+        assert score_frozen_exact_match("1976", "11 May 1976") is False
+        assert score_frozen_exact_match("1072", "24 November 1072") is False
+        # Year-only is accepted if and only if target is year-only
+        assert score_frozen_exact_match("1976", "1976") is True
+        assert score_frozen_exact_match("in 1976", "1976") is True
+
+    def test_numbers_with_units(self) -> None:
+        """Numbers with unit words or textual multipliers match their numeric target."""
+        assert score_frozen_exact_match("17 million inhabitants", "17 million") is True
+        assert score_frozen_exact_match("17 million inhabitants", "17000000") is True
+        assert score_frozen_exact_match("535,932 people", "535,932") is True
+        assert score_frozen_exact_match("535932 residents", "535,932") is True

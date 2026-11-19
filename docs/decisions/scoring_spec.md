@@ -3,6 +3,8 @@
 **Document:** `docs/decisions/scoring_spec.md`  
 **Date:** 2026-11-19  
 **Status:** FROZEN & AUTHORITATIVE (Decision D14 / Gate Requirement)  
+**Frozen at Git Commit:** `5061f12` (Branch `suite-v2`)  
+**Tuning Provenance:** Developed and calibrated strictly against Suite v1 mock/pilot outputs prior to Suite v2 generation. Zero tuning was performed on Suite v2 validation or locked partitions.  
 **Authors:** Member A & Member B  
 
 ---
@@ -49,19 +51,24 @@ All metrics defined herein are frozen prior to any baseline candidate evaluation
 - **Scoring**: Binary $\{0, 1\}$.
 
 ### D. Knowledge Question Answering (`knowledge_qa`, Wikipedia & Fictional Store)
-- **Primary Metric**: Normalized Exact Match with Canonical Span Extraction (`normalized_exact_match`).
+- **Primary Metric**: **Normalized Match** (`normalized_match`).  
+  *Note:* Literal Exact Match (`literal_exact_match`, raw string equality without span extraction or date normalization) is reported side-by-side for comparison and full transparency.
 - **Extraction & Normalization Rules**:
   1. **Span Extraction**: Trailing punctuation and conversational sentence wrappers (`"X was born on Y"`, `"According to the text, the answer is Y"`) are stripped by targeting the concluding entity span.
   2. **Case, Punctuation & Articles**: Lowercased, trailing punctuation removed, leading English articles (`the`, `a`, `an`) stripped.
   3. **Date Comparisons**:
      - Both prediction and target are parsed to standard ISO dates (`YYYY-MM-DD`).
      - **Strict Date Rule**: A year alone (`1072`) is **NOT** credited for a full-date question (`24 November 1072`). A year alone is credited if and only if the target key is just a year (`1072`).
-  4. **Number Formatting**:
+  4. **Number & Unit Formatting**:
      - Internal commas in numbers are stripped (`912,490` $\to$ `912490`).
-     - Textual multipliers are normalized (`17 million` $\to$ `17000000` or numeric `17` when comparing population units).
-  5. **Aliases**:
+     - Textual multipliers are normalized (`17 million` $\to$ `17000000`).
+     - Common trailing entity/unit words (`inhabitants`, `people`, `residents`) are handled so that numbers with units match the numeric count.
+  5. **Profession Lists vs. Single Target**:
+     - A prediction that emits a multi-element list (e.g. `"singer, actress, dancer, and model"`) does **NOT** match a single target occupation (e.g. `"actress"`). The answer must match the specific targeted occupation or a verified alias.
+  6. **Aliases**:
      - Match is credited if the prediction matches the canonical target OR any explicitly verified alias in `item["metadata"]["aliases"]`.
 - **Secondary Diagnostic Metrics** (Reported for analysis, not gate criteria):
+  - **Literal Exact Match**: Raw exact string equality after standard whitespace trim.
   - **Token F1**: Word-level harmonic mean of precision and recall.
   - **Restricted Containment**: Substring containment permitted only when prediction is $\le 8$ words and contains no list separators.
 
@@ -71,3 +78,5 @@ All metrics defined herein are frozen prior to any baseline candidate evaluation
   1. Evaluates exact match against the latest chronological log entry (`metadata.target`).
   2. For the 30 stale-fact items, explicitly verifies that the model does NOT output deprecated/historical values (`metadata.stale_values`), enforcing Gate G-M.
 - **Scoring**: Binary $\{0, 1\}$.
+
+

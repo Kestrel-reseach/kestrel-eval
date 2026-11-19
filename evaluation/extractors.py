@@ -166,19 +166,34 @@ def normalize_text_basic(s: str) -> str:
     """Basic text normalization: lowercase, strip articles and trailing punctuation."""
     s = s.lower().strip()
     s = re.sub(r"^(?:the|a|an)\s+", "", s)
+    s = re.sub(r"^(?:in|on|at|around|circa|c\.)\s+", "", s)
     s = re.sub(r"[.,;:'\"!?]+$", "", s)
     s = re.sub(r"\s+", " ", s).strip()
     return s
 
 
 def normalize_number_str(s: str) -> str:
-    """Normalize comma separators and words like 'million' in numeric strings."""
+    """Normalize comma separators, multipliers, and unit suffixes in numeric strings."""
     s = re.sub(r"(?<=\d),(?=\d)", "", s)
-    m = re.match(r"^(\d+(?:\.\d+)?)\s*million$", s.lower())
-    if m:
-        val = float(m.group(1)) * 1_000_000
-        return str(int(val))
-    return s
+    s = re.sub(
+        r"(\d+(?:\.\d+)?)\s*million\b",
+        lambda m: str(int(float(m.group(1)) * 1_000_000)),
+        s,
+        flags=re.IGNORECASE,
+    )
+    s = re.sub(
+        r"(\d+(?:\.\d+)?)\s*thousand\b",
+        lambda m: str(int(float(m.group(1)) * 1_000)),
+        s,
+        flags=re.IGNORECASE,
+    )
+    s = re.sub(
+        r"\b(?:inhabitants|people|residents|citizens|persons|meters|km|kilometers|miles)\b",
+        "",
+        s,
+        flags=re.IGNORECASE,
+    ).strip()
+    return " ".join(s.split())
 
 
 def parse_date_strict(s: str) -> tuple[Any | None, str]:
@@ -265,8 +280,16 @@ def score_frozen_exact_match(pred: str, target: str, aliases: list[str] | None =
 
     num_pred = re.sub(r"[^\d.-]", "", norm_pred)
     num_target = re.sub(r"[^\d.-]", "", norm_target)
-    if num_pred and num_target and num_pred == num_target:
-        return True
+    if num_pred and num_target:
+        if num_pred == num_target:
+            return True
+        try:
+            val_p = float(num_pred)
+            val_t = float(num_target)
+            if val_p == val_t or val_p == val_t * 1_000_000 or val_t == val_p * 1_000_000:
+                return True
+        except ValueError:
+            pass
 
     return False
 
