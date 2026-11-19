@@ -30,6 +30,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from evaluation.generators.code_generator import generate_code_suite
 from evaluation.generators.fictional_qa_generator import (
+    generate_fictional_locked_items,
     save_fictional_corpus,
 )
 from evaluation.generators.knowledge_qa_generator import (
@@ -54,8 +55,45 @@ BASE_SEED = 20260101
 SALT = f"kestrel_suite_v2_{BASE_SEED}"
 
 
-def deterministic_sort_key(item_id: str, extra: str = "") -> str:
-    payload = f"{SALT}:{item_id}:{extra}".encode()
+def load_locked_credentials() -> tuple[int, str, list[Any]]:
+    """Load private seed, salt, and personas from KESTREL_PRIVATE_DIR outside git repo."""
+    private_dir = get_private_dir()
+    env_file = private_dir / "locked_seed.env"
+    if not env_file.exists():
+        raise FileNotFoundError(
+            f"Missing locked credentials file at {env_file}. Private locked generation requires locked_seed.env."
+        )
+
+    seed: int | None = None
+    salt: str | None = None
+    with open(env_file, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            k, v = k.strip(), v.strip()
+            if k == "LOCKED_SEED":
+                seed = int(v)
+            elif k == "LOCKED_SALT":
+                salt = v
+
+    if seed is None or salt is None:
+        raise ValueError(f"Incomplete credentials in {env_file}: seed or salt missing.")
+
+    personas_file = private_dir / "locked_personas.json"
+    if not personas_file.exists():
+        raise FileNotFoundError(
+            f"Missing private locked personas file at {personas_file}. Decision D17 requires new retired personas."
+        )
+    with open(personas_file, encoding="utf-8") as f:
+        personas = json.load(f)
+
+    return seed, salt, personas
+
+
+def deterministic_sort_key(item_id: str, extra: str = "", salt: str = SALT) -> str:
+    payload = f"{salt}:{item_id}:{extra}".encode()
     return hashlib.sha256(payload).hexdigest()
 
 
@@ -207,6 +245,7 @@ def load_real_wikipedia_qa(
     exposed_titles: set[str],
     n_per_split: int = 200,
     max_family_share: float = 0.30,
+    locked_salt: str | None = None,
 ) -> dict[str, list[dict[str, Any]]]:
     corpus_p = REPO_ROOT / "data" / "wikipedia_abstracts_5k.jsonl"
     corpus: list[dict[str, Any]] = []
@@ -233,34 +272,64 @@ def load_real_wikipedia_qa(
             seen_prompts.add(q_norm)
             pool.append(qa)
 
-    # Sort deterministically with salt
-    pool.sort(key=lambda x: deterministic_sort_key(x["passage_id"], x["question"]))
+    # Sort deterministically with public salt
+    pool.sort(key=lambda x: deterministic_sort_key(x["passage_id"], x["question"], salt=SALT))
 
     splits = {"validation": [], "locked_test": [], "train": []}
     max_per_fam = int(n_per_split * max_family_share)
 
-    for split_name in ("locked_test", "validation", "train"):
-        selected = []
+    # In Suite v2.0, items were selected in order: pass 1 (old locked), pass 2 (validation), pass 3 (train).
+    # To guarantee validation and train remain 100% bit-for-bit identical, we preserve their exact slices.
+    temp_pool = list(pool)
+    pass_slices: dict[str, list[dict[str, Any]]] = {}
+    for p_name in ("old_locked", "validation", "train"):
+        sel = []
         fam_counts: dict[str, int] = {}
-        for cand in pool:
+        for cand in temp_pool:
             fam = cand["rule_family"]
             if fam_counts.get(fam, 0) >= max_per_fam:
                 continue
-            selected.append(cand)
+            sel.append(cand)
             fam_counts[fam] = fam_counts.get(fam, 0) + 1
-            if len(selected) == n_per_split:
+            if len(sel) == n_per_split:
                 break
+        sel_set = set(id(c) for c in sel)
+        temp_pool = [c for c in temp_pool if id(c) not in sel_set]
+        pass_slices[p_name] = sel
 
-        # Remove selected from pool to guarantee 100% disjoint items
-        selected_set = set(id(c) for c in selected)
-        pool = [c for c in pool if id(c) not in selected_set]
+    selected_val = pass_slices["validation"]
+    selected_train = pass_slices["train"]
 
-        # Format items
+    # Now select NEW locked items under private locked_salt from pool minus validation and train
+    used_set = set(id(c) for c in selected_val + selected_train)
+    available_for_lock = [c for c in pool if id(c) not in used_set]
+    lock_salt_to_use = locked_salt if locked_salt is not None else SALT
+    available_for_lock.sort(
+        key=lambda x: deterministic_sort_key(x["passage_id"], x["question"], salt=lock_salt_to_use)
+    )
+
+    selected_lock = []
+    lock_fam_counts: dict[str, int] = {}
+    for cand in available_for_lock:
+        fam = cand["rule_family"]
+        if lock_fam_counts.get(fam, 0) >= max_per_fam:
+            continue
+        selected_lock.append(cand)
+        lock_fam_counts[fam] = lock_fam_counts.get(fam, 0) + 1
+        if len(selected_lock) == n_per_split:
+            break
+
+    # Format items
+    for split_name, selected_items in (
+        ("validation", selected_val),
+        ("locked_test", selected_lock),
+        ("train", selected_train),
+    ):
         formatted = []
         prefix = {"validation": "kqa_val", "locked_test": "kqa_lock", "train": "kqa_train"}[
             split_name
         ]
-        for idx, it in enumerate(selected, 1):
+        for idx, it in enumerate(selected_items, 1):
             assert verify_qa_span(it["passage"], it["answer"], it["answer_span"])
             item_id = f"{prefix}_{idx:04d}"
             formatted.append(
@@ -351,8 +420,10 @@ def get_50_exposed_v1_titles() -> set[str]:
 
 def build_suite_v2_partitions() -> dict[str, dict[str, list[dict[str, Any]]]]:
     print("=" * 80)
-    print("BUILDING SUITE v2.0 (DECISION D14)")
+    print("BUILDING SUITE v2.1 (DECISIONS D14, D16, D17)")
     print("=" * 80)
+
+    locked_seed, locked_salt, locked_personas = load_locked_credentials()
 
     # 1. Math: 100 GSM8K + 100 Synthetic per partition
     print("Loading and partitioning Math (GSM8K public + 16-family synthetic)...")
@@ -360,14 +431,20 @@ def build_suite_v2_partitions() -> dict[str, dict[str, list[dict[str, Any]]]]:
     gsm_test.sort(key=lambda x: deterministic_sort_key(x["metadata"]["original_id"]))
     gsm_train.sort(key=lambda x: deterministic_sort_key(x["metadata"]["original_id"]))
 
-    math_pub_lock = gsm_test[:100]
     math_pub_val = gsm_test[100:200]
     math_pub_train = gsm_train[:100]
+    gsm_remaining = [x for x in gsm_test if x not in math_pub_val and x not in math_pub_train]
+    gsm_remaining.sort(
+        key=lambda x: deterministic_sort_key(x["metadata"]["original_id"], salt=locked_salt)
+    )
+    math_pub_lock = gsm_remaining[:100]
 
-    global_seen_math: set[str] = set()
-    math_synth_lock = generate_math_suite(100, seed=BASE_SEED + 101, seen_prompts=global_seen_math)
-    math_synth_val = generate_math_suite(100, seed=BASE_SEED + 102, seen_prompts=global_seen_math)
-    math_synth_train = generate_math_suite(100, seed=BASE_SEED + 103, seen_prompts=global_seen_math)
+    seen_math: set[str] = set()
+    # Populate collision set in the identical sequence as Suite v2.0 to preserve validation and train hashes
+    _ = generate_math_suite(100, seed=BASE_SEED + 101, seen_prompts=seen_math)
+    math_synth_val = generate_math_suite(100, seed=BASE_SEED + 102, seen_prompts=seen_math)
+    math_synth_train = generate_math_suite(100, seed=BASE_SEED + 103, seen_prompts=seen_math)
+    math_synth_lock = generate_math_suite(100, seed=locked_seed + 101, seen_prompts=seen_math)
 
     # 2. Science MCQ: 200 ARC-Challenge per partition (100% PUBLIC)
     print("Loading and partitioning Science MCQ (ARC-Challenge, 100% public)...")
@@ -375,9 +452,13 @@ def build_suite_v2_partitions() -> dict[str, dict[str, list[dict[str, Any]]]]:
     arc_eval.sort(key=lambda x: deterministic_sort_key(x["metadata"]["original_id"]))
     arc_train.sort(key=lambda x: deterministic_sort_key(x["metadata"]["original_id"]))
 
-    sci_lock = arc_eval[:200]
     sci_val = arc_eval[200:400]
     sci_train = arc_train[:200]
+    arc_remaining = [x for x in arc_eval if x not in sci_val and x not in sci_train]
+    arc_remaining.sort(
+        key=lambda x: deterministic_sort_key(x["metadata"]["original_id"], salt=locked_salt)
+    )
+    sci_lock = arc_remaining[:200]
 
     # 3. Knowledge MCQ: 300 MMLU (30/subj x 10 subjects) per partition (100% PUBLIC)
     print("Loading and partitioning Knowledge MCQ (MMLU 10 subjects, 100% public)...")
@@ -386,53 +467,76 @@ def build_suite_v2_partitions() -> dict[str, dict[str, list[dict[str, Any]]]]:
     for subj in MMLU_10_SUBJECTS:
         s_items = list(mmlu_by_subj[subj])
         s_items.sort(key=lambda x: deterministic_sort_key(x["metadata"]["original_id"]))
-        know_lock.extend(s_items[:30])
-        know_val.extend(s_items[30:60])
-        know_train.extend(s_items[60:90])
+        val_s = s_items[30:60]
+        train_s = s_items[60:90]
+        rem_s = [x for x in s_items if x not in val_s and x not in train_s]
+        rem_s.sort(
+            key=lambda x: deterministic_sort_key(x["metadata"]["original_id"], salt=locked_salt)
+        )
+        lock_s = rem_s[:30]
+        know_val.extend(val_s)
+        know_train.extend(train_s)
+        know_lock.extend(lock_s)
 
     # 4. Code: 50 MBPP + 50 Synthetic per partition
     print("Loading and partitioning Code (MBPP public + 36-family synthetic)...")
     mbpp_all = load_raw_mbpp()
     mbpp_all.sort(key=lambda x: deterministic_sort_key(str(x["metadata"]["original_id"])))
 
-    code_pub_lock = mbpp_all[:50]
     code_pub_val = mbpp_all[50:100]
     code_pub_train = mbpp_all[100:150]
+    mbpp_remaining = [x for x in mbpp_all if x not in code_pub_val and x not in code_pub_train]
+    mbpp_remaining.sort(
+        key=lambda x: deterministic_sort_key(str(x["metadata"]["original_id"]), salt=locked_salt)
+    )
+    code_pub_lock = mbpp_remaining[:50]
 
-    global_seen_code: set[str] = set()
-    code_synth_lock = generate_code_suite(50, seed=BASE_SEED + 301, seen_prompts=global_seen_code)
-    code_synth_val = generate_code_suite(50, seed=BASE_SEED + 302, seen_prompts=global_seen_code)
-    code_synth_train = generate_code_suite(50, seed=BASE_SEED + 303, seen_prompts=global_seen_code)
+    seen_code: set[str] = set()
+    # Populate collision set in the identical sequence as Suite v2.0 to preserve validation and train hashes
+    _ = generate_code_suite(50, seed=BASE_SEED + 301, seen_prompts=seen_code)
+    code_synth_val = generate_code_suite(50, seed=BASE_SEED + 302, seen_prompts=seen_code)
+    code_synth_train = generate_code_suite(50, seed=BASE_SEED + 303, seen_prompts=seen_code)
+    code_synth_lock = generate_code_suite(50, seed=locked_seed + 301, seen_prompts=seen_code)
 
     # 5. Knowledge QA: 200 Real Wikipedia + 100 Fictional per partition
     print("Building Knowledge QA (200 Real Wikipedia + 100 Fictional Entities)...")
     exposed_titles = get_50_exposed_v1_titles()
     real_kqa_splits = load_real_wikipedia_qa(
-        exposed_titles=exposed_titles, n_per_split=200, max_family_share=0.30
+        exposed_titles=exposed_titles,
+        n_per_split=200,
+        max_family_share=0.30,
+        locked_salt=locked_salt,
     )
 
-    # Generate fictional corpus and 300 fictional items
+    # Generate public fictional corpus and 200 public items (100 val + 100 train)
     _, fictional_corpus, fictional_items = save_fictional_corpus()
-    fict_lock = fictional_items[:100]
-    fict_val = fictional_items[100:200]
-    fict_train = fictional_items[200:300]
+    fict_val = fictional_items[:100]
+    fict_train = fictional_items[100:200]
+
+    # Generate private locked fictional items using locked personas under private seed/salt
+    private_dir = get_private_dir()
+    locked_corpus, fict_lock = generate_fictional_locked_items(locked_personas)
+    fict_lock_corpus_p = private_dir / "fictional_locked_passages.jsonl"
+    with open(fict_lock_corpus_p, "w", encoding="utf-8") as f:
+        for doc in locked_corpus:
+            f.write(json.dumps(doc) + "\n")
 
     # Combine real + fictional
     kqa_lock = real_kqa_splits["locked_test"] + fict_lock
     kqa_val = real_kqa_splits["validation"] + fict_val
     kqa_train = real_kqa_splits["train"] + fict_train
 
-    # 6. Memory Probe: 100 Synthetic (30 stale + 70 static) across 16 categories
-    print("Building Memory Probe (16 stale categories + 20 static)...")
+    # 6. Memory Probe: 150 Synthetic (100 stale + 50 static) across 16 categories (Decision D16)
+    print("Building Memory Probe (100 stale categories + 50 static per D16)...")
     global_seen_mem: set[str] = set()
-    mem_lock = generate_memory_probe_suite(
-        100, stale_fact_count=30, seed=BASE_SEED + 501, seen_prompts=global_seen_mem
-    )
     mem_val = generate_memory_probe_suite(
-        100, stale_fact_count=30, seed=BASE_SEED + 502, seen_prompts=global_seen_mem
+        150, stale_fact_count=100, seed=BASE_SEED + 502, seen_prompts=global_seen_mem
     )
     mem_train = generate_memory_probe_suite(
-        100, stale_fact_count=30, seed=BASE_SEED + 503, seen_prompts=global_seen_mem
+        150, stale_fact_count=100, seed=BASE_SEED + 503, seen_prompts=global_seen_mem
+    )
+    mem_lock = generate_memory_probe_suite(
+        150, stale_fact_count=100, seed=locked_seed + 501, seen_prompts=global_seen_mem
     )
 
     # Reprefix canonical IDs for clean partition index
@@ -486,7 +590,7 @@ def build_suite_v2_partitions() -> dict[str, dict[str, list[dict[str, Any]]]]:
         print(f"Partition '{split_name}': total {total} items")
         for g_name, items in grps.items():
             print(f"  - {g_name}: {len(items)} items")
-        assert total == 1200, f"Partition '{split_name}' has {total} items, expected 1200"
+        assert total == 1250, f"Partition '{split_name}' has {total} items, expected 1250"
 
     return partitions
 
@@ -514,7 +618,9 @@ def verify_suite_leakage_and_integrity(
     for split_name, items in flat_partitions.items():
         leaks = check_answer_leakage(items)
         if leaks:
-            print(f"WARNING: {len(leaks)} potential answer leaks in {split_name}: {leaks[:2]}")
+            print(
+                f"WARNING: {len(leaks)} potential answer leaks in {split_name}: {[it.get('id') for it in leaks[:2]]}"
+            )
     print("PASS: Answer leakage check complete.")
 
     # 4. Zero overlap with 50 exposed locked items

@@ -8,6 +8,8 @@ from evaluation.metrics import (
     MANDATORY_ENERGY_LABEL,
     accuracy,
     accuracy_by_group,
+    cluster_bootstrap_ci,
+    compute_cluster_icc,
     compute_half_width,
     config_hash,
     format_energy_table,
@@ -257,3 +259,51 @@ class TestEnergyReportLabelEnforcement:
         assert MANDATORY_ENERGY_LABEL in out
         assert "| Model | Energy (J) |" in out
         assert "| B-LLM | 50.0 |" in out
+
+
+class TestClusterBootstrap:
+    def test_cluster_bootstrap_all_correct_and_empty(self):
+        acc, lo, hi = cluster_bootstrap_ci([])
+        assert acc == 0.0 and lo == 0.0 and hi == 0.0
+
+        records = [
+            {"item_id": f"q_{i}", "entity": f"ent_{i // 4}", "correct": True} for i in range(40)
+        ]
+        acc, lo, hi = cluster_bootstrap_ci(records, cluster_key="entity")
+        assert acc == 100.0
+        assert lo == 100.0
+        assert hi == 100.0
+
+    def test_cluster_bootstrap_wider_under_clustering(self):
+        # 20 clusters of 4 items each = 80 items.
+        # In clustered set: 10 clusters are 100% correct (4/4), 10 clusters are 0% correct (0/4).
+        # Overall accuracy = 50%.
+        clustered = []
+        for c in range(20):
+            correct = c < 10
+            for i in range(4):
+                clustered.append(
+                    {"item_id": f"c_{c}_{i}", "entity": f"ent_{c}", "correct": correct}
+                )
+
+        acc, lo, hi = cluster_bootstrap_ci(clustered, cluster_key="entity", n_bootstrap=2000)
+        assert acc == 50.0
+        # Cluster bootstrap CI width should be wider than standard i.i.d. formula (which is ~1.96*sqrt(0.25/80)*100 ≈ 10.9 pp)
+        half_width = (hi - lo) / 2.0
+        assert half_width > 12.0
+
+    def test_compute_cluster_icc(self):
+        # Perfectly clustered data (all items in a cluster match)
+        records = []
+        for c in range(10):
+            correct = c % 2 == 0
+            for i in range(4):
+                records.append({"item_id": f"q_{c}_{i}", "entity": f"ent_{c}", "correct": correct})
+
+        stats = compute_cluster_icc(records, cluster_key="entity")
+        assert stats["k_clusters"] == 10
+        assert stats["n_total"] == 40
+        assert stats["m_mean"] == 4.0
+        assert stats["icc"] == pytest.approx(1.0, abs=0.01)
+        assert stats["deff"] == pytest.approx(4.0, abs=0.05)
+        assert stats["n_eff"] == pytest.approx(10.0, abs=0.5)

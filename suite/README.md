@@ -1,12 +1,12 @@
-# Project Kestrel — Suite v2.0 Handoff (Validation & Train Partitions)
+# Project Kestrel — Suite v2.1 Handoff (Validation & Train Partitions)
 
 > [!IMPORTANT]
-> **Suite v2.0 Provenance & Dual-Arm Architecture (Owner Decision D14 / Option B)**:  
-> Suite v2.0 supersedes Suite v1 by introducing formal, disjoint **public benchmark arms** (GSM8K, ARC-Challenge, MMLU 10 subjects, MBPP) alongside clean **synthetic procedural arms** (16 math families, 36 code families, 36 memory categories) and a **fictional-entity knowledge QA arm** (D13).  
-> In accordance with the pre-registered A3 artifact audit, synthetic science and knowledge MCQ generators were dropped due to option-ordering leaks; `science_mcq` and `knowledge_mcq` are **100% public-only**.
+> **Suite v2.1 Provenance & Dual-Arm Architecture (Owner Decisions D14, D16, D17)**:  
+> Suite v2.1 implements private CSPRNG seed and salt generation for the locked test partition (D17), stores locked credentials in `$KESTREL_PRIVATE_DIR/locked_seed.env` (mode 0600), retires all v1 exposed locked personas with 25 private unique entities, and expands the memory probe to 150 items per partition (100 stale + 50 static per D16) to ensure statistical power under paired analysis.  
+> The 5 benchmark groups (math, science_mcq, knowledge_mcq, code, knowledge_qa) in validation and train partitions remain **100.0% bit-for-bit identical** to Suite v2.0.
 
 **Target Audience:** Member B (Core Modeling, Verification & Baselines)  
-**Deliverable:** Evaluation Suite v2.0 — Validation & Train Partitions  
+**Deliverable:** Evaluation Suite v2.1 — Validation & Train Partitions  
 **Repository:** `kestrel-eval`  
 **Date:** 2026-11-19  
 
@@ -14,20 +14,20 @@
 
 ## 1. Overview & Core Principles
 
-Suite v2.0 provides the **1,200-item validation partition** and **1,200-item train partition** for Project Kestrel Prototype 1, structured across 6 task groups per **Decision D1** (`sizes_are: per_partition`, 3,600 total items across validation, locked-test, and train).
+Suite v2.1 provides the **1,250-item validation partition** and **1,250-item train partition** for Project Kestrel Prototype 1, structured across 6 task groups per **Decision D1** (`sizes_are: per_partition`, 3,750 total items across validation, locked-test, and train).
 
 ### Core Principles for Modeling (Member B):
 1. **Develop and Tune Against Validation Only**: All model candidate selection, verifier threshold exploration, and retrieval tuning must use `split="validation"`.
 2. **Train Partition for Verifier Training**: Member B's verifier head (Step 3 / Step 6) trains on `suite/train/`. For checkable groups, the raw public train files (`data/raw/`) also provide extensive additional training data.
 3. **Verifier Family-Level Hold-Out Rule**: When evaluating verifier generalization, **Member B must hold out whole template families** (e.g. hold out 3-4 procedural math families, or an entire MMLU subject, or specific code algorithmic families) or hold out an entire task group. This guarantees the verifier learns genuine reasoning rather than memorizing template-specific syntactic idioms.
-4. **Physical Isolation of Locked-Test**: The 1,200 locked-test items are physically quarantined outside the repository in `kestrel_private/locked_test/`. The loader enforces a strict permission guard (`PermissionError`). Locked-test is evaluated exactly **once** at Step 10.
+4. **Physical Isolation of Locked-Test**: The 1,250 locked-test items are physically quarantined outside the repository in `kestrel_private/locked_test/`. The loader enforces a strict permission guard (`PermissionError`). Locked-test is evaluated exactly **once** at Step 10.
 5. **Dual-Arm Reporting**: Accuracy must always be reported separately for public benchmark arms (`Acc_public`) and synthetic/fictional arms (`Acc_synthetic`).
 
 ---
 
-## 2. Suite v2.0 Composition Matrix
+## 2. Suite v2.1 Composition Matrix
 
-Each partition contains exactly **1,200 items** across the 6 task groups.
+Each partition contains exactly **1,250 items** across the 6 task groups.
 
 | Task Group | Partition | Arm | N (Items) | Template Families | Largest Family & Share | 95% CI Half-Width |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -42,17 +42,17 @@ Each partition contains exactly **1,200 items** across the 6 task groups.
 | | Validation | Synthetic | 50 | 50 | 36 algorithmic types (1–2, ~2%) | ±13.86 pp |
 | | **Total** | **Combined** | **100** | **51** | **mbpp (50, 50.0%)** | **±9.80 pp** |
 | **knowledge_qa** | Validation | Real Wikipedia | 200 | 8 | `born_date` (55, 27.5% ≤ 30%) | ±6.93 pp |
-| | Validation | Fictional (D13) | 100 | 6 | `born_date` / `death_date` (20, 20%) | ±9.80 pp |
-| | **Total** | **Combined** | **300** | **9** | **born_date (85, 28.3% ≤ 30%)**| **±5.66 pp** |
-| **memory_probe** | Validation | Synthetic (D3) | 100 | 36 | 16 stale + 20 static (≤ 4%) | ±9.80 pp |
-| | **Total** | **100% Synthetic** | **100** | **36** | **calendar_birthday (4, 4.0%)**| **±9.80 pp** |
-| **TOTAL** | **Validation** | **All Arms** | **1,200** | **124** | — | **±2.83 pp** |
+| | Validation | Fictional (D13) | 100 | 4 | `born_date` / `death_date` (25, 25%) | ±9.80 pp (cluster: ±10.0 pp)|
+| | **Total** | **Combined** | **300** | **8** | **born_date (80, 26.7% ≤ 30%)**| **±5.66 pp** |
+| **memory_probe** | Validation | Synthetic (D3/D16) | 150 | 36 | 16 stale + 20 static | ±8.00 pp |
+| | **Total** | **100% Synthetic** | **150** | **36** | **stale categories (100, 66.7%)**| **±8.00 pp** |
+| **TOTAL** | **Validation** | **All Arms** | **1,250** | **123** | — | **±2.77 pp** |
 
 *(The train partition and private locked-test partition adhere to the exact same group and arm composition).*
 
 ---
 
-## 3. JSONL Record Schema (v2.0)
+## 3. JSONL Record Schema (v2.1)
 
 Every line in each `.jsonl` partition file is a valid JSON object adhering to the canonical schema:
 
@@ -80,12 +80,12 @@ All public data sources are verified official releases with permissive academic/
 | **MMLU** | `knowledge_mcq` (100% Public) | Hendrycks et al., 2020 | MIT | `https://github.com/hendrycks/test` |
 | **MBPP** | `code` (Public Arm) | Austin et al., Google 2021 | CC BY 4.0 | `https://github.com/google-research/google-research/tree/master/mbpp` |
 | **Wikipedia Abstracts** | `knowledge_qa` (Real Arm) | 2026-11-01 Foundation Dump | CC BY-SA 4.0 | Wikimedia Foundation (`dumps.wikimedia.org`) |
-| **Fictional Entities** | `knowledge_qa` (Clean Arm) | Project Kestrel (D13) | Project-Internal | Zero pretraining memorization reference |
+| **Fictional Entities** | `knowledge_qa` (Diagnostic Arm) | Project Kestrel (D13) | Project-Internal | Zero pretraining memorization reference |
 | **Procedural Synthetic**| `math`, `code`, `memory_probe` | Project Kestrel | Project-Internal | Clean synthetic reference |
 
 ---
 
-## 5. Verified File Hashes & Manifest v2.0
+## 5. Verified File Hashes & Manifest v2.1
 
 ### Validation Partition (`suite/validation/`)
 - `math.jsonl`: `36d28203fe4d3493e5cab1fa70828fe449410c8e11b6672934e78b977fef3408`
@@ -93,7 +93,7 @@ All public data sources are verified official releases with permissive academic/
 - `knowledge_mcq.jsonl`: `69e9180eb213d3e0f444578723c0649f8781b424cb147b2cdb1fe9d3063c39bd`
 - `code.jsonl`: `42d95b87814603c31fdcb5ebf7089b804620b20d6a85ea729088801378b8e7aa`
 - `knowledge_qa.jsonl`: `9a501f364c45c9b44065ffc7ae07883516cef5ba64cb60d14ad52d95c6a2b73e`
-- `memory_probe.jsonl`: `b137a53a4cf5dd17ea9eb90642444a0956752b757d7b92fe2fc35f92b00cff5e`
+- `memory_probe.jsonl`: `09b3fded3e53dd9db5b6a15236861bbe22d457963a27ed4d7038e3c40721ad44`
 
 ### Train Partition (`suite/train/`)
 - `math.jsonl`: `027c36789149ca8da464eefb18c28681f7ebf69dfb4e97924b852484e7f3a0b0`
@@ -101,16 +101,18 @@ All public data sources are verified official releases with permissive academic/
 - `knowledge_mcq.jsonl`: `f7bb363b86e4bcfdae475b465288ed9c7aa61a3df646a5c113a9c8e2eebc3a49`
 - `code.jsonl`: `d8f0fce3e375c1e99a3cd00742d6f88797df05d1dbb535e16ac0c4490c385fdc`
 - `knowledge_qa.jsonl`: `23f09ab70a9636dd206e916a303eae67cb7d9278bc3894f11d28987c0e005bc5`
-- `memory_probe.jsonl`: `9181ccbc0c4a066f8c257973181d29cef9ebed16b841087152a7f9ffcf3ca402`
+- `memory_probe.jsonl`: `0d736e8c3a34de2f635eb0aeb820f8e402c564d436f70bad2766b19089634689`
 
 ### Locked-Test Partition (`kestrel_private/locked_test/`, Out-of-Repo)
-- `math.jsonl`: `497e5a9c91ffb9971f550fca6b889fe24da23f932e68620c3124a07ea8d98ce0`
-- `science_mcq.jsonl`: `813d5afed8af93c5dfd0388d79e640a9a078e18ddfaeee94b4c0fb02f441f054`
-- `knowledge_mcq.jsonl`: `3b1061c871459b007e58f000a72bac20ebc2809ae5e81cfc0246c86fc7e89503`
-- `code.jsonl`: `2d65b8d6e215060f3773daac4fadd0271ac7df0f8948596cf320b8076ecb4268`
-- `knowledge_qa.jsonl`: `537d2cb7f35b35ee930189e07f37c54df877bd8f14fb802c6f1832d9705e60e1`
-- `memory_probe.jsonl`: `445c3d5ae5579df6a6c0334c58eb57d5c138b74dbd6b1425e0ec6c159504e1c1`
-- **Locked Root Hash**: `39cbe48e161f75a1bd4b57e8abf555012fe7b3b515092d96cf5e843bb3a97b68`
+- `math.jsonl`: `2516fc845447352775e891845c2e1fcee4a6c02399aba3d4e69f737093fe9c51`
+- `science_mcq.jsonl`: `aef023c27437e13fbe4af271aa589ac6f140ccbd72ea5c8177b7ee6e3313fcc6`
+- `knowledge_mcq.jsonl`: `d83ce8a19a891dd159bff24d48b1bc5a9d250ddeb625387a5656859693c0799e`
+- `code.jsonl`: `e807c55ff462535e80b81ee8cf640733c67abe2997ed86e44ec91511c066c20e`
+- `knowledge_qa.jsonl`: `e1147853c87a5ac141dec5b77fd8373c926387c6ae087d93fd58cfd31d0c78ca`
+- `memory_probe.jsonl`: `5468373aa172f81c9b4291e279cb74996a729911a48ff36341a10f84ba2dc0af`
+- **Locked Root Hash (Suite v2.1)**: `15be5befee80bde2c624d06cd2b8826475e13bb3f45298be1ced584a884e6fa5`
+- **Superseded v2.0 Root Hash**: `39cbe48e161f75a1bd4b57e8abf555012fe7b3b515092d96cf5e843bb3a97b68`
+- **Superseded v1.0 Root Hash**: `73a38ea8f35f606346903d6d6ec142ee85c184d00fa5ff7f6c382d55e9ef0fa5`
 
 ---
 

@@ -8,9 +8,9 @@ from evaluation.suite import GROUP_SIZES, load_suite_partition
 
 
 def test_load_suite_partition_validation_full():
-    """Verify loading the full validation partition returns exactly 1200 items."""
+    """Verify loading the full validation partition returns exactly 1250 items (Suite v2.1)."""
     items = load_suite_partition(split="validation")
-    assert len(items) == 1200
+    assert len(items) == 1250
 
     group_counts: dict[str, int] = {}
     for item in items:
@@ -40,9 +40,9 @@ def test_load_suite_partition_individual_groups():
 
 
 def test_load_suite_partition_train():
-    """Verify loading the train partition returns exactly 1200 items."""
+    """Verify loading the train partition returns exactly 1250 items (Suite v2.1)."""
     items = load_suite_partition(split="train")
-    assert len(items) == 1200
+    assert len(items) == 1250
     for item in items:
         assert item["split"] == "train"
 
@@ -66,7 +66,7 @@ def test_load_suite_partition_locked_test_allowed(monkeypatch: pytest.MonkeyPatc
         pytest.skip("Locked test partition files not present on CI runner")
     monkeypatch.setenv("KESTREL_ALLOW_LOCKED_TEST", "1")
     items = load_suite_partition(split="locked_test")
-    assert len(items) == 1200
+    assert len(items) == 1250
     for item in items:
         assert item["split"] == "locked_test"
 

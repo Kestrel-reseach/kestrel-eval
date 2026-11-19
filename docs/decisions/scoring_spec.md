@@ -2,8 +2,8 @@
 
 **Document:** `docs/decisions/scoring_spec.md`  
 **Date:** 2026-11-19  
-**Status:** FROZEN & AUTHORITATIVE (Decision D14 / Gate Requirement)  
-**Frozen at Git Commit:** `5061f12` (Branch `suite-v2`)  
+**Status:** FROZEN & AUTHORITATIVE (Decisions D14, D15, D16 / Suite v2.1)  
+**Frozen at Git Commit:** `778e7b1` (Branch `suite-v2`, updated for Suite v2.1)  
 **Tuning Provenance:** Developed and calibrated strictly against Suite v1 mock/pilot outputs prior to Suite v2 generation. Zero tuning was performed on Suite v2 validation or locked partitions.  
 **Authors:** Member A & Member B  
 
@@ -11,7 +11,7 @@
 
 ## 1. Overview & Golden Rule
 
-This document defines the official, immutable scoring specifications for all 6 task groups across Project Kestrel Prototype 1 (Suite v2.0).
+This document defines the official, immutable scoring specifications for all 6 task groups across Project Kestrel Prototype 1 (Suite v2.1).
 Per project rules:
 > **"Never change a metric or threshold after seeing results."**  
 All metrics defined herein are frozen prior to any baseline candidate evaluation (R4) or Frontier reference ($F$) runs.
@@ -69,14 +69,25 @@ All metrics defined herein are frozen prior to any baseline candidate evaluation
      - Match is credited if the prediction matches the canonical target OR any explicitly verified alias in `item["metadata"]["aliases"]`.
 - **Secondary Diagnostic Metrics** (Reported for analysis, not gate criteria):
   - **Literal Exact Match**: Raw exact string equality after standard whitespace trim.
-  - **Token F1**: Word-level harmonic mean of precision and recall.
+  - **Token F1**: Word-level harmonic mean of precision and recall. Token F1 is computed on the extracted answer span (via `score_token_f1`), resolving the earlier discrepancy where evaluating raw conversational text penalized precision.
   - **Restricted Containment**: Substring containment permitted only when prediction is $\le 8$ words and contains no list separators.
 
 ### E. Memory Probe (`memory_probe`, Personal History Logs)
 - **Primary Metric**: Recent Value Match & Stale Fact Rejection (`key_from_source_history`).
 - **Evaluation**:
   1. Evaluates exact match against the latest chronological log entry (`metadata.target`).
-  2. For the 30 stale-fact items, explicitly verifies that the model does NOT output deprecated/historical values (`metadata.stale_values`), enforcing Gate G-M.
+  2. For the 100 stale-fact items (expanded from 30 per Owner Decision D16), explicitly verifies that the model does NOT output deprecated/historical values (`metadata.stale_values`), enforcing Gate G-M with $n_{\text{eff}} = 100$.
 - **Scoring**: Binary $\{0, 1\}$.
+
+---
+
+## 3. Golden Test Suite Verification
+
+Scoring integrity is continuously verified against a 101-case golden test suite (`tests/test_scoring_golden.py`). This fixture covers:
+- Multiple-choice edge cases (declarative overrides, uncompleted lists, single option lines, boxed keys).
+- Strict numeric equivalence with tolerances and LaTeX formatting.
+- Subprocess sandbox isolation for code unit test execution.
+- Strict date parsing, numeric unit normalization, multi-occupation list rejection, and alias handling for knowledge QA.
+- Stale fact rejection and chronological log retrieval for memory probe.
 
 

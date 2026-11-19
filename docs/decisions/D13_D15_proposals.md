@@ -49,3 +49,4 @@ Public benchmarks (GSM8K, ARC-Challenge, MMLU, MBPP) are widely known to exist i
    - **Public Benchmark Arms**: Prone to pretraining contamination. Scores reflect standard benchmark capability.
    - **Synthetic Arms** (Procedural Math, Procedural Code, Memory Probe, Fictional Entities): Free from pretraining memorization, isolating algorithmic reasoning, retrieval grounding, and chronological state updates.
 2. **Verifier Hold-out Discipline**: Member B's verifier training will use **only** the `train` partition. Validation and locked test partitions remain strictly out-of-sample.
+

@@ -81,8 +81,8 @@
   - **Reserve Test Set**: A reserve test set will be constructed later, written after Step 10 and never sent to any external API.
   - **Minimal Send**: At Step 10, send F only what it strictly needs to be scored on.
 
-- **D13 (Knowledge-QA Ceiling & Counter-Contamination Design)**:
-  > *Resolved: Add fictional-entity knowledge-QA arm to guarantee testable retrieval headroom without parametric pretraining memorization.*
+- **D13 (Co-Owners A and B, 2026-11-19)**:
+  > "The fictional-entity knowledge QA arm is scored as a separate diagnostic arm and never pooled into headline numbers."
 
 - **D14 (Owners A and B, 2026-11-19)**:
   > "Rebuild the suite as Suite v2.0, option B (public + synthetic arms, reported separately). Synthetic science/knowledge MCQ arms are kept ONLY if the artifact audit passes; otherwise those two groups are public-only. Knowledge QA gets a fictional-entity arm (D13). All locked items are replaced with new seeds (the 50 exposed items are never reused). Manifest v2.0. Verifier hold-out is by template family or whole group. F runs only after the suite is frozen and the prompt templates are final."
@@ -92,5 +92,14 @@
     2. **Train Partition Size for Member B Verifier**: At least 3× the validation size for checkable groups, drawn from official public train splits.
     3. **Knowledge QA Real Family Share Cap**: Maximum share for any single real-entity question family is capped at 30%.
     4. **Frontier Reference Model F Tier**: Stays on Google AI Studio free tier ($0 cost cap, paced execution).
+
+- **D15 (Co-Owners A and B, 2026-11-19)**:
+  > "The +10 point retrieval gate (Gate G-Q) is evaluated on the real Wikipedia arm; the fictional arm only shows that retrieval works without parametric pretraining memorization."
+
+- **D16 (Co-Owners A and B, 2026-11-19)**:
+  > "G-M power: expand the memory probe to 150 items per partition (100 stale + 50 static across at least 15 categories) and use a paired analysis (McNemar / paired bootstrap) against plain external memory."
+
+- **D17 (Co-Owners A and B, 2026-11-19)**:
+  > "Regenerate all locked synthetic, fictional, and public-slice selections under a private CSPRNG seed and salt stored in $KESTREL_PRIVATE_DIR/locked_seed.env (mode 0600), with new fictional entities and facts retiring all exposed entities from git history. Validation and train files remain unchanged. Only hashes are committed to the public repo."
 
 

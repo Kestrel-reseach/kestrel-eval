@@ -9,3 +9,5 @@ pyrefly.toml
 uv.lock
 data/
 runs/
+*.env
+.env*

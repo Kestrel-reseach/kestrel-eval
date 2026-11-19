@@ -136,7 +136,8 @@ def score_old_exact_match(pred: str, target: str) -> bool:
 
 
 def score_token_f1(pred: str, target: str) -> float:
-    np = normalize_text_basic(normalize_number_str(pred))
+    span = extract_answer_span(pred)
+    np = normalize_text_basic(normalize_number_str(span))
     nt = normalize_text_basic(normalize_number_str(target))
     pred_tokens = re.findall(r"\w+", np)
     gold_tokens = re.findall(r"\w+", nt)

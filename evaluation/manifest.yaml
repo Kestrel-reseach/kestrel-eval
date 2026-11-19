@@ -21,16 +21,17 @@
 # These decisions are frozen. Do not change a threshold after seeing results.
 
 schema_version: "1"
-manifest_version: "2.0"       # v2.0: Rebuilt suite with separate public and synthetic arms per Owner Decision D14 (Option B); Suite v1 superseded
+manifest_version: "2.1"       # v2.1: Private locked seed, expanded memory probe (150 items, 100 stale facts) per Owner Decision D16; Suite v2.0 superseded
 git_commit: UNSET            # filled by run_matrix.py at run time
 created_at: "2026-11-19"
-frozen: true                 # confirmed by owner decisions D4 and D14; non-inferiority margin 3 pp
+frozen: true                 # confirmed by owner decisions D4, D14, D15, D16; non-inferiority margin 3 pp
 
 # ── Reproducibility ────────────────────────────────────────────────────────────
 seeds:
   suite_split: 20260101      # used to split items into train / val / locked-test
   eval_run:    20260102      # used for any randomness inside evaluation (e.g. sampling)
   verifier_train: 20260103   # used when training the verifier head
+  locked_seed: "PRIVATE"     # CSPRNG seed stored strictly out-of-repo (kestrel_private/locked_seed.env, mode 0600) per D15
 
 context_length: 2048         # owner decision 2026-11-18; fits 4 GB / 1.5 GB test tier
 
@@ -58,11 +59,11 @@ context_length: 2048         # owner decision 2026-11-18; fits 4 GB / 1.5 GB tes
 #     - knowledge_mcq (n=300):±5.7 pp
 #     - code (n=100):         ±9.8 pp
 #     - knowledge_qa (n=300): ±5.7 pp
-#     - memory_probe (n=100): ±9.8 pp
+#     - memory_probe (n=150): ±8.0 pp
 #   Statistical note: Matches the plan's text ("about ±3 points of 95% interval
 #   on the largest groups" with paired testing). Detects 5 pp effects on checkable groups.
 # ──────────────────────────────────────────────────────────────────────────────
-sizes_are: per_partition     # owner decision 2026-11-17: 1200 items per partition (3600 total)
+sizes_are: per_partition     # owner decision 2026-11-17: 1250 items per partition (3750 total per D16)
 
 # Why per_partition: with `total`, the locked-test groups would be n=20–60 and
 # 95% CIs ±12.7–21.9 pp, so G-Q's 5 pp effect could not be confirmed. With
@@ -94,9 +95,9 @@ groups:
     corpus_dump_url: "https://dumps.wikimedia.org/enwiki/20261101/enwiki-20261101-pages-articles1.xml-p1p41242.bz2"
     corpus_sha256: "e3fd5a837f2a6b3a26c3596d0667600073a86c9fc29dc60ef0b2de605c754387"
   memory_probe:
-    description: "Personal-memory probe (30 stale-fact items)"
-    size: 100
-    stale_fact_count: 30
+    description: "Personal-memory probe (150 items: 100 stale-fact items + 50 static items across 16 categories)"
+    size: 150
+    stale_fact_count: 100
     answer_check: "key_from_source_history"
     personal_data: synthetic_only  # change to real_approved only if owner approves item by item
 
@@ -108,13 +109,15 @@ partition_fractions: null
 # Hashes of the locked-test partition files (filled by suite_hash.py at Step 1).
 # Never run or tune against the locked-test partition before Step 10.
 locked_test_hashes:
-  math: "497e5a9c91ffb9971f550fca6b889fe24da23f932e68620c3124a07ea8d98ce0"
-  science_mcq: "813d5afed8af93c5dfd0388d79e640a9a078e18ddfaeee94b4c0fb02f441f054"
-  knowledge_mcq: "3b1061c871459b007e58f000a72bac20ebc2809ae5e81cfc0246c86fc7e89503"
-  code: "2d65b8d6e215060f3773daac4fadd0271ac7df0f8948596cf320b8076ecb4268"
-  knowledge_qa: "537d2cb7f35b35ee930189e07f37c54df877bd8f14fb802c6f1832d9705e60e1"
-  memory_probe: "445c3d5ae5579df6a6c0334c58eb57d5c138b74dbd6b1425e0ec6c159504e1c1"
-root_hash: "39cbe48e161f75a1bd4b57e8abf555012fe7b3b515092d96cf5e843bb3a97b68"
+  math: "2516fc845447352775e891845c2e1fcee4a6c02399aba3d4e69f737093fe9c51"
+  science_mcq: "aef023c27437e13fbe4af271aa589ac6f140ccbd72ea5c8177b7ee6e3313fcc6"
+  knowledge_mcq: "d83ce8a19a891dd159bff24d48b1bc5a9d250ddeb625387a5656859693c0799e"
+  code: "e807c55ff462535e80b81ee8cf640733c67abe2997ed86e44ec91511c066c20e"
+  knowledge_qa: "e1147853c87a5ac141dec5b77fd8373c926387c6ae087d93fd58cfd31d0c78ca"
+  memory_probe: "5468373aa172f81c9b4291e279cb74996a729911a48ff36341a10f84ba2dc0af"
+root_hash: "15be5befee80bde2c624d06cd2b8826475e13bb3f45298be1ced584a884e6fa5"
+superseded_v2_root_hash: "39cbe48e161f75a1bd4b57e8abf555012fe7b3b515092d96cf5e843bb3a97b68"
+superseded_v1_root_hash: "73a38ea8f35f606346903d6d6ec142ee85c184d00fa5ff7f6c382d55e9ef0fa5"
 # ── Hardware budget ────────────────────────────────────────────────────────────
 hardware:
   gpu_tier:
@@ -157,9 +160,11 @@ gates:
     description: >
       On the memory probe, P1 is at least as good as F with no history and within
       5 points of F with the full history. Stale-fact errors at most half those of
-      plain external memory.
+      plain external memory. Evaluated on 100 stale-fact items per D16 (n_eff = 100,
+      paired McNemar 80% power at delta >= 8 pp).
     gap_to_f_full_history_pp: 5      # accepted 2026-11-17
     stale_fact_error_ratio_cap: 0.50 # accepted 2026-11-17
+    stale_items_count: 100           # updated per D16 (was 30)
     status: ACCEPTED
 
   G_R:

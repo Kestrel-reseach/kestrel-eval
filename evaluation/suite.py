@@ -50,7 +50,7 @@ GROUP_SIZES = {
     "knowledge_mcq": 300,
     "code": 100,
     "knowledge_qa": 300,
-    "memory_probe": 100,
+    "memory_probe": 150,  # expanded per D16 (100 stale + 50 static items)
 }
 
 

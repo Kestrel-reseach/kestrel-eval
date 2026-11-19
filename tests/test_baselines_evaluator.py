@@ -11,9 +11,9 @@ from evaluation.metrics import MANDATORY_ENERGY_LABEL
 
 
 def test_load_validation_items():
-    """Verify loading the validation partition loads exactly 1,200 items."""
+    """Verify loading the validation partition loads exactly 1,250 items (Suite v2.1 per D16)."""
     items = load_validation_items()
-    assert len(items) == 1200
+    assert len(items) == 1250
     groups = {item.get("group") for item in items}
     assert groups == {
         "math",

@@ -294,6 +294,27 @@ def score_frozen_exact_match(pred: str, target: str, aliases: list[str] | None =
     return False
 
 
+def score_token_f1(pred: str, target: str) -> float:
+    """Compute token-level F1 score on the extracted answer span against gold target.
+
+    Extracts the answer span first so that conversational prefaces (e.g. 'X was born on Y')
+    do not artificially penalize precision.
+    """
+    span = extract_answer_span(pred)
+    np = normalize_text_basic(normalize_number_str(span))
+    nt = normalize_text_basic(normalize_number_str(target))
+    pred_tokens = re.findall(r"\w+", np)
+    gold_tokens = re.findall(r"\w+", nt)
+    if not pred_tokens or not gold_tokens:
+        return 1.0 if pred_tokens == gold_tokens else 0.0
+    common = set(pred_tokens) & set(gold_tokens)
+    if not common:
+        return 0.0
+    prec = len(common) / len(pred_tokens)
+    rec = len(common) / len(gold_tokens)
+    return 2.0 * (prec * rec) / (prec + rec)
+
+
 def check_key_match(predicted: str, target: str) -> bool:
     """Check if the predicted string contains the target key (case/punctuation normalized)."""
     norm_pred = normalize_text(predicted)

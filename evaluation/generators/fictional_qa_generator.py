@@ -18,63 +18,9 @@ from evaluation.loaders.common import SuiteItem
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
-# 60 completely invented unique personas with zero Wikipedia collision
+# 35 completely invented unique public personas (25 validation + 10 train) with zero Wikipedia collision
+# Note: The 25 retired locked personas that appeared in v1 git history were fully retired per Decision D17.
 PERSONAS_DATA = [
-    ("Valerius Thorne", "14 July 1842", "22 November 1918", "astronomer", "Grand Astral Medal"),
-    ("Elowen Morvath", "3 March 1865", "18 January 1934", "botanist", "Royal Verdant Order"),
-    (
-        "Thaddeus Vance",
-        "19 September 1851",
-        "12 August 1922",
-        "architect",
-        "Imperial Cornerstone Award",
-    ),
-    ("Seraphina Solis", "27 April 1878", "9 October 1949", "chemist", "Alchemical Laurel"),
-    ("Corin Vane", "11 November 1839", "4 May 1912", "composer", "Grand Symphony Cross"),
-    ("Aurelia Voss", "8 June 1882", "14 March 1956", "physicist", "Sol Invictus Medal"),
-    ("Kaelen Drake", "25 December 1858", "30 July 1929", "geologist", "Terra Firma Prize"),
-    ("Isolde Blackwood", "16 February 1871", "27 September 1943", "poet", "Silver Quill of Honor"),
-    ("Dorian Ravenscroft", "30 August 1845", "19 June 1915", "painter", "Golden Palette Award"),
-    ("Lyra Pendelton", "5 May 1889", "21 February 1962", "mathematician", "Euler Circle Medal"),
-    ("Caspian Sterling", "12 October 1860", "8 November 1931", "engineer", "Iron Gear Trophy"),
-    ("Zephyrina Cross", "23 January 1874", "17 April 1948", "physician", "Caduceus Order of Merit"),
-    (
-        "Magnus Winterbourne",
-        "9 June 1836",
-        "3 December 1909",
-        "historian",
-        "Chronicle Society Laurel",
-    ),
-    ("Rowena Darkwater", "18 April 1880", "29 August 1953", "novelist", "Grand Literary Crest"),
-    ("Theron Ashford", "7 September 1855", "16 January 1928", "diplomat", "Concordat Peace Plaque"),
-    ("Sylvia Nightshade", "21 March 1868", "11 July 1939", "biologist", "Linnaean Laurel Medal"),
-    ("Bastian Lockridge", "4 August 1848", "25 October 1921", "sculptor", "Chisel and Stone Prize"),
-    ("Evadne Starling", "15 November 1885", "6 June 1959", "astronomer", "Celestial Horizon Award"),
-    (
-        "Gideon Hawkwood",
-        "28 February 1840",
-        "19 September 1914",
-        "statesman",
-        "Civic Defender Cross",
-    ),
-    (
-        "Marcellus Silverton",
-        "10 July 1862",
-        "23 May 1935",
-        "philosopher",
-        "Athenaeum Wisdom Medallion",
-    ),
-    ("Helena Foxglove", "2 December 1876", "14 February 1947", "chemist", "Prismatic Flask Trophy"),
-    ("Lucian Emberfell", "17 May 1853", "8 April 1926", "architect", "Grand Vault Pillar Award"),
-    ("Cordelia Frost", "29 October 1883", "20 November 1960", "botanist", "Arboretum Gold Crest"),
-    (
-        "Leander Stormont",
-        "6 January 1844",
-        "15 August 1917",
-        "composer",
-        "Harmonic Lyre Distinction",
-    ),
-    ("Vespera Moon", "13 August 1879", "28 December 1951", "physicist", "Quantum Lattice Prize"),
     (
         "Alastair Ravenswood",
         "26 September 1850",
@@ -214,13 +160,14 @@ CITIES_DATA = [
 
 
 def generate_fictional_corpus_and_qa_items() -> tuple[list[dict[str, Any]], list[SuiteItem]]:
-    """Generate the fictional abstract corpus and 300 verified fictional QA items."""
+    """Generate the public fictional abstract corpus (65 articles) and 200 verified public QA items (100 val + 100 train)."""
     corpus: list[dict[str, Any]] = []
     all_qa_items: list[SuiteItem] = []
     item_counter = 1
 
-    # 1. Process 60 Personas (4 items each -> 240 items)
-    for p_idx, (name, b_date, d_date, prof, award) in enumerate(PERSONAS_DATA, 1):
+    # 1. Process 35 Public Personas (4 items each -> 140 items: 100 val + 40 train)
+    # Starts at index 26 to preserve exact stable passage IDs for validation and train
+    for p_idx, (name, b_date, d_date, prof, award) in enumerate(PERSONAS_DATA, 26):
         art_id = f"fictional_art_p_{p_idx:04d}"
         abstract = (
             f"{name} ({b_date} – {d_date}) was a renowned {prof}. "
@@ -352,7 +299,7 @@ def generate_fictional_corpus_and_qa_items() -> tuple[list[dict[str, Any]], list
         )
         item_counter += 1
 
-    # 2. Process 30 Cities (2 items each -> 60 items)
+    # 2. Process 30 Public Cities (2 items each -> 60 items in train)
     for c_idx, (city_name, pop, year) in enumerate(CITIES_DATA, 1):
         art_id = f"fictional_art_c_{c_idx:04d}"
         abstract = (
@@ -426,8 +373,149 @@ def generate_fictional_corpus_and_qa_items() -> tuple[list[dict[str, Any]], list
         )
         item_counter += 1
 
-    assert len(all_qa_items) == 300, f"Expected 300 fictional items, got {len(all_qa_items)}"
+    assert len(all_qa_items) == 200, f"Expected 200 fictional items, got {len(all_qa_items)}"
     return corpus, all_qa_items
+
+
+def generate_fictional_locked_items(
+    private_personas: list[Any],
+) -> tuple[list[dict[str, Any]], list[SuiteItem]]:
+    """Generate the private locked fictional abstract corpus (25 articles) and 100 verified locked QA items."""
+    corpus: list[dict[str, Any]] = []
+    locked_items: list[SuiteItem] = []
+    item_counter = 1
+
+    for p_idx, p_data in enumerate(private_personas, 1):
+        name, b_date, d_date, prof, award = p_data[0], p_data[1], p_data[2], p_data[3], p_data[4]
+        art_id = f"fictional_locked_art_p_{p_idx:04d}"
+        abstract = (
+            f"{name} ({b_date} – {d_date}) was a renowned {prof}. "
+            f"Over a distinguished career, {name} made notable contributions to the field. "
+            f"In recognition of these achievements, {name} received the prestigious {award}."
+        )
+        corpus.append(
+            {
+                "article_id": art_id,
+                "title": name,
+                "abstract": abstract,
+                "is_fictional": True,
+            }
+        )
+
+        b_start = abstract.find(b_date)
+        b_span = [b_start, b_start + len(b_date)]
+        assert abstract[b_span[0] : b_span[1]] == b_date
+        locked_items.append(
+            SuiteItem(
+                item_id=f"kqa_fict_lock_{item_counter:04d}",
+                group="knowledge_qa",
+                prompt=f"When was {name} born?",
+                target=b_date,
+                answer_check="normalized_exact_match",
+                choices=None,
+                arm="fictional_entity",
+                template_family="born_date",
+                metadata={
+                    "source": "private_fictional_entity_generator",
+                    "passage_id": art_id,
+                    "passage_title": name,
+                    "passage": abstract,
+                    "answer_span": b_span,
+                    "rule_family": "born_date",
+                    "template_family": "born_date",
+                    "arm": "fictional_entity",
+                    "is_fictional": True,
+                },
+            )
+        )
+        item_counter += 1
+
+        d_start = abstract.find(d_date)
+        d_span = [d_start, d_start + len(d_date)]
+        assert abstract[d_span[0] : d_span[1]] == d_date
+        locked_items.append(
+            SuiteItem(
+                item_id=f"kqa_fict_lock_{item_counter:04d}",
+                group="knowledge_qa",
+                prompt=f"When did {name} die?",
+                target=d_date,
+                answer_check="normalized_exact_match",
+                choices=None,
+                arm="fictional_entity",
+                template_family="death_date",
+                metadata={
+                    "source": "private_fictional_entity_generator",
+                    "passage_id": art_id,
+                    "passage_title": name,
+                    "passage": abstract,
+                    "answer_span": d_span,
+                    "rule_family": "death_date",
+                    "template_family": "death_date",
+                    "arm": "fictional_entity",
+                    "is_fictional": True,
+                },
+            )
+        )
+        item_counter += 1
+
+        p_start = abstract.find(prof)
+        p_span = [p_start, p_start + len(prof)]
+        assert abstract[p_span[0] : p_span[1]] == prof
+        locked_items.append(
+            SuiteItem(
+                item_id=f"kqa_fict_lock_{item_counter:04d}",
+                group="knowledge_qa",
+                prompt=f"What was the profession or occupation of {name}?",
+                target=prof,
+                answer_check="normalized_exact_match",
+                choices=None,
+                arm="fictional_entity",
+                template_family="profession",
+                metadata={
+                    "source": "private_fictional_entity_generator",
+                    "passage_id": art_id,
+                    "passage_title": name,
+                    "passage": abstract,
+                    "answer_span": p_span,
+                    "rule_family": "profession",
+                    "template_family": "profession",
+                    "arm": "fictional_entity",
+                    "is_fictional": True,
+                },
+            )
+        )
+        item_counter += 1
+
+        a_start = abstract.find(award)
+        a_span = [a_start, a_start + len(award)]
+        assert abstract[a_span[0] : a_span[1]] == award
+        locked_items.append(
+            SuiteItem(
+                item_id=f"kqa_fict_lock_{item_counter:04d}",
+                group="knowledge_qa",
+                prompt=f"What award or prize did {name} receive?",
+                target=award,
+                answer_check="normalized_exact_match",
+                choices=None,
+                arm="fictional_entity",
+                template_family="award_won",
+                metadata={
+                    "source": "private_fictional_entity_generator",
+                    "passage_id": art_id,
+                    "passage_title": name,
+                    "passage": abstract,
+                    "answer_span": a_span,
+                    "rule_family": "award_won",
+                    "template_family": "award_won",
+                    "arm": "fictional_entity",
+                    "is_fictional": True,
+                },
+            )
+        )
+        item_counter += 1
+
+    assert len(locked_items) == 100, f"Expected 100 locked fictional items, got {len(locked_items)}"
+    return corpus, locked_items
 
 
 def save_fictional_corpus(
