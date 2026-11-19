@@ -1,0 +1,29 @@
+{
+  "hashes": {
+    "validation": {
+      "math": "36d28203fe4d3493e5cab1fa70828fe449410c8e11b6672934e78b977fef3408",
+      "science_mcq": "e4a7ab87a6dd4b7e8b93152a1a65640cc4cae43d97dee93048473f40bf80a270",
+      "knowledge_mcq": "69e9180eb213d3e0f444578723c0649f8781b424cb147b2cdb1fe9d3063c39bd",
+      "code": "42d95b87814603c31fdcb5ebf7089b804620b20d6a85ea729088801378b8e7aa",
+      "knowledge_qa": "9a501f364c45c9b44065ffc7ae07883516cef5ba64cb60d14ad52d95c6a2b73e",
+      "memory_probe": "b137a53a4cf5dd17ea9eb90642444a0956752b757d7b92fe2fc35f92b00cff5e"
+    },
+    "locked_test": {
+      "math": "497e5a9c91ffb9971f550fca6b889fe24da23f932e68620c3124a07ea8d98ce0",
+      "science_mcq": "813d5afed8af93c5dfd0388d79e640a9a078e18ddfaeee94b4c0fb02f441f054",
+      "knowledge_mcq": "3b1061c871459b007e58f000a72bac20ebc2809ae5e81cfc0246c86fc7e89503",
+      "code": "2d65b8d6e215060f3773daac4fadd0271ac7df0f8948596cf320b8076ecb4268",
+      "knowledge_qa": "537d2cb7f35b35ee930189e07f37c54df877bd8f14fb802c6f1832d9705e60e1",
+      "memory_probe": "445c3d5ae5579df6a6c0334c58eb57d5c138b74dbd6b1425e0ec6c159504e1c1"
+    },
+    "train": {
+      "math": "027c36789149ca8da464eefb18c28681f7ebf69dfb4e97924b852484e7f3a0b0",
+      "science_mcq": "4241c43a3c88cf07df8940f3bdd5095850fbe6370e1fb0efa54004784e71d2c2",
+      "knowledge_mcq": "f7bb363b86e4bcfdae475b465288ed9c7aa61a3df646a5c113a9c8e2eebc3a49",
+      "code": "d8f0fce3e375c1e99a3cd00742d6f88797df05d1dbb535e16ac0c4490c385fdc",
+      "knowledge_qa": "23f09ab70a9636dd206e916a303eae67cb7d9278bc3894f11d28987c0e005bc5",
+      "memory_probe": "9181ccbc0c4a066f8c257973181d29cef9ebed16b841087152a7f9ffcf3ca402"
+    }
+  },
+  "root_hash": "39cbe48e161f75a1bd4b57e8abf555012fe7b3b515092d96cf5e843bb3a97b68"
+}

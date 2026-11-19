@@ -9,15 +9,19 @@ import sys
 from typing import Any, TypedDict
 
 
-class SuiteItem(TypedDict):
+class SuiteItem(TypedDict, total=False):
     """Canonical representation of an evaluation suite task item."""
 
     item_id: str
+    id: str
     group: str
+    split: str
     prompt: str
     target: str
     answer_check: str
     choices: list[str] | None
+    arm: str
+    template_family: str
     metadata: dict[str, Any]
 
 

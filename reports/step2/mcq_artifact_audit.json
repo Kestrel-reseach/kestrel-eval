@@ -1,0 +1,2098 @@
+{
+  "pre_registered_failure_criterion": "Heuristic FAILS if 95% Wilson CI lower bound > 25.0%",
+  "science_mcq": {
+    "validation": {
+      "group": "science_mcq (validation)",
+      "total_items": 200,
+      "key_distribution": {
+        "C": 60,
+        "D": 44,
+        "A": 52,
+        "B": 44
+      },
+      "mean_correct_option_length": 35.3,
+      "mean_incorrect_option_length": 34.7,
+      "mean_lengths_by_label": {
+        "A": 35.0,
+        "B": 34.9,
+        "C": 34.8,
+        "D": 34.8
+      },
+      "heuristics": {
+        "always_a": {
+          "correct": 52,
+          "accuracy": 26.0,
+          "ci_95": [
+            20.41,
+            32.49
+          ],
+          "fails_criterion": false
+        },
+        "longest_option": {
+          "correct": 56,
+          "accuracy": 28.0,
+          "ci_95": [
+            22.24,
+            34.59
+          ],
+          "fails_criterion": false
+        },
+        "shortest_option": {
+          "correct": 41,
+          "accuracy": 20.5,
+          "ci_95": [
+            15.49,
+            26.63
+          ],
+          "fails_criterion": false
+        },
+        "most_word_overlap": {
+          "correct": 45,
+          "accuracy": 22.5,
+          "ci_95": [
+            17.26,
+            28.77
+          ],
+          "fails_criterion": false
+        },
+        "median_numeric": {
+          "applicable_items": 128,
+          "correct": 64,
+          "accuracy": 50.0,
+          "ci_95": [
+            41.47,
+            58.53
+          ],
+          "fails_criterion": true
+        }
+      },
+      "arm_retained": false,
+      "family_breakdown": {
+        "general": {
+          "total": 200,
+          "always_a": 52,
+          "longest": 56,
+          "shortest": 41,
+          "overlap": 45
+        }
+      }
+    },
+    "train": {
+      "group": "science_mcq (train)",
+      "total_items": 200,
+      "key_distribution": {
+        "B": 58,
+        "C": 48,
+        "D": 52,
+        "A": 42
+      },
+      "mean_correct_option_length": 33.3,
+      "mean_incorrect_option_length": 33.2,
+      "mean_lengths_by_label": {
+        "A": 33.2,
+        "B": 33.4,
+        "C": 33.0,
+        "D": 33.4
+      },
+      "heuristics": {
+        "always_a": {
+          "correct": 42,
+          "accuracy": 21.0,
+          "ci_95": [
+            15.93,
+            27.16
+          ],
+          "fails_criterion": false
+        },
+        "longest_option": {
+          "correct": 35,
+          "accuracy": 17.5,
+          "ci_95": [
+            12.86,
+            23.36
+          ],
+          "fails_criterion": false
+        },
+        "shortest_option": {
+          "correct": 30,
+          "accuracy": 15.0,
+          "ci_95": [
+            10.71,
+            20.61
+          ],
+          "fails_criterion": false
+        },
+        "most_word_overlap": {
+          "correct": 43,
+          "accuracy": 21.5,
+          "ci_95": [
+            16.37,
+            27.7
+          ],
+          "fails_criterion": false
+        },
+        "median_numeric": {
+          "applicable_items": 171,
+          "correct": 95,
+          "accuracy": 55.56,
+          "ci_95": [
+            48.07,
+            62.8
+          ],
+          "fails_criterion": true
+        }
+      },
+      "arm_retained": false,
+      "family_breakdown": {
+        "general": {
+          "total": 200,
+          "always_a": 42,
+          "longest": 35,
+          "shortest": 30,
+          "overlap": 43
+        }
+      }
+    },
+    "combined": {
+      "group": "science_mcq (val + train)",
+      "total_items": 400,
+      "key_distribution": {
+        "C": 108,
+        "D": 96,
+        "A": 94,
+        "B": 102
+      },
+      "mean_correct_option_length": 34.3,
+      "mean_incorrect_option_length": 34.0,
+      "mean_lengths_by_label": {
+        "A": 34.1,
+        "B": 34.1,
+        "C": 33.9,
+        "D": 34.1
+      },
+      "heuristics": {
+        "always_a": {
+          "correct": 94,
+          "accuracy": 23.5,
+          "ci_95": [
+            19.61,
+            27.9
+          ],
+          "fails_criterion": false
+        },
+        "longest_option": {
+          "correct": 91,
+          "accuracy": 22.75,
+          "ci_95": [
+            18.91,
+            27.11
+          ],
+          "fails_criterion": false
+        },
+        "shortest_option": {
+          "correct": 71,
+          "accuracy": 17.75,
+          "ci_95": [
+            14.32,
+            21.8
+          ],
+          "fails_criterion": false
+        },
+        "most_word_overlap": {
+          "correct": 88,
+          "accuracy": 22.0,
+          "ci_95": [
+            18.22,
+            26.32
+          ],
+          "fails_criterion": false
+        },
+        "median_numeric": {
+          "applicable_items": 299,
+          "correct": 159,
+          "accuracy": 53.18,
+          "ci_95": [
+            47.52,
+            58.76
+          ],
+          "fails_criterion": true
+        }
+      },
+      "arm_retained": false,
+      "family_breakdown": {
+        "general": {
+          "total": 400,
+          "always_a": 94,
+          "longest": 91,
+          "shortest": 71,
+          "overlap": 88
+        }
+      }
+    },
+    "decision": "DROP (PUBLIC-ONLY)",
+    "sample_30_for_factual_inspection": [
+      {
+        "item_id": "sci_val_0149",
+        "family": "general",
+        "stem": "What is the total mass in grams of 3 moles of sulfuric acid (H\u2082SO\u2084) given its molar mass of approximately 98 g/mol?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '294 g'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '147 g'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '392 g'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '980 g'}"
+          ]
+        ],
+        "target": "A"
+      },
+      {
+        "item_id": "sci_val_0050",
+        "family": "general",
+        "stem": "Which eukaryotic cellular structure transcribes ribosomal RNA and orchestrates the assembly of ribosomal subunits within the nucleus?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Ribosome'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Nucleolus'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Mitochondria'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Chloroplast'}"
+          ]
+        ],
+        "target": "B"
+      },
+      {
+        "item_id": "sci_val_0139",
+        "family": "general",
+        "stem": "A sample of ideal gas occupies an initial volume of 2 L at a pressure of 1 atm. If the gas expands to 8 L at constant temperature (Boyle's Law), what is the final pressure?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '1.25 atm'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '2 atm'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '0.25 atm'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '0.5 atm'}"
+          ]
+        ],
+        "target": "C"
+      },
+      {
+        "item_id": "sci_val_0092",
+        "family": "general",
+        "stem": "What is the total mass in grams of 3 moles of glucose (C\u2086H\u2081\u2082O\u2086) given its molar mass of approximately 180 g/mol?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '540 g'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '720 g'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '1800 g'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '270 g'}"
+          ]
+        ],
+        "target": "A"
+      },
+      {
+        "item_id": "sci_val_0120",
+        "family": "general",
+        "stem": "In ecological trophic systems, which functional classification designates an organism that preys upon primary consumer organisms in a trophic food web?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Herbivore (Primary Consumer)'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Carnivore (Secondary Consumer)'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Autotroph (Primary Producer)'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Decomposer (Saprotroph)'}"
+          ]
+        ],
+        "target": "B"
+      },
+      {
+        "item_id": "sci_val_0013",
+        "family": "general",
+        "stem": "A mechanical crane exerts an upward force of 294 N to lift a container through a vertical displacement of 21 m. How much work is performed?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '6174 J'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '12348 J'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '315 J'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '3087 J'}"
+          ]
+        ],
+        "target": "A"
+      },
+      {
+        "item_id": "sci_val_0170",
+        "family": "general",
+        "stem": "How much heat energy is required to raise the temperature of 2 kg of water (specific heat capacity 4200 J/(kg\u00b7K)) by 10 K?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '168000 J'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '2000 J'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '42000 J'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '84000 J'}"
+          ]
+        ],
+        "target": "D"
+      },
+      {
+        "item_id": "sci_val_0129",
+        "family": "general",
+        "stem": "An electrical circuit contains a steady load of 65 \u03a9 with a current of 8 A. What is the potential difference across the load?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '520 V'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '73 V'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '260 V'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '1040 V'}"
+          ]
+        ],
+        "target": "A"
+      },
+      {
+        "item_id": "sci_val_0055",
+        "family": "general",
+        "stem": "During which specific stage of eukaryotic mitosis do sister chromatid pairs align uniformly along the central equatorial plane of the cell?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Prophase'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Anaphase'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Metaphase'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Telophase'}"
+          ]
+        ],
+        "target": "C"
+      },
+      {
+        "item_id": "sci_val_0155",
+        "family": "general",
+        "stem": "Which eukaryotic cellular structure modifies, packages, and tags proteins and glycoproteins synthesized in the rough ER for exocytosis?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Ribosome'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Mitochondria'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Chloroplast'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Golgi apparatus'}"
+          ]
+        ],
+        "target": "D"
+      },
+      {
+        "item_id": "sci_val_0057",
+        "family": "general",
+        "stem": "A solid metal sample has a volume of 100 cm\u00b3 and a total mass of 200 g. What is the density of the metal?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '4 g/cm\u00b3'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '1 g/cm\u00b3'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '300 g/cm\u00b3'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '2 g/cm\u00b3'}"
+          ]
+        ],
+        "target": "D"
+      },
+      {
+        "item_id": "sci_val_0074",
+        "family": "general",
+        "stem": "An electrical circuit contains a steady load of 74 \u03a9 with a current of 24 A. What is the potential difference across the load?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '1776 V'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '98 V'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '3552 V'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '888 V'}"
+          ]
+        ],
+        "target": "A"
+      },
+      {
+        "item_id": "sci_val_0125",
+        "family": "general",
+        "stem": "A periodic sound wave has a frequency of 1500 Hz and a wavelength of 1.5 m. What is its propagation speed?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '4500.0 m/s'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '1125.0 m/s'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '2250.0 m/s'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '1000.0 m/s'}"
+          ]
+        ],
+        "target": "C"
+      },
+      {
+        "item_id": "sci_val_0178",
+        "family": "general",
+        "stem": "An atom of isotope Lithium-7 (Li) has an atomic number of 3. How many neutrons are contained within its nucleus?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '4'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '2'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '7'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '3'}"
+          ]
+        ],
+        "target": "A"
+      },
+      {
+        "item_id": "sci_val_0192",
+        "family": "general",
+        "stem": "What is the atomic number (number of nuclear protons) of the neutral chemical element Aluminum (Al)?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '14'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '13'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '11'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '19'}"
+          ]
+        ],
+        "target": "B"
+      },
+      {
+        "item_id": "sci_val_0085",
+        "family": "general",
+        "stem": "What is the total mass in grams of 5 moles of carbon dioxide (CO\u2082) given its molar mass of approximately 44 g/mol?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '440 g'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '220 g'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '110 g'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '264 g'}"
+          ]
+        ],
+        "target": "B"
+      },
+      {
+        "item_id": "sci_val_0113",
+        "family": "general",
+        "stem": "In classical Mendelian genetics, a monohybrid cross between a homozygous dominant (AA) and a homozygous recessive plant (aa) produces what expected probability of offspring displaying the heterozygous genotype (Aa)?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '25% (1/4)'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '0%'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '100%'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '50% (1/2)'}"
+          ]
+        ],
+        "target": "C"
+      },
+      {
+        "item_id": "sci_val_0019",
+        "family": "general",
+        "stem": "Which Solar System planet is characterized as the most massive gas giant in the Solar System, hosting the Great Red Spot anticyclonic storm?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Venus'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Mars'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Jupiter'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Mercury'}"
+          ]
+        ],
+        "target": "C"
+      },
+      {
+        "item_id": "sci_val_0066",
+        "family": "general",
+        "stem": "To which primary group or classification family does the element Aluminum (Al) belong on the periodic table?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Post-transition metal'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Alkali metal'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Alkaline earth metal'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Transition metal'}"
+          ]
+        ],
+        "target": "A"
+      },
+      {
+        "item_id": "sci_val_0199",
+        "family": "general",
+        "stem": "An electric motor completes 250 J of mechanical work in a duration of 5 seconds. What is the average power output of the motor?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '1250 W'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '50 W'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '35 W'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '100 W'}"
+          ]
+        ],
+        "target": "B"
+      },
+      {
+        "item_id": "sci_val_0042",
+        "family": "general",
+        "stem": "What is the atomic number (number of nuclear protons) of the neutral chemical element Silicon (Si)?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '14'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '15'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '12'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '20'}"
+          ]
+        ],
+        "target": "A"
+      },
+      {
+        "item_id": "sci_val_0023",
+        "family": "general",
+        "stem": "To which primary group or classification family does the element Calcium (Ca) belong on the periodic table?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Halogen'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Alkaline earth metal'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Transition metal'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Alkali metal'}"
+          ]
+        ],
+        "target": "B"
+      },
+      {
+        "item_id": "sci_val_0114",
+        "family": "general",
+        "stem": "An electric motor completes 250 J of mechanical work in a duration of 25 seconds. What is the average power output of the motor?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '10 W'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '6250 W'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '5 W'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '20 W'}"
+          ]
+        ],
+        "target": "A"
+      },
+      {
+        "item_id": "sci_val_0138",
+        "family": "general",
+        "stem": "How much heat energy is required to raise the temperature of 2 kg of iron (specific heat capacity 450 J/(kg\u00b7K)) by 10 K?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '4500 J'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '18000 J'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '9000 J'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '2000 J'}"
+          ]
+        ],
+        "target": "C"
+      },
+      {
+        "item_id": "sci_val_0094",
+        "family": "general",
+        "stem": "Which primary petrological rock classification describes rocks that arises from the structural transformation of pre-existing rock under elevated pressure and temperature without melting?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Sedimentary rock'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Igneous rock'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Metamorphic rock'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Regolith agglomerate'}"
+          ]
+        ],
+        "target": "C"
+      },
+      {
+        "item_id": "sci_val_0181",
+        "family": "general",
+        "stem": "What is the total mass in grams of 4 moles of sodium chloride (NaCl) given its molar mass of approximately 58 g/mol?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '580 g'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '232 g'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '116 g'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '290 g'}"
+          ]
+        ],
+        "target": "B"
+      },
+      {
+        "item_id": "sci_val_0121",
+        "family": "general",
+        "stem": "An atom of isotope Potassium-39 (K) has an atomic number of 19. How many neutrons are contained within its nucleus?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '39'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '19'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '20'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '18'}"
+          ]
+        ],
+        "target": "C"
+      },
+      {
+        "item_id": "sci_val_0084",
+        "family": "general",
+        "stem": "What is the kinetic energy of a 12 kg body traveling at a velocity of 3 m/s?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '36 J'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '154 J'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '108 J'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '54 J'}"
+          ]
+        ],
+        "target": "D"
+      },
+      {
+        "item_id": "sci_val_0062",
+        "family": "general",
+        "stem": "A mass of 60 kg accelerates at 48 m/s\u00b2 on a horizontal frictionless surface. What net force is acting on the mass?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '1440 N'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '108 N'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '2880 N'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '5760 N'}"
+          ]
+        ],
+        "target": "C"
+      },
+      {
+        "item_id": "sci_val_0164",
+        "family": "general",
+        "stem": "What is the kinetic energy of a 16 kg body traveling at a velocity of 19 m/s?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '2988 J'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '304 J'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '2888 J'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '5776 J'}"
+          ]
+        ],
+        "target": "C"
+      }
+    ]
+  },
+  "knowledge_mcq": {
+    "validation": {
+      "group": "knowledge_mcq (validation)",
+      "total_items": 300,
+      "key_distribution": {
+        "C": 59,
+        "A": 79,
+        "D": 82,
+        "B": 80
+      },
+      "mean_correct_option_length": 48.6,
+      "mean_incorrect_option_length": 44.8,
+      "mean_lengths_by_label": {
+        "A": 45.3,
+        "B": 45.3,
+        "C": 45.9,
+        "D": 46.5
+      },
+      "heuristics": {
+        "always_a": {
+          "correct": 79,
+          "accuracy": 26.33,
+          "ci_95": [
+            21.67,
+            31.59
+          ],
+          "fails_criterion": false
+        },
+        "longest_option": {
+          "correct": 93,
+          "accuracy": 31.0,
+          "ci_95": [
+            26.03,
+            36.45
+          ],
+          "fails_criterion": true
+        },
+        "shortest_option": {
+          "correct": 64,
+          "accuracy": 21.33,
+          "ci_95": [
+            17.08,
+            26.32
+          ],
+          "fails_criterion": false
+        },
+        "most_word_overlap": {
+          "correct": 97,
+          "accuracy": 32.33,
+          "ci_95": [
+            27.29,
+            37.82
+          ],
+          "fails_criterion": true
+        },
+        "median_numeric": {
+          "applicable_items": 148,
+          "correct": 76,
+          "accuracy": 51.35,
+          "ci_95": [
+            43.37,
+            59.27
+          ],
+          "fails_criterion": true
+        }
+      },
+      "arm_retained": false,
+      "family_breakdown": {
+        "college_computer_science": {
+          "total": 30,
+          "always_a": 8,
+          "longest": 4,
+          "shortest": 9,
+          "overlap": 7
+        },
+        "college_physics": {
+          "total": 30,
+          "always_a": 13,
+          "longest": 9,
+          "shortest": 10,
+          "overlap": 11
+        },
+        "college_biology": {
+          "total": 30,
+          "always_a": 13,
+          "longest": 11,
+          "shortest": 9,
+          "overlap": 11
+        },
+        "college_chemistry": {
+          "total": 30,
+          "always_a": 6,
+          "longest": 8,
+          "shortest": 7,
+          "overlap": 9
+        },
+        "elementary_mathematics": {
+          "total": 30,
+          "always_a": 9,
+          "longest": 7,
+          "shortest": 8,
+          "overlap": 9
+        },
+        "high_school_world_history": {
+          "total": 30,
+          "always_a": 5,
+          "longest": 15,
+          "shortest": 4,
+          "overlap": 14
+        },
+        "high_school_geography": {
+          "total": 30,
+          "always_a": 7,
+          "longest": 10,
+          "shortest": 5,
+          "overlap": 5
+        },
+        "professional_law": {
+          "total": 30,
+          "always_a": 4,
+          "longest": 21,
+          "shortest": 1,
+          "overlap": 15
+        },
+        "clinical_knowledge": {
+          "total": 30,
+          "always_a": 6,
+          "longest": 1,
+          "shortest": 5,
+          "overlap": 6
+        },
+        "econometrics": {
+          "total": 30,
+          "always_a": 8,
+          "longest": 7,
+          "shortest": 6,
+          "overlap": 10
+        }
+      }
+    },
+    "train": {
+      "group": "knowledge_mcq (train)",
+      "total_items": 300,
+      "key_distribution": {
+        "B": 75,
+        "D": 91,
+        "A": 75,
+        "C": 59
+      },
+      "mean_correct_option_length": 44.2,
+      "mean_incorrect_option_length": 41.2,
+      "mean_lengths_by_label": {
+        "A": 41.4,
+        "B": 42.0,
+        "C": 42.3,
+        "D": 42.1
+      },
+      "heuristics": {
+        "always_a": {
+          "correct": 75,
+          "accuracy": 25.0,
+          "ci_95": [
+            20.44,
+            30.2
+          ],
+          "fails_criterion": false
+        },
+        "longest_option": {
+          "correct": 76,
+          "accuracy": 25.33,
+          "ci_95": [
+            20.74,
+            30.55
+          ],
+          "fails_criterion": false
+        },
+        "shortest_option": {
+          "correct": 55,
+          "accuracy": 18.33,
+          "ci_95": [
+            14.36,
+            23.1
+          ],
+          "fails_criterion": false
+        },
+        "most_word_overlap": {
+          "correct": 84,
+          "accuracy": 28.0,
+          "ci_95": [
+            23.22,
+            33.33
+          ],
+          "fails_criterion": false
+        },
+        "median_numeric": {
+          "applicable_items": 177,
+          "correct": 80,
+          "accuracy": 45.2,
+          "ci_95": [
+            38.05,
+            52.55
+          ],
+          "fails_criterion": true
+        }
+      },
+      "arm_retained": false,
+      "family_breakdown": {
+        "college_computer_science": {
+          "total": 30,
+          "always_a": 10,
+          "longest": 10,
+          "shortest": 10,
+          "overlap": 10
+        },
+        "college_physics": {
+          "total": 30,
+          "always_a": 9,
+          "longest": 8,
+          "shortest": 5,
+          "overlap": 7
+        },
+        "college_biology": {
+          "total": 30,
+          "always_a": 6,
+          "longest": 7,
+          "shortest": 6,
+          "overlap": 6
+        },
+        "college_chemistry": {
+          "total": 30,
+          "always_a": 9,
+          "longest": 9,
+          "shortest": 10,
+          "overlap": 13
+        },
+        "elementary_mathematics": {
+          "total": 30,
+          "always_a": 3,
+          "longest": 4,
+          "shortest": 3,
+          "overlap": 2
+        },
+        "high_school_world_history": {
+          "total": 30,
+          "always_a": 8,
+          "longest": 10,
+          "shortest": 3,
+          "overlap": 7
+        },
+        "high_school_geography": {
+          "total": 30,
+          "always_a": 10,
+          "longest": 5,
+          "shortest": 8,
+          "overlap": 9
+        },
+        "professional_law": {
+          "total": 30,
+          "always_a": 5,
+          "longest": 13,
+          "shortest": 0,
+          "overlap": 15
+        },
+        "clinical_knowledge": {
+          "total": 30,
+          "always_a": 7,
+          "longest": 3,
+          "shortest": 3,
+          "overlap": 7
+        },
+        "econometrics": {
+          "total": 30,
+          "always_a": 8,
+          "longest": 7,
+          "shortest": 7,
+          "overlap": 8
+        }
+      }
+    },
+    "combined": {
+      "group": "knowledge_mcq (val + train)",
+      "total_items": 600,
+      "key_distribution": {
+        "C": 118,
+        "A": 154,
+        "D": 173,
+        "B": 155
+      },
+      "mean_correct_option_length": 46.4,
+      "mean_incorrect_option_length": 43.0,
+      "mean_lengths_by_label": {
+        "A": 43.4,
+        "B": 43.6,
+        "C": 44.1,
+        "D": 44.3
+      },
+      "heuristics": {
+        "always_a": {
+          "correct": 154,
+          "accuracy": 25.67,
+          "ci_95": [
+            22.33,
+            29.31
+          ],
+          "fails_criterion": false
+        },
+        "longest_option": {
+          "correct": 169,
+          "accuracy": 28.17,
+          "ci_95": [
+            24.72,
+            31.9
+          ],
+          "fails_criterion": false
+        },
+        "shortest_option": {
+          "correct": 119,
+          "accuracy": 19.83,
+          "ci_95": [
+            16.84,
+            23.21
+          ],
+          "fails_criterion": false
+        },
+        "most_word_overlap": {
+          "correct": 181,
+          "accuracy": 30.17,
+          "ci_95": [
+            26.63,
+            33.96
+          ],
+          "fails_criterion": true
+        },
+        "median_numeric": {
+          "applicable_items": 325,
+          "correct": 156,
+          "accuracy": 48.0,
+          "ci_95": [
+            42.62,
+            53.42
+          ],
+          "fails_criterion": true
+        }
+      },
+      "arm_retained": false,
+      "family_breakdown": {
+        "college_computer_science": {
+          "total": 60,
+          "always_a": 18,
+          "longest": 14,
+          "shortest": 19,
+          "overlap": 17
+        },
+        "college_physics": {
+          "total": 60,
+          "always_a": 22,
+          "longest": 17,
+          "shortest": 15,
+          "overlap": 18
+        },
+        "college_biology": {
+          "total": 60,
+          "always_a": 19,
+          "longest": 18,
+          "shortest": 15,
+          "overlap": 17
+        },
+        "college_chemistry": {
+          "total": 60,
+          "always_a": 15,
+          "longest": 17,
+          "shortest": 17,
+          "overlap": 22
+        },
+        "elementary_mathematics": {
+          "total": 60,
+          "always_a": 12,
+          "longest": 11,
+          "shortest": 11,
+          "overlap": 11
+        },
+        "high_school_world_history": {
+          "total": 60,
+          "always_a": 13,
+          "longest": 25,
+          "shortest": 7,
+          "overlap": 21
+        },
+        "high_school_geography": {
+          "total": 60,
+          "always_a": 17,
+          "longest": 15,
+          "shortest": 13,
+          "overlap": 14
+        },
+        "professional_law": {
+          "total": 60,
+          "always_a": 9,
+          "longest": 34,
+          "shortest": 1,
+          "overlap": 30
+        },
+        "clinical_knowledge": {
+          "total": 60,
+          "always_a": 13,
+          "longest": 4,
+          "shortest": 8,
+          "overlap": 13
+        },
+        "econometrics": {
+          "total": 60,
+          "always_a": 16,
+          "longest": 14,
+          "shortest": 13,
+          "overlap": 18
+        }
+      }
+    },
+    "decision": "DROP (PUBLIC-ONLY)",
+    "sample_30_for_factual_inspection": [
+      {
+        "item_id": "know_val_0198",
+        "family": "high_school_geography",
+        "stem": "On which continent and mountain system is the peak Mont Blanc (4,809 m) located?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Asia'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'North America'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Europe (Alps)'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'South America'}"
+          ]
+        ],
+        "target": "C"
+      },
+      {
+        "item_id": "know_val_0241",
+        "family": "clinical_knowledge",
+        "stem": "A 45-year-old male presents with vital signs showing BP 134/61 mmHg, HR 109 bpm, and clinical presentation of: 'Sudden-onset pleuritic chest pain, tachypnea, tachycardia, hypoxemia, and a normal initial chest radiograph in an immobilized patient'. What is the most likely clinical diagnosis?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Costochondritis'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Pneumonia'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Acute myocardial infarction'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Pulmonary Embolism'}"
+          ]
+        ],
+        "target": "D"
+      },
+      {
+        "item_id": "know_val_0210",
+        "family": "high_school_geography",
+        "stem": "Into which major body of water does the Mekong River empty its primary outflow?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'South China Sea'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Gulf of Thailand'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Andaman Sea'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'East China Sea'}"
+          ]
+        ],
+        "target": "A"
+      },
+      {
+        "item_id": "know_val_0102",
+        "family": "college_chemistry",
+        "stem": "A chemical reaction system has standard enthalpy change \u0394H = 14 kJ/mol and standard entropy change \u0394S = -134 J/(mol\u00b7K). Under what temperature range is this reaction thermodynamically favored (\u0394G < 0)?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Spontaneous at all temperatures'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Spontaneous only at low temperatures'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Non-spontaneous at all temperatures'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Spontaneous only at high temperatures'}"
+          ]
+        ],
+        "target": "C"
+      },
+      {
+        "item_id": "know_val_0101",
+        "family": "college_chemistry",
+        "stem": "According to the Henderson-Hasselbalch equation, what is the pH of a buffer solution having conjugate base to weak acid ratio [A\u207b]/[HA] = 0.5 when the weak acid has pKa = 7.32?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '7.32'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '5.52'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '8.52'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '7.02'}"
+          ]
+        ],
+        "target": "D"
+      },
+      {
+        "item_id": "know_val_0204",
+        "family": "high_school_geography",
+        "stem": "Which major navigable marine strait is described as: 'the navigable sea route in southern Chile separating mainland South America from Tierra del Fuego'?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Strait of Magellan'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Strait of Malacca'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Bosporus Strait'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Strait of Hormuz'}"
+          ]
+        ],
+        "target": "A"
+      },
+      {
+        "item_id": "know_val_0029",
+        "family": "college_computer_science",
+        "stem": "In operating systems design, which mechanism or algorithm is defined as: 'hardware associative memory cache dedicated to storing recent virtual-to-physical address translations'?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Shortest Remaining Time First (SRTF)'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': \"Banker's Algorithm\"}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Counting Semaphore'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Translation Lookaside Buffer (TLB)'}"
+          ]
+        ],
+        "target": "D"
+      },
+      {
+        "item_id": "know_val_0220",
+        "family": "professional_law",
+        "stem": "While driving at 53 mph in a posted 38 mph school zone, Elena fails to brake in time and collides with Frank's stationary vehicle. In a negligence action brought by Frank, Elena's statutory speeding violation establishes:",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Res ipsa loquitur (an evidentiary inference shifting the ultimate burden of proof to the jury)'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Strict liability regardless of causation or damages'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Negligence per se (conclusive evidence of breach of the standard of care as a matter of law)'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Assumption of the risk barring recovery by Frank'}"
+          ]
+        ],
+        "target": "C"
+      },
+      {
+        "item_id": "know_val_0227",
+        "family": "professional_law",
+        "stem": "In professional American jurisprudence, which fundamental legal doctrine or rule is defined as: 'the tort theory imposing liability on commercial product sellers for injuries caused by defective products without proving fault'?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Res Ipsa Loquitur'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Strict Products Liability'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Promissory Estoppel'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Parol Evidence Rule'}"
+          ]
+        ],
+        "target": "B"
+      },
+      {
+        "item_id": "know_val_0232",
+        "family": "professional_law",
+        "stem": "State C enacts a statute imposing a 5% sales surcharge exclusively on goods manufactured out-of-state, while exempting locally manufactured goods. If an out-of-state merchant challenges this statute in federal court, the statute will likely be struck down under:",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'The Privileges and Immunities Clause of the Fourteenth Amendment'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'The Tenth Amendment reserved police powers clause'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'The Full Faith and Credit Clause'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'The Dormant Commerce Clause (for discriminating against interstate commerce on its face)'}"
+          ]
+        ],
+        "target": "D"
+      },
+      {
+        "item_id": "know_val_0019",
+        "family": "college_computer_science",
+        "stem": "A direct-mapped CPU data cache has a total data capacity of 512 KB and a cache line block size of 64 bytes. How many cache lines (blocks) does this cache contain?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '8256'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '4096'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '8192'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '16384'}"
+          ]
+        ],
+        "target": "C"
+      },
+      {
+        "item_id": "know_val_0271",
+        "family": "econometrics",
+        "stem": "In a simple regression model, an estimated coefficient is \u03b2\u0302 = 2.19 with an estimated standard error SE(\u03b2\u0302) = 0.68. What is the calculated t-statistic for testing the null hypothesis H\u2080: \u03b2 = 0?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '1.49'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '6.44'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '1.61'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '3.22'}"
+          ]
+        ],
+        "target": "D"
+      },
+      {
+        "item_id": "know_val_0167",
+        "family": "high_school_world_history",
+        "stem": "During the historical Punic Wars fought between Rome and Carthage, which outcome was formally established?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Carthaginian conquest of Italy'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Egyptian domination'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Roman naval and terrestrial supremacy over the Western Mediterranean'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Macedonian victory'}"
+          ]
+        ],
+        "target": "C"
+      },
+      {
+        "item_id": "know_val_0104",
+        "family": "college_chemistry",
+        "stem": "A radioactive radioisotope has a half-life of 24 hours. What fraction of the original radioisotope sample remains after 48 hours have elapsed?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '1/4'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '1/2'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '1/4'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '1/8'}"
+          ]
+        ],
+        "target": "A"
+      },
+      {
+        "item_id": "know_val_0122",
+        "family": "elementary_mathematics",
+        "stem": "A container holds blue and red marbles in the ratio of 2:3. If there are 65 marbles in the container in total, how many blue marbles are there?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '32'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '26'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '20'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '39'}"
+          ]
+        ],
+        "target": "B"
+      },
+      {
+        "item_id": "know_val_0254",
+        "family": "clinical_knowledge",
+        "stem": "A 24-year-old female presents with vital signs showing BP 136/77 mmHg, HR 66 bpm, and clinical presentation of: 'Severe blood loss resulting in tachycardia, cold clammy extremities, oliguria, and mean arterial pressure < 60 mmHg'. What is the most likely clinical diagnosis?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Neurogenic shock'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Hypovolemic Shock'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Distributive shock'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Cardiogenic shock'}"
+          ]
+        ],
+        "target": "B"
+      },
+      {
+        "item_id": "know_val_0268",
+        "family": "clinical_knowledge",
+        "stem": "A 48-year-old female presents with vital signs showing BP 127/55 mmHg, HR 97 bpm, and clinical presentation of: 'Sudden severe dyspnea, hypotension, unilateral absent breath sounds, hyperresonance to percussion, and contralateral tracheal deviation'. What is the most likely clinical diagnosis?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Spontaneous hemothorax'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Tension Pneumothorax'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Cardiac tamponade'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Acute pulmonary edema'}"
+          ]
+        ],
+        "target": "B"
+      },
+      {
+        "item_id": "know_val_0099",
+        "family": "college_chemistry",
+        "stem": "A radioactive radioisotope has a half-life of 15 hours. What fraction of the original radioisotope sample remains after 30 hours have elapsed?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '1/2'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '1/8'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '1/4'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '1/4'}"
+          ]
+        ],
+        "target": "C"
+      },
+      {
+        "item_id": "know_val_0206",
+        "family": "high_school_geography",
+        "stem": "On which continent is the arid expanse of the Sahara Desert situated?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'North America'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Africa'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Asia'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Australia'}"
+          ]
+        ],
+        "target": "B"
+      },
+      {
+        "item_id": "know_val_0168",
+        "family": "high_school_world_history",
+        "stem": "Which sovereign realm, empire, or state was led by Emperor Justinian I during the 6th century CE?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Roman Republic'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Byzantine Empire'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Roman Empire'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Macedonian Empire'}"
+          ]
+        ],
+        "target": "B"
+      },
+      {
+        "item_id": "know_val_0244",
+        "family": "clinical_knowledge",
+        "stem": "A 35-year-old female presents with vital signs showing BP 106/97 mmHg, HR 122 bpm, and clinical presentation of: 'Paroxysmal triad of episodic severe headaches, diaphoresis, and tachycardia accompanied by marked hypertension'. What is the most likely clinical diagnosis?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Essential hypertension'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Panic disorder'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Pheochromocytoma'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Carcinoid syndrome'}"
+          ]
+        ],
+        "target": "C"
+      },
+      {
+        "item_id": "know_val_0066",
+        "family": "college_biology",
+        "stem": "In a diploid biological population obeying Hardy-Weinberg equilibrium, the allele frequency of dominant allele A is p = 0.74. What is the expected proportion of heterozygous (Aa) genotypes in the population?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '0.5476'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '0.1924'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '0.0676'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '0.3848'}"
+          ]
+        ],
+        "target": "D"
+      },
+      {
+        "item_id": "know_val_0218",
+        "family": "professional_law",
+        "stem": "Alice enters into an oral agreement with Bob to purchase commercial restaurant equipment for a total price of $75000. Neither party signs a written memorandum. Under the Uniform Commercial Code (UCC Section 2-201) Statute of Frauds, which statement is legally accurate?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'The oral contract is fully enforceable because merchant agreements do not require written documentation'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'The contract is voidable at the option of third-party creditors only'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'The oral contract is enforceable only if Alice files an affidavit in municipal court within 10 days'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'The oral contract is unenforceable because the sale of goods is for $500 or more and requires a signed writing'}"
+          ]
+        ],
+        "target": "D"
+      },
+      {
+        "item_id": "know_val_0239",
+        "family": "professional_law",
+        "stem": "State C enacts a statute imposing a 15% sales surcharge exclusively on goods manufactured out-of-state, while exempting locally manufactured goods. If an out-of-state merchant challenges this statute in federal court, the statute will likely be struck down under:",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'The Full Faith and Credit Clause'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'The Tenth Amendment reserved police powers clause'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'The Privileges and Immunities Clause of the Fourteenth Amendment'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'The Dormant Commerce Clause (for discriminating against interstate commerce on its face)'}"
+          ]
+        ],
+        "target": "D"
+      },
+      {
+        "item_id": "know_val_0128",
+        "family": "elementary_mathematics",
+        "stem": "Solve for the unknown variable x in the linear algebraic equation: 4x + 11 = 39.",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '9'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '14'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '7'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '5'}"
+          ]
+        ],
+        "target": "C"
+      },
+      {
+        "item_id": "know_val_0131",
+        "family": "elementary_mathematics",
+        "stem": "A container holds blue and red marbles in the ratio of 3:5. If there are 160 marbles in the container in total, how many blue marbles are there?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '60'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '66'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '100'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '54'}"
+          ]
+        ],
+        "target": "A"
+      },
+      {
+        "item_id": "know_val_0229",
+        "family": "professional_law",
+        "stem": "In professional American jurisprudence, which fundamental legal doctrine or rule is defined as: 'the contract rule barring extrinsic oral evidence from contradicting a fully integrated written agreement'?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Exclusionary Rule'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Parol Evidence Rule'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Res Ipsa Loquitur'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Promissory Estoppel'}"
+          ]
+        ],
+        "target": "B"
+      },
+      {
+        "item_id": "know_val_0242",
+        "family": "clinical_knowledge",
+        "stem": "A 56-year-old female presents with vital signs showing BP 156/82 mmHg, HR 117 bpm, and clinical presentation of: 'Weight loss despite increased appetite, bilateral exophthalmos, fine tremor, heat intolerance, and suppressed serum TSH'. What is the most likely clinical diagnosis?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Subacute thyroiditis'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': \"Graves' Disease\"}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Toxic multinodular goiter'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Hashimoto thyroiditis'}"
+          ]
+        ],
+        "target": "B"
+      },
+      {
+        "item_id": "know_val_0253",
+        "family": "clinical_knowledge",
+        "stem": "A 48-year-old male presents with vital signs showing BP 124/102 mmHg, HR 117 bpm, and clinical presentation of: 'Periumbilical abdominal pain migrating to the right lower quadrant with marked tenderness at McBurney's point and leukocytosis'. What is the most likely clinical diagnosis?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': 'Nephrolithiasis'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': 'Acute Appendicitis'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': 'Mesenteric adenitis'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': 'Acute diverticulitis'}"
+          ]
+        ],
+        "target": "B"
+      },
+      {
+        "item_id": "know_val_0139",
+        "family": "elementary_mathematics",
+        "stem": "An electronic accessory priced at $75 is marked down by 25%. What is the discounted sale price before sales tax?",
+        "choices": [
+          [
+            "A",
+            "{'label': 'A', 'text': '$67'}"
+          ],
+          [
+            "B",
+            "{'label': 'B', 'text': '$42'}"
+          ],
+          [
+            "C",
+            "{'label': 'C', 'text': '$57'}"
+          ],
+          [
+            "D",
+            "{'label': 'D', 'text': '$50'}"
+          ]
+        ],
+        "target": "C"
+      }
+    ]
+  }
+}

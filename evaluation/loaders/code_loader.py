@@ -12,6 +12,7 @@ Privately written synthetic tasks with fresh algorithmic logic are formally prop
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -35,6 +36,10 @@ def parse_code_record(
 
     canonical_sol = raw.get("canonical_solution") or raw.get("code") or ""
     entry_point = raw.get("entry_point") or raw.get("function_name") or ""
+    if not entry_point and canonical_sol:
+        m = re.search(r"def\s+([a-zA-Z_]\w*)\s*\(", canonical_sol)
+        if m:
+            entry_point = m.group(1)
 
     item_id = raw.get("item_id") or f"code-{index:04d}"
 

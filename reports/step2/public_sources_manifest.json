@@ -1,0 +1,184 @@
+{
+  "gsm8k": {
+    "name": "GSM8K (Grade School Math 8K)",
+    "url": "https://github.com/openai/grade-school-math",
+    "license": "MIT",
+    "license_url": "https://github.com/openai/grade-school-math/blob/master/LICENSE",
+    "version": "1.0",
+    "files": {
+      "train": {
+        "path": "data/raw/gsm8k_train.jsonl",
+        "size_bytes": 4166206,
+        "sha256": "17f347dc51477c50d4efb83959dbb7c56297aba886e5544ee2aaed3024813465",
+        "count": 7473
+      },
+      "test": {
+        "path": "data/raw/gsm8k_test.jsonl",
+        "size_bytes": 749738,
+        "sha256": "3730d312f6e3440559ace48831e51066acaca737f6eabec99bccb9e4b3c39d14",
+        "count": 1319
+      }
+    },
+    "total_count": 8792
+  },
+  "arc_challenge": {
+    "name": "AI2 Reasoning Challenge (ARC-Challenge)",
+    "url": "https://allenai.org/data/arc",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "version": "1.0 (Feb 2018)",
+    "archive_sha256": "6d2d5ab50b2ceec6ba5f79c921be77cf2de712ea25a2b3f4fff3acc101cecfa0",
+    "files": {
+      "train": {
+        "path": "data/raw/ARC-V1-Feb2018-2/ARC-Challenge/ARC-Challenge-Train.jsonl",
+        "size_bytes": 461680,
+        "sha256": "e02837c53ee86f6d73c259f91c77725c5062ef4531130b7f473a9d9b01118a77",
+        "count": 1119
+      },
+      "dev": {
+        "path": "data/raw/ARC-V1-Feb2018-2/ARC-Challenge/ARC-Challenge-Dev.jsonl",
+        "size_bytes": 126540,
+        "sha256": "55224364abd2477f66a9a57c5cbef109fb71d83019aa5e37aec0e7ab757746ca",
+        "count": 299
+      },
+      "test": {
+        "path": "data/raw/ARC-V1-Feb2018-2/ARC-Challenge/ARC-Challenge-Test.jsonl",
+        "size_bytes": 492726,
+        "sha256": "9fa8ffb3e3a1f88cb302d53dd95aae81e39209ad9bcf974376b319d8fd35717c",
+        "count": 1172
+      }
+    },
+    "total_count": 2590
+  },
+  "mmlu": {
+    "name": "MMLU (Measuring Massive Multitask Language Understanding)",
+    "url": "https://github.com/hendrycks/test",
+    "license": "MIT",
+    "license_url": "https://github.com/hendrycks/test/blob/master/LICENSE",
+    "version": "1.0",
+    "archive_sha256": "bec563ba4bac1d6aaf04141cd7d1605d7a5ca833e38f994051e818489592989b",
+    "selected_subjects": [
+      "college_computer_science",
+      "college_physics",
+      "college_biology",
+      "college_chemistry",
+      "elementary_mathematics",
+      "high_school_world_history",
+      "high_school_geography",
+      "professional_law",
+      "clinical_knowledge",
+      "econometrics"
+    ],
+    "subject_breakdown": {
+      "college_computer_science": {
+        "splits": {
+          "dev": 5,
+          "val": 11,
+          "test": 100
+        },
+        "total": 116
+      },
+      "college_physics": {
+        "splits": {
+          "dev": 5,
+          "val": 11,
+          "test": 102
+        },
+        "total": 118
+      },
+      "college_biology": {
+        "splits": {
+          "dev": 5,
+          "val": 16,
+          "test": 144
+        },
+        "total": 165
+      },
+      "college_chemistry": {
+        "splits": {
+          "dev": 5,
+          "val": 8,
+          "test": 100
+        },
+        "total": 113
+      },
+      "elementary_mathematics": {
+        "splits": {
+          "dev": 5,
+          "val": 41,
+          "test": 378
+        },
+        "total": 424
+      },
+      "high_school_world_history": {
+        "splits": {
+          "dev": 5,
+          "val": 26,
+          "test": 237
+        },
+        "total": 268
+      },
+      "high_school_geography": {
+        "splits": {
+          "dev": 5,
+          "val": 22,
+          "test": 198
+        },
+        "total": 225
+      },
+      "professional_law": {
+        "splits": {
+          "dev": 5,
+          "val": 170,
+          "test": 1534
+        },
+        "total": 1709
+      },
+      "clinical_knowledge": {
+        "splits": {
+          "dev": 5,
+          "val": 29,
+          "test": 265
+        },
+        "total": 299
+      },
+      "econometrics": {
+        "splits": {
+          "dev": 5,
+          "val": 12,
+          "test": 114
+        },
+        "total": 131
+      }
+    },
+    "total_selected_count": 3568
+  },
+  "humaneval": {
+    "name": "HumanEval",
+    "url": "https://github.com/openai/human-eval",
+    "license": "MIT",
+    "license_url": "https://github.com/openai/human-eval/blob/master/LICENSE",
+    "version": "1.0",
+    "file": {
+      "path": "data/raw/HumanEval.jsonl",
+      "size_bytes": 214438,
+      "sha256": "1d49078ba3e2b196b9344535bef34a43021f038fad9561d6ee7c53450609a6a2",
+      "count": 164
+    },
+    "total_count": 164
+  },
+  "mbpp": {
+    "name": "MBPP (Mostly Basic Python Problems)",
+    "url": "https://github.com/google-research/google-research/tree/master/mbpp",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "version": "1.0",
+    "file": {
+      "path": "data/raw/mbpp.jsonl",
+      "size_bytes": 563743,
+      "sha256": "ccf64ceae9c5403bf50a044cb6d505bfd2a2963ee58338ba268fd65beab92a9f",
+      "count": 974
+    },
+    "total_count": 974
+  }
+}

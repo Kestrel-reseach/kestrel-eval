@@ -11,9 +11,12 @@ from __future__ import annotations
 
 from evaluation.extractors import (
     extract_answer_for_group,
+    extract_answer_span,
     extract_code_solution,
     extract_math_answer,
     extract_mcq_answer,
+    parse_date_strict,
+    score_frozen_exact_match,
 )
 
 
@@ -166,3 +169,88 @@ def main_func():
 ```"""
         extracted = extract_code_solution(raw, entry_point="main_func")
         assert "def main_func()" in extracted
+
+
+class TestKnowledgeQAExtractor:
+    def test_strict_date_parsing_and_year_only_rule(self) -> None:
+        """Strict date comparison: year-only must NOT be credited for full date."""
+        # Full date vs year-only -> must fail
+        assert score_frozen_exact_match("Alp Arslan died in 1072.", "24 November 1072") is False
+        assert score_frozen_exact_match("1072", "24 November 1072") is False
+
+        # Full date vs full date -> passes
+        assert score_frozen_exact_match("Alvar Aalto died on 11 May 1976.", "11 May 1976") is True
+        assert score_frozen_exact_match("May 11, 1976", "11 May 1976") is True
+
+        # Year-only vs year-only -> passes
+        assert score_frozen_exact_match("1945", "1945") is True
+        assert score_frozen_exact_match("Founded in 1945.", "1945") is True
+
+    def test_conversational_wrapper_stripping(self) -> None:
+        """Conversational preambles and postambles must be stripped."""
+        assert extract_answer_span("According to the context, the answer is Paris") == "Paris"
+        assert extract_answer_span("The reported population of Cleveland was 372,624.") == "372,624"
+        assert (
+            score_frozen_exact_match("According to the context, the answer is Paris", "Paris")
+            is True
+        )
+
+    def test_number_normalization(self) -> None:
+        """Comma-separated numbers and numeric spans are normalized."""
+        assert score_frozen_exact_match("535,932", "535,932") is True
+        assert score_frozen_exact_match("535932", "535,932") is True
+        assert score_frozen_exact_match("17 million inhabitants", "17") is True
+
+    def test_aliases_matching(self) -> None:
+        """Target aliases (e.g. alternate profession or name) are credited."""
+        assert (
+            score_frozen_exact_match("builder", "architect", aliases=["builder", "designer"])
+            is True
+        )
+        assert (
+            score_frozen_exact_match("mechanic", "architect", aliases=["builder", "designer"])
+            is False
+        )
+
+    def test_extract_answer_for_group_integration(self) -> None:
+        """extract_answer_for_group for knowledge_qa uses frozen exact match."""
+        item = {
+            "item_id": "kqa_val_0002",
+            "group": "knowledge_qa",
+            "target": "11 May 1976",
+            "answer_check": "normalized_exact_match",
+        }
+        span, is_correct = extract_answer_for_group(item, "Alvar Aalto died on 11 May 1976.")
+        assert span == "11 May 1976"
+        assert is_correct is True
+
+        # Failure case with year-only
+        item_fail = {
+            "item_id": "kqa_val_0003",
+            "group": "knowledge_qa",
+            "target": "24 November 1072",
+            "answer_check": "normalized_exact_match",
+        }
+        span, is_correct = extract_answer_for_group(item_fail, "Alp Arslan died in 1072.")
+        assert span == "1072"
+        assert is_correct is False
+
+    def test_parse_date_strict(self) -> None:
+        """Strict date parsing distinguishes full dates from year-only."""
+        from datetime import date
+
+        dt, gran = parse_date_strict("11 May 1976")
+        assert gran == "full_date"
+        assert dt == date(1976, 5, 11)
+
+        dt2, gran2 = parse_date_strict("1976-05-11")
+        assert gran2 == "full_date"
+        assert dt2 == date(1976, 5, 11)
+
+        val, gran3 = parse_date_strict("1976")
+        assert gran3 == "year_only"
+        assert val == 1976
+
+        res, gran4 = parse_date_strict("Invalid Date")
+        assert gran4 == "none"
+        assert res is None

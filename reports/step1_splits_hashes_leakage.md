@@ -1,6 +1,10 @@
 # Step 1: Locked Suite Partitioning, Hashing & Leakage Report (PR 4)
 
-**Date**: 2026-11-18  
+> [!NOTE]
+> **Suite v1 Superseded by Suite v2.0 (Decision D14 / Manifest v2.0)**:  
+> The Suite v1 hashes below are superseded by Suite v2.0. The official locked root hash for Suite v2.0 is `39cbe48e161f75a1bd4b57e8abf555012fe7b3b515092d96cf5e843bb3a97b68`. Superseded v1 locked files have been archived in `/home/ash09/project_x/kestrel_private/superseded_v1_locked_test/`. See `suite/README.md` and `evaluation/manifest.yaml`.
+
+**Date**: 2026-11-18 (Updated 2026-11-19)  
 **Branch**: `step-1-splits-hashes-leakage`  
 **Governing Decisions**: D1 (group & partition sizes), D2 (Wikipedia snapshot subset), D3 (synthetic memory probe), D4 (frozen gates), D8 (test hardware tier)
 

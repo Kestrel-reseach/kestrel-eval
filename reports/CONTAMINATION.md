@@ -1,11 +1,15 @@
 # Project Kestrel — Benchmark Contamination Analysis & Protocol Note
 
+> [!CAUTION]
+> **CORRECTION (2026-11-19 / Decision D14)**:
+> In Suite v1, `math`, `code`, `science_mcq`, and `knowledge_mcq` partitions were constructed using 100% procedural synthetic generators (`math_generator.py`, `code_generator.py`, `science_mcq_generator.py`, `knowledge_mcq_generator.py`). No public benchmark items from GSM8K, ARC-Challenge, MMLU, HumanEval, or MBPP were included in Suite v1. The public sources below describe the reference benchmarks that are being downloaded into `data/raw/` to construct the separate public arms for Suite v2.0.
+
 **Document:** `reports/CONTAMINATION.md`  
 **Also Referenced As:** `reports/step1_contamination_note.md`  
 **Step:** Step 1 (Suite v0, Contamination & Validation Handoff)  
 **Author:** Member A (Evaluation, Measurement & Memory Lead)  
 **Skill Reference:** `suite-split-hash`  
-**Date:** 2026-11-18  
+**Date:** 2026-11-18 (Updated 2026-11-19)  
 
 ---
 
@@ -36,73 +40,50 @@ The following table documents every public benchmark source evaluated for Projec
 
 ---
 
-## 3. Synthetic & Privately Generated Groups (Zero-Contamination Design)
+## 3. Suite v2.0 Dual-Arm Architecture (Public vs. Synthetic Reference)
 
-To ensure Kestrel Prototype 1 measures genuine task performance rather than memorization, 100% of the locked-test partition and the core validation partition are backed by procedural synthetic generators that produce fresh, unseen problems:
+Per Owner Decision D14 (Option B), Suite v2.0 establishes clean, separate arms:
 
-### A. Math Word Problems (`evaluation/generators/math_generator.py`)
-- **Design**: Parameterized generator using randomized numerical coefficients, randomized context entities (students, businesses, science labs), and randomized story templates (multi-step retail shopping, geometric perimeter/area, work rates, speed/distance/time, tournament scoring).
-- **Ground Truth**: Exact algebraic derivation executed deterministically at generation time.
-- **Contamination Risk**: **ZERO**. Problem statements are generated from high-cardinality combinatorial spaces ($>10^7$ variations).
+### A. Math Word Problems (`math`, N=200/split)
+- **Public Arm (N=100)**: Real GSM8K test problems (Cobbe et al., 2021). Evaluated for public academic comparability. High pretraining contamination risk.
+- **Synthetic Arm (N=100)**: 16 procedural template families with combinatorial parameters. Zero contamination reference.
 
-### B. Science MCQ (`evaluation/generators/science_mcq_generator.py`)
-- **Design**: Procedural multiple-choice generator spanning physics, chemistry, biology, and astronomy.
-- **Distractor Permutation**: Correct answers and 3 plausible distractors are deterministically generated and shuffled per seed.
-- **Contamination Risk**: **ZERO**. Templates are procedurally varied with seeded numeric and entity parameters.
+### B. Science MCQ (`science_mcq`, N=200/split)
+- **100% Public Arm (N=200)**: Genuine AI2 ARC-Challenge questions (Clark et al., 2018). Synthetic arm dropped after pre-registered A3 artifact audit revealed option-ordering leakage. High contamination risk.
 
-### C. Knowledge MCQ (`evaluation/generators/knowledge_mcq_generator.py`)
-- **Design**: Parameterized generators spanning 10 collegiate and professional subjects:
-  1. `college_biology` (Hardy-Weinberg allele frequencies, DNA base percentages, organelle ATP yields)
-  2. `college_computer_science` (Asymptotic Big-O complexities, data structure operations, graph traversal)
-  3. `college_physics` (Kinematic equations, work-energy theorem, Snell's law, circuit resistance)
-  4. `econometrics` (OLS assumptions, Gauss-Markov theorem, Durbin-Watson tests, $R^2$ interpretations)
-  5. `high_school_chemistry` (Stoichiometry, periodic trends, acid-base pH, gas laws)
-  6. `high_school_geography` (Sovereign capitals, major mountain elevations, Köppen climates, river lengths)
-  7. `high_school_macroeconomics` (Fiscal/monetary policy, GDP deflator, Phillips curve, reserve ratios)
-  8. `high_school_world_history` (Treaties, conflict chronologies, ancient civilizations, major empires)
-  9. `machine_learning` (Optimization algorithms, regularizers, cross-entropy loss, bias-variance tradeoff)
-  10. `professional_law` (Contract consideration, UCC rules, tort duty of care, Fourth Amendment standards)
-- **Contamination Risk**: **ZERO**. Combinatorial parameter variations ensure prompts do not duplicate public MMLU questions.
+### C. Knowledge MCQ (`knowledge_mcq`, N=300/split)
+- **100% Public Arm (N=300)**: Genuine MMLU questions spanning 10 academic and professional disciplines (30 items/subject). Synthetic arm dropped after pre-registered A3 artifact audit revealed distractor leakage. Extreme contamination risk.
 
-### D. Code Tasks (`evaluation/generators/code_generator.py`)
-- **Design**: Procedural function generation with parameter $k$ and varied algorithmic requirements (sliding window, frequency ranking, matrix manipulation, sequence filtering).
-- **Verification**: Each generated function is executed in a self-verification sandbox against deterministic test suites before inclusion.
-- **Contamination Risk**: **ZERO**. Problem statements and signatures are fresh and not found in HumanEval/MBPP.
+### D. Code Tasks (`code`, N=100/split)
+- **Public Arm (N=50)**: Real MBPP problems (Austin et al., Google 2021). High contamination risk.
+- **Synthetic Arm (N=50)**: 36 procedural algorithmic functions with sandboxed self-verifying test suites. Zero contamination reference.
 
-### E. Knowledge QA (`evaluation/generators/knowledge_qa_generator.py`)
-- **Design**: Deterministic rule-based extraction from 5,000 abstracts of the pinned Wikimedia snapshot (`20261101-pages-articles1.xml-p1p41242.bz2`, SHA-256 `e3fd5a83...`).
-- **Grounding**: Every question requires identifying an exact answer substring ($`passage[start:end] == target`$) in the provided passage across 10 grammatical rule families (`birth_year`, `death_year`, `birth_place`, `profession`, `capital`, `elevation`, `discovery`, `founder`, `headquarters`, `alma_mater`).
-- **Contamination Risk**: **MITIGATED**. Because the passage is explicitly provided in the prompt, performance measures reading comprehension and span extraction, not parametric memorization.
+### E. Knowledge QA (`knowledge_qa`, N=300/split)
+- **Real Wikipedia Arm (N=200)**: Extraction from 5,000 Wikipedia abstracts (`20261101-pages-articles1.xml-p1p41242.bz2`). Capped family share ≤ 30%.
+- **Fictional Entity Arm (N=100 / D13)**: Purely fictional personas and settlements with 0% Wikipedia collision. Guaranteed 0% parametric pretraining memorization, verified in 50-item pilot (0% no-retrieval vs. 84% retrieval accuracy).
 
-### F. Personal Memory Probe (`evaluation/generators/memory_probe_generator.py`)
-- **Design**: Procedural timestamped personal event streams generated across multiple communication channels (`email`, `chat`, `calendar`, `health_log`, `notes`).
-- **Stale Facts**: 30% of items feature temporal updates where an old fact is superseded by a newer fact.
-- **Gate G-M Enforcement**: Scorer explicitly rejects stale/deprecated values.
-- **Contamination Risk**: **ZERO**. Synthetic personal histories; no real personal data committed per `rules.md`.
+### F. Personal Memory Probe (`memory_probe`, N=100/split)
+- **100% Synthetic Arm (D3)**: Procedural timestamped personal event logs across 16 stale-fact categories and 20 static categories. Zero contamination reference.
 
 ---
 
 ## 4. Mandatory Evaluation Reporting Protocol
 
-When reporting results for Step 2 (Baselines), Step 5 (Retrieval Augmentation), Step 9 (Memory Consolidation), and Step 10 (Locked Final Run), the following reporting rules must be strictly followed:
-
-### 1. Separate Public vs Synthetic Accuracies
-Every evaluation summary table must report:
-- $\text{Acc}_{\text{public}}$: Mean accuracy across public benchmark splits (e.g., public GSM8K, ARC, MMLU).
-- $\text{Acc}_{\text{synthetic}}$: Mean accuracy across synthetic/privately written tasks (`math`, `science_mcq`, `knowledge_mcq`, `code`, `knowledge_qa`, `memory_probe`).
-- $\Delta_{\text{contam}} = \text{Acc}_{\text{public}} - \text{Acc}_{\text{synthetic}}$.
-
-### 2. Interpretation Criteria
-- **Normal Generalization**: $\Delta_{\text{contam}} \in [-5\text{ pp}, +5\text{ pp}]$. Model exhibits consistent reasoning across public and novel tasks.
-- **Contamination Warning**: $\Delta_{\text{contam}} > +10\text{ pp}$. Indicates that public benchmark performance is significantly inflated by pretraining memorization rather than generalized reasoning.
-- **Ground-Truth Gate Enforcement**: All Kestrel pass/kill gates (G-Q, G-F, G-M, G-R) are evaluated against the canonical suite (validation and locked-test), ensuring decisions are based on uncontaminated signals.
+When reporting baseline candidate evaluations (Step 2 R4), retrieval augmentation (Step 5), and final runs:
+1. **Report Public and Synthetic Arms Separately**:
+   - $\text{Acc}_{\text{public}}$: Mean accuracy on public benchmark items.
+   - $\text{Acc}_{\text{synthetic}}$: Mean accuracy on procedural synthetic and fictional items.
+   - $\Delta_{\text{contam}} = \text{Acc}_{\text{public}} - \text{Acc}_{\text{synthetic}}$.
+2. **Interpretation**:
+   - $\Delta_{\text{contam}} > +10\text{ pp}$ indicates that public performance is inflated by pretraining memorization.
+   - Synthetic and fictional arms provide the unbiased ground-truth evaluation of model reasoning and retrieval.
 
 ---
 
-## 5. Partition Verification Summary
+## 5. Partition Verification Summary (Suite v2.0)
 
 | Partition | Storage Location | Size | SHA-256 Hash Status | Access Rule |
 | :--- | :--- | :---: | :--- | :--- |
-| **Validation Suite v0** | `suite/validation/` (in-repo) | 1,200 | Frozen & checked in `suite/README.md` | Free access for Member B & A development |
-| **Train Split** | `suite/train/` (in-repo) | 1,200 | Frozen & tracked in repo | Used for verifier training & SFT |
-| **Locked-Test Partition** | `kestrel_private/locked_test/` (out-of-repo) | 1,200 | Root hash `22fff5e0...` frozen in `manifest.yaml` | **QUARANTINED**. Executed exactly once at Step 10. |
+| **Validation Suite v2.0** | `suite/validation/` (in-repo) | 1,200 | Frozen in `suite/README.md` | Free access for Member B & A development |
+| **Train Split** | `suite/train/` (in-repo) | 1,200 | Tracked in repo | Used for verifier training & SFT |
+| **Locked-Test Partition** | `kestrel_private/locked_test/` (out-of-repo) | 1,200 | Root hash `39cbe48e...` frozen in `manifest.yaml` | **QUARANTINED**. Executed exactly once at Step 10. |

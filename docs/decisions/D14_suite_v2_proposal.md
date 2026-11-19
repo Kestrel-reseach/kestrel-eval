@@ -61,3 +61,4 @@ If approved by the co-owners, Suite v2.0 will implement the following:
 
 **Do not alter the frozen suite until co-owners review this proposal**.
 Branch `step-2r` remains strictly on Suite v0 / Manifest v1.3. Once the owners decide on D14, Suite v2.0 can be generated in a single targeted PR prior to initiating the multi-hour R4 real inference matrix.
+

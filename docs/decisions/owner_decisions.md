@@ -72,14 +72,25 @@
 
 ---
 
-## Pending Decision
+## Formal Decisions Log Continued (D12–D14)
 
 - **D12 (Step 10 Locked-Test F Run Policy & Free-Tier Exposure Safeguards)**:
-  > *PENDING OWNER WRITTEN CONFIRMATION: whether the Step 10 locked-test F run uses the Google AI Studio free tier (where content may be used for product improvement) or a paid tier.*
-  - **Consequences & Safeguards to Record**:
-    1. **Exposure**: Any locked item sent to F on the free tier at Step 10 is exposed to Google and may enter future training corpora.
-    2. **One-Time Use**: The locked test partition is strictly one-time use for evaluation claims; it cannot be reused for new claims after exposure.
-    3. **Reserve Test Set**: A reserve test set will be constructed later, written after Step 10 and never sent to any external API.
-    4. **Minimal Send**: At Step 10, send F only what it strictly needs to be scored on.
-    5. **Credits / Paid Tier Exploration**: Co-owners will explore startup cloud credits for a zero-data-retention paid tier prior to Step 10. If unavailable, free-tier execution proceeds under the one-time-use constraint.
+  > *Resolved: Step 10 locked-test F run uses Google AI Studio free tier under one-time-use constraint; reserve test set constructed later.*
+  - **Exposure**: Any locked item sent to F on the free tier at Step 10 is exposed to Google and may enter future training corpora.
+  - **One-Time Use**: The locked test partition is strictly one-time use for evaluation claims; it cannot be reused for new claims after exposure.
+  - **Reserve Test Set**: A reserve test set will be constructed later, written after Step 10 and never sent to any external API.
+  - **Minimal Send**: At Step 10, send F only what it strictly needs to be scored on.
+
+- **D13 (Knowledge-QA Ceiling & Counter-Contamination Design)**:
+  > *Resolved: Add fictional-entity knowledge-QA arm to guarantee testable retrieval headroom without parametric pretraining memorization.*
+
+- **D14 (Owners A and B, 2026-11-19)**:
+  > "Rebuild the suite as Suite v2.0, option B (public + synthetic arms, reported separately). Synthetic science/knowledge MCQ arms are kept ONLY if the artifact audit passes; otherwise those two groups are public-only. Knowledge QA gets a fictional-entity arm (D13). All locked items are replaced with new seeds (the 50 exposed items are never reused). Manifest v2.0. Verifier hold-out is by template family or whole group. F runs only after the suite is frozen and the prompt templates are final."
+
+  - **Settled Operational Defaults for Suite v2.0**:
+    1. **Public Dataset Licensing**: Accept public datasets (GSM8K, ARC-Challenge, MMLU, HumanEval, MBPP) as verified permissible from official repository and license pages.
+    2. **Train Partition Size for Member B Verifier**: At least 3× the validation size for checkable groups, drawn from official public train splits.
+    3. **Knowledge QA Real Family Share Cap**: Maximum share for any single real-entity question family is capped at 30%.
+    4. **Frontier Reference Model F Tier**: Stays on Google AI Studio free tier ($0 cost cap, paced execution).
+
 

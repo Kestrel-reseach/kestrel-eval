@@ -1,105 +1,132 @@
-# Project Kestrel — Suite v0 Handoff (Validation Partition)
+# Project Kestrel — Suite v2.0 Handoff (Validation & Train Partitions)
+
+> [!IMPORTANT]
+> **Suite v2.0 Provenance & Dual-Arm Architecture (Owner Decision D14 / Option B)**:  
+> Suite v2.0 supersedes Suite v1 by introducing formal, disjoint **public benchmark arms** (GSM8K, ARC-Challenge, MMLU 10 subjects, MBPP) alongside clean **synthetic procedural arms** (16 math families, 36 code families, 36 memory categories) and a **fictional-entity knowledge QA arm** (D13).  
+> In accordance with the pre-registered A3 artifact audit, synthetic science and knowledge MCQ generators were dropped due to option-ordering leaks; `science_mcq` and `knowledge_mcq` are **100% public-only**.
 
 **Target Audience:** Member B (Core Modeling, Verification & Baselines)  
-**Deliverable:** Evaluation Suite v0 — Validation Partition  
+**Deliverable:** Evaluation Suite v2.0 — Validation & Train Partitions  
 **Repository:** `kestrel-eval`  
-**Date:** 2026-11-18  
+**Date:** 2026-11-19  
 
 ---
 
-## 1. Overview & Golden Rules
+## 1. Overview & Core Principles
 
-Suite v0 provides the **1,200-item validation partition** for Project Kestrel Prototype 1, structured across 6 task groups per **Decision D1** (`sizes_are: per_partition`).
+Suite v2.0 provides the **1,200-item validation partition** and **1,200-item train partition** for Project Kestrel Prototype 1, structured across 6 task groups per **Decision D1** (`sizes_are: per_partition`, 3,600 total items across validation, locked-test, and train).
 
-### Golden Rules:
-1. **Develop and Tune Against Validation Only**: All model development, prompt engineering, threshold exploration, and baseline evaluations must use `split="validation"`.
-2. **Never Touch Locked-Test**: The 1,200 locked-test items are physically quarantined outside the repository in `kestrel_private/locked_test/`. The loader enforces a hardware/software permission guard (`PermissionError`) if access is attempted. Locked-test is executed **once** at Step 10.
-3. **Contamination Reporting**: Always report accuracy on public benchmarks (`Acc_public`) and privately written synthetic items (`Acc_synthetic`) separately. See `reports/CONTAMINATION.md`.
-
----
-
-## 2. Partition Structure & Verified File Hashes
-
-The validation suite is located in `suite/validation/` and consists of 6 JSONL files.
-
-| Group | Filename | Size | Answer Check Mechanism | SHA-256 Digest |
-| :--- | :--- | :--- | :--- | :--- |
-| **Math Word Problems** | `math.jsonl` | 200 | `exact_numeric` | `93d3af35fbc8803451a1322a210da172db4884551d0f88171cdbf03b280bd939` |
-| **Science MCQ** | `science_mcq.jsonl` | 200 | `answer_key` | `51ca870fbbbe7c42e16e318256336e8e76105338d6a92c7e9e8204c39fff6504` |
-| **Knowledge MCQ** | `knowledge_mcq.jsonl` | 300 | `answer_key` | `ece7f06dbd657ad721efc6e5d5c3ae14bf17c0767b9d7574c979704dba62a993` |
-| **Code Tasks** | `code.jsonl` | 100 | `unit_tests_pass` | `c21e1dc0bd9834ba84098c185fb7db248614dc7b2afbb246f7ae5f05bea03c11` |
-| **Knowledge QA** | `knowledge_qa.jsonl` | 300 | `key_match` | `f2d34d1be2b738eed5aad79a8c84e534ce44ea07e44810053f95f89577310e99` |
-| **Memory Probe** | `memory_probe.jsonl` | 100 | `key_from_source_history` | `543beac1bc6fc2bf7786dbb61f31abe8c932c81650309a8f13edbf3a4c3619b7` |
-| **Total Validation** | **6 files** | **1,200** | — | — |
-
-*Note: The locked-test partition contains an identical 1,200-item group distribution with hashes frozen in `evaluation/manifest.yaml` (root hash: `22fff5e005245148f85e29c75029e85034ada793ee6b7e7c33b130e8fd9e99b7`).*
+### Core Principles for Modeling (Member B):
+1. **Develop and Tune Against Validation Only**: All model candidate selection, verifier threshold exploration, and retrieval tuning must use `split="validation"`.
+2. **Train Partition for Verifier Training**: Member B's verifier head (Step 3 / Step 6) trains on `suite/train/`. For checkable groups, the raw public train files (`data/raw/`) also provide extensive additional training data.
+3. **Verifier Family-Level Hold-Out Rule**: When evaluating verifier generalization, **Member B must hold out whole template families** (e.g. hold out 3-4 procedural math families, or an entire MMLU subject, or specific code algorithmic families) or hold out an entire task group. This guarantees the verifier learns genuine reasoning rather than memorizing template-specific syntactic idioms.
+4. **Physical Isolation of Locked-Test**: The 1,200 locked-test items are physically quarantined outside the repository in `kestrel_private/locked_test/`. The loader enforces a strict permission guard (`PermissionError`). Locked-test is evaluated exactly **once** at Step 10.
+5. **Dual-Arm Reporting**: Accuracy must always be reported separately for public benchmark arms (`Acc_public`) and synthetic/fictional arms (`Acc_synthetic`).
 
 ---
 
-## 3. JSONL Record Schema
+## 2. Suite v2.0 Composition Matrix
 
-Every line in each `.jsonl` file is a valid JSON object adhering to the unified evaluation schema:
+Each partition contains exactly **1,200 items** across the 6 task groups.
+
+| Task Group | Partition | Arm | N (Items) | Template Families | Largest Family & Share | 95% CI Half-Width |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **math** | Validation | Public (GSM8K) | 100 | 1 | `gsm8k` (100, 50.0%) | ±9.80 pp |
+| | Validation | Synthetic | 100 | 16 | Various (6–8, ~7.0%) | ±9.80 pp |
+| | **Total** | **Combined** | **200** | **17** | **gsm8k (100, 50.0%)** | **±6.93 pp** |
+| **science_mcq** | Validation | Public (ARC-Challenge) | 200 | 1 | `arc_challenge` (200, 100%) | ±6.93 pp |
+| | **Total** | **100% Public** | **200** | **1** | **arc_challenge (200, 100%)** | **±6.93 pp** |
+| **knowledge_mcq** | Validation | Public (MMLU 10 subj) | 300 | 10 | Equal (30 per subj, 10.0%) | ±5.66 pp |
+| | **Total** | **100% Public** | **300** | **10** | **10 subjects (30 each, 10%)**| **±5.66 pp** |
+| **code** | Validation | Public (MBPP) | 50 | 1 | `mbpp` (50, 50.0%) | ±13.86 pp |
+| | Validation | Synthetic | 50 | 50 | 36 algorithmic types (1–2, ~2%) | ±13.86 pp |
+| | **Total** | **Combined** | **100** | **51** | **mbpp (50, 50.0%)** | **±9.80 pp** |
+| **knowledge_qa** | Validation | Real Wikipedia | 200 | 8 | `born_date` (55, 27.5% ≤ 30%) | ±6.93 pp |
+| | Validation | Fictional (D13) | 100 | 6 | `born_date` / `death_date` (20, 20%) | ±9.80 pp |
+| | **Total** | **Combined** | **300** | **9** | **born_date (85, 28.3% ≤ 30%)**| **±5.66 pp** |
+| **memory_probe** | Validation | Synthetic (D3) | 100 | 36 | 16 stale + 20 static (≤ 4%) | ±9.80 pp |
+| | **Total** | **100% Synthetic** | **100** | **36** | **calendar_birthday (4, 4.0%)**| **±9.80 pp** |
+| **TOTAL** | **Validation** | **All Arms** | **1,200** | **124** | — | **±2.83 pp** |
+
+*(The train partition and private locked-test partition adhere to the exact same group and arm composition).*
+
+---
+
+## 3. JSONL Record Schema (v2.0)
+
+Every line in each `.jsonl` partition file is a valid JSON object adhering to the canonical schema:
 
 ### Universal Fields
-- `id` / `item_id` (str): Unique item identifier (e.g., `math_val_0001`, `sci_val_0042`).
+- `id` / `item_id` (str): Canonical item identifier (e.g., `math_val_0001`, `sci_val_0042`, `kqa_lock_0150`).
 - `group` (str): One of `math`, `science_mcq`, `knowledge_mcq`, `code`, `knowledge_qa`, `memory_probe`.
-- `split` (str): `"validation"`.
-- `prompt` (str): Full text prompt formatted and ready to present to the model.
-- `target` (str): Canonical correct answer.
-- `answer_check` (str): Evaluation protocol to score model output.
-
-### Group-Specific Metadata
-- **`math`**: `metadata.scratchpad` contains the ground-truth step-by-step derivation.
-- **`science_mcq`**: `choices` contains a list of 4 options (`[{"label": "A", "text": ...}, ...]`), `answerKey` is the correct letter.
-- **`knowledge_mcq`**: `subject` indicates which of the 10 MMLU-style disciplines is covered (30 items each: `college_biology`, `college_computer_science`, `college_physics`, `econometrics`, `high_school_chemistry`, `high_school_geography`, `high_school_macroeconomics`, `high_school_world_history`, `machine_learning`, `professional_law`).
-- **`code`**: `metadata.entry_point` specifies the target function name; `metadata.test_code` contains the executable unit test harness.
-- **`knowledge_qa`**: `passage_id`, `passage_title`, and `passage` provide the source Wikipedia abstract text; `answer_span` marks `[start, end]` character offsets of the target in the passage.
-- **`memory_probe`**: `metadata.is_stale_fact` (30 items) indicates facts that updated over time; `metadata.stale_values` lists previous/deprecated values that the model must reject (Gate G-M).
+- `split` (str): `"validation"`, `"train"`, or `"locked_test"`.
+- `prompt` (str): Model input prompt.
+- `target` (str): Canonical ground-truth answer.
+- `answer_check` (str): Primary frozen scoring metric name (`exact_numeric`, `answer_key`, `unit_tests_pass`, `normalized_exact_match`, `key_from_source_history`).
+- `arm` (str): Data arm (`"public"`, `"synthetic"`, `"real_wikipedia"`, or `"fictional_entity"`).
+- `template_family` (str): Granular template/subject identifier used for verifier hold-out partitioning (e.g. `gsm8k`, `travel`, `college_physics`, `is_palindrome`, `born_date`).
+- `metadata` (dict): Extended provenance, source licensing, test harnesses, and entity attributes.
 
 ---
 
-## 4. How to Run / Python API
+## 4. Benchmark Sources & Licensing
 
-### Loading Items in Python
+All public data sources are verified official releases with permissive academic/commercial licenses:
 
-The cleanest way for Member B to load validation items is via `evaluation.suite.load_suite_partition`:
+| Benchmark | Task Group | Version / Citation | License | Verified URL / Source |
+| :--- | :--- | :--- | :--- | :--- |
+| **GSM8K** | `math` (Public Arm) | Cobbe et al., 2021 | MIT | `https://github.com/openai/grade-school-math` |
+| **ARC-Challenge** | `science_mcq` (100% Public) | Clark et al., 2018 | CC BY-SA 4.0 | `https://allenai.org/data/arc` |
+| **MMLU** | `knowledge_mcq` (100% Public) | Hendrycks et al., 2020 | MIT | `https://github.com/hendrycks/test` |
+| **MBPP** | `code` (Public Arm) | Austin et al., Google 2021 | CC BY 4.0 | `https://github.com/google-research/google-research/tree/master/mbpp` |
+| **Wikipedia Abstracts** | `knowledge_qa` (Real Arm) | 2026-11-01 Foundation Dump | CC BY-SA 4.0 | Wikimedia Foundation (`dumps.wikimedia.org`) |
+| **Fictional Entities** | `knowledge_qa` (Clean Arm) | Project Kestrel (D13) | Project-Internal | Zero pretraining memorization reference |
+| **Procedural Synthetic**| `math`, `code`, `memory_probe` | Project Kestrel | Project-Internal | Clean synthetic reference |
+
+---
+
+## 5. Verified File Hashes & Manifest v2.0
+
+### Validation Partition (`suite/validation/`)
+- `math.jsonl`: `36d28203fe4d3493e5cab1fa70828fe449410c8e11b6672934e78b977fef3408`
+- `science_mcq.jsonl`: `e4a7ab87a6dd4b7e8b93152a1a65640cc4cae43d97dee93048473f40bf80a270`
+- `knowledge_mcq.jsonl`: `69e9180eb213d3e0f444578723c0649f8781b424cb147b2cdb1fe9d3063c39bd`
+- `code.jsonl`: `42d95b87814603c31fdcb5ebf7089b804620b20d6a85ea729088801378b8e7aa`
+- `knowledge_qa.jsonl`: `9a501f364c45c9b44065ffc7ae07883516cef5ba64cb60d14ad52d95c6a2b73e`
+- `memory_probe.jsonl`: `b137a53a4cf5dd17ea9eb90642444a0956752b757d7b92fe2fc35f92b00cff5e`
+
+### Train Partition (`suite/train/`)
+- `math.jsonl`: `027c36789149ca8da464eefb18c28681f7ebf69dfb4e97924b852484e7f3a0b0`
+- `science_mcq.jsonl`: `4241c43a3c88cf07df8940f3bdd5095850fbe6370e1fb0efa54004784e71d2c2`
+- `knowledge_mcq.jsonl`: `f7bb363b86e4bcfdae475b465288ed9c7aa61a3df646a5c113a9c8e2eebc3a49`
+- `code.jsonl`: `d8f0fce3e375c1e99a3cd00742d6f88797df05d1dbb535e16ac0c4490c385fdc`
+- `knowledge_qa.jsonl`: `23f09ab70a9636dd206e916a303eae67cb7d9278bc3894f11d28987c0e005bc5`
+- `memory_probe.jsonl`: `9181ccbc0c4a066f8c257973181d29cef9ebed16b841087152a7f9ffcf3ca402`
+
+### Locked-Test Partition (`kestrel_private/locked_test/`, Out-of-Repo)
+- `math.jsonl`: `497e5a9c91ffb9971f550fca6b889fe24da23f932e68620c3124a07ea8d98ce0`
+- `science_mcq.jsonl`: `813d5afed8af93c5dfd0388d79e640a9a078e18ddfaeee94b4c0fb02f441f054`
+- `knowledge_mcq.jsonl`: `3b1061c871459b007e58f000a72bac20ebc2809ae5e81cfc0246c86fc7e89503`
+- `code.jsonl`: `2d65b8d6e215060f3773daac4fadd0271ac7df0f8948596cf320b8076ecb4268`
+- `knowledge_qa.jsonl`: `537d2cb7f35b35ee930189e07f37c54df877bd8f14fb802c6f1832d9705e60e1`
+- `memory_probe.jsonl`: `445c3d5ae5579df6a6c0334c58eb57d5c138b74dbd6b1425e0ec6c159504e1c1`
+- **Locked Root Hash**: `39cbe48e161f75a1bd4b57e8abf555012fe7b3b515092d96cf5e843bb3a97b68`
+
+---
+
+## 6. Python Usage Example
 
 ```python
 from evaluation.suite import load_suite_partition
 
-# 1. Load the entire validation partition (1,200 items)
-val_suite = load_suite_partition(split="validation")
-print(f"Loaded {len(val_suite)} validation items.")
+# 1. Load validation items for a specific group
+math_items = load_suite_partition("validation", group="math")
+public_math = [it for it in math_items if it.get("arm") == "public"]
+synthetic_math = [it for it in math_items if it.get("arm") == "synthetic"]
 
-# 2. Load a specific group (e.g. Code, 100 items)
-code_tasks = load_suite_partition(split="validation", group="code")
-for task in code_tasks[:3]:
-    print(task["id"], task["prompt"])
+print(f"Math validation: {len(public_math)} public GSM8K items, {len(synthetic_math)} synthetic items.")
 
-# 3. Accessing locked-test without authorization raises PermissionError:
-try:
-    load_suite_partition(split="locked_test")
-except PermissionError as e:
-    print("Guard active:", e)
+# 2. Inspect template families for verifier hold-out
+families = {it.get("template_family") for it in math_items}
+print(f"Available template families: {families}")
 ```
-
-### Running Evaluation Harness with Checkpointing
-
-To evaluate a model against the validation suite using the Kestrel evaluation harness:
-
-```bash
-uv run python -m evaluation.run_matrix \
-  --manifest evaluation/manifest.yaml \
-  --split validation \
-  --output runs/val_baseline_candidate.jsonl
-```
-
-The run matrix handles resume checkpoints, NVML energy instrumentation (if GPU is present), latency tracking, and schema validation.
-
----
-
-## 5. Knowledge-QA Prompt Construction Protocol
-
-Knowledge-QA evaluation prompts presented to models must be constructed from `item['question']` only:
-- **No-Retrieval Setting**: The prompt presented to the model contains strictly `Question: {question}\nAnswer:`. Legacy `item['prompt']` fields (which pre-baked gold passages into the JSONL) must never be passed directly to the model.
-- **Retrieval-Augmented Setting**: When retrieval is enabled, context passages are retrieved dynamically from the external abstract store (via BM25 or embedding retriever) and prepended as `Context:\n[1] ...\n\nQuestion: {question}\nAnswer:`. The gold passage is never leaked. Enforced by `test_knowledge_qa_prompt_leak_guard`.

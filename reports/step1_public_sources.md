@@ -1,6 +1,10 @@
 # Step 1 — Public Group Loaders & Source Provenance Report
 
-**Date**: 2026-11-18  
+> [!CAUTION]
+> **CORRECTION (2026-11-19 / Decision D14)**:
+> In Suite v1, `math`, `code`, `science_mcq`, and `knowledge_mcq` partitions were constructed using 100% procedural synthetic generators (`math_generator.py`, `code_generator.py`, `science_mcq_generator.py`, `knowledge_mcq_generator.py`). The table and loaders below describe the reference schemas and loaders developed in Step 1. Under Decision D14, genuine public benchmark files (GSM8K, ARC-Challenge, MMLU, MBPP) have been downloaded to `data/raw/` (SHA-256 verified) and will form the dedicated public arms for Suite v2.0.
+
+**Date**: 2026-11-18 (Updated 2026-11-19)  
 **Repository**: `kestrel-eval` (Branch: `step-1-public-loaders`)  
 **Skill Reference**: `suite-split-hash`  
 **Manifest Target**: `manifest_version: "1.1"` (Decision D1: 200/200/300/100/300/100 locked-test partition sizes)

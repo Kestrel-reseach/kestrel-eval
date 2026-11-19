@@ -8,6 +8,7 @@ Addresses Issue 1: Eliminates spurious regex matches on words ending in option l
 from __future__ import annotations
 
 import re
+from datetime import datetime
 from typing import Any
 
 from evaluation.code_sandbox import run_code_in_sandbox
@@ -161,6 +162,115 @@ def normalize_text(text: str) -> str:
     return " ".join(clean.split())
 
 
+def normalize_text_basic(s: str) -> str:
+    """Basic text normalization: lowercase, strip articles and trailing punctuation."""
+    s = s.lower().strip()
+    s = re.sub(r"^(?:the|a|an)\s+", "", s)
+    s = re.sub(r"[.,;:'\"!?]+$", "", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+
+def normalize_number_str(s: str) -> str:
+    """Normalize comma separators and words like 'million' in numeric strings."""
+    s = re.sub(r"(?<=\d),(?=\d)", "", s)
+    m = re.match(r"^(\d+(?:\.\d+)?)\s*million$", s.lower())
+    if m:
+        val = float(m.group(1)) * 1_000_000
+        return str(int(val))
+    return s
+
+
+def parse_date_strict(s: str) -> tuple[Any | None, str]:
+    """Parse a date string strictly.
+
+    Returns:
+        (parsed_value, granularity) where granularity is 'year_only', 'full_date', or 'none'.
+    """
+    clean = normalize_text_basic(s)
+    if re.fullmatch(r"\d{4}", clean):
+        try:
+            val = int(clean)
+            if 100 <= val <= 2100:
+                return val, "year_only"
+        except ValueError:
+            pass
+
+    fmts = (
+        "%d %B %Y",
+        "%B %d %Y",
+        "%B %d, %Y",
+        "%Y-%m-%d",
+        "%d %b %Y",
+        "%b %d %Y",
+        "%b %d, %Y",
+    )
+    for fmt in fmts:
+        try:
+            dt = datetime.strptime(clean, fmt).date()
+            return dt, "full_date"
+        except ValueError:
+            pass
+    return None, "none"
+
+
+def extract_answer_span(raw_text: str) -> str:
+    """Isolate candidate answer value from potential conversational wrappers."""
+    clean = raw_text.strip()
+    clean = re.sub(r"^(?:Answer:|\s*:\s*)\s*", "", clean, flags=re.IGNORECASE).strip()
+    patterns = [
+        r"(?i)^(?:the\s+)?answer\s*(?:is|:|=)\s*",
+        r"(?i)^according\s+to\s+(?:the\s+)?(?:context|passage|text)[,\s]+(?:the\s+answer\s+is\s+)?",
+        r"(?i)^.*?\b(?:was|were)?\s*born\s+(?:on|in)\s+",
+        r"(?i)^.*?\b(?:was|were)?\s*died\s+(?:on|in)\s+",
+        r"(?i)^.*?\bdied\s+(?:on|in)\s+",
+        r"(?i)^.*?\b(?:the\s+)?profession\s+(?:or\s+occupation\s+)?of\s+.*?\s+was\s+",
+        r"(?i)^.*?\b(?:the\s+)?reported\s+population\s+(?:of\s+.*?\s+)?was\s+",
+        r"(?i)^.*?\b(?:the\s+)?award\s+(?:or\s+prize\s+)?.*?\s+received\s+was\s+",
+        r"(?i)^.*?\b(?:was|were)?\s*founded\s+in\s+",
+        r"(?i)^.*?\b(?:was|were)?\s*released\s+in\s+",
+    ]
+    for pat in patterns:
+        m = re.search(pat, clean)
+        if m:
+            clean = clean[m.end() :].strip()
+            break
+
+    clean = re.sub(r",\s*aged\s+\d+.*$", "", clean, flags=re.IGNORECASE)
+    clean = re.sub(r"[.,;:'\"!?]+$", "", clean).strip()
+    return clean
+
+
+def score_frozen_exact_match(pred: str, target: str, aliases: list[str] | None = None) -> bool:
+    """Evaluate factual accuracy using frozen span-extracted normalized exact match."""
+    span = extract_answer_span(pred)
+    norm_pred = normalize_number_str(normalize_text_basic(span))
+    norm_target = normalize_number_str(normalize_text_basic(target))
+
+    if norm_pred == norm_target:
+        return True
+
+    if aliases:
+        for al in aliases:
+            if norm_pred == normalize_number_str(normalize_text_basic(al)):
+                return True
+
+    dt_target, gran_target = parse_date_strict(target)
+    if gran_target != "none":
+        dt_pred, gran_pred = parse_date_strict(span)
+        if gran_target == "full_date":
+            return gran_pred == "full_date" and dt_pred == dt_target
+        elif gran_target == "year_only":
+            return gran_pred == "year_only" and dt_pred == dt_target
+
+    num_pred = re.sub(r"[^\d.-]", "", norm_pred)
+    num_target = re.sub(r"[^\d.-]", "", norm_target)
+    if num_pred and num_target and num_pred == num_target:
+        return True
+
+    return False
+
+
 def check_key_match(predicted: str, target: str) -> bool:
     """Check if the predicted string contains the target key (case/punctuation normalized)."""
     norm_pred = normalize_text(predicted)
@@ -242,6 +352,12 @@ def extract_answer_for_group(item: dict[str, Any], raw_output: str) -> tuple[Any
         )
         return raw_output.strip(), res["correct"]
 
-    # Default knowledge_qa / key_match
+    if group == "knowledge_qa" or answer_check in ("normalized_exact_match", "key_match"):
+        aliases = item.get("aliases") or item.get("metadata", {}).get("aliases", [])
+        is_correct = score_frozen_exact_match(raw_output, str(target), aliases=aliases)
+        extracted = extract_answer_span(raw_output)
+        return extracted, is_correct
+
+    # Fallback key_match
     is_correct = check_key_match(raw_output, str(target))
     return raw_output.strip(), is_correct

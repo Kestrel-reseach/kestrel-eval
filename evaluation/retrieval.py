@@ -57,28 +57,34 @@ class BM25Retriever:
     @classmethod
     def from_jsonl(
         cls,
-        corpus_path: Path | str,
+        corpus_path: Path | str | list[Path | str] | tuple[Path | str, ...],
         k1: float = 1.5,
         b: float = 0.75,
         title_boost: int = 2,
     ) -> BM25Retriever:
-        """Instantiate and build a BM25 index from a JSONL abstract corpus."""
+        """Instantiate and build a BM25 index from one or more JSONL abstract corpus files."""
         retriever = cls(k1=k1, b=b, title_boost=title_boost)
         retriever.index_corpus(corpus_path)
         return retriever
 
-    def index_corpus(self, corpus_path: Path | str) -> None:
-        """Load and index documents from the corpus JSONL file."""
-        path = Path(corpus_path)
-        if not path.exists():
-            raise FileNotFoundError(f"Corpus not found at {path}")
+    def index_corpus(
+        self, corpus_path: Path | str | list[Path | str] | tuple[Path | str, ...]
+    ) -> None:
+        """Load and index documents from one or more corpus JSONL files."""
+        if isinstance(corpus_path, (str, Path)):
+            paths = [Path(corpus_path)]
+        else:
+            paths = [Path(p) for p in corpus_path]
 
         docs: list[dict[str, Any]] = []
-        with path.open("r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if line:
-                    docs.append(json.loads(line))
+        for path in paths:
+            if not path.exists():
+                raise FileNotFoundError(f"Corpus not found at {path}")
+            with path.open("r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line:
+                        docs.append(json.loads(line))
 
         self.docs = docs
         n_docs = len(docs)
