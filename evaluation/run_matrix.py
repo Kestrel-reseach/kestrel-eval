@@ -87,6 +87,12 @@ class RunConfig:
     manifest_frozen: bool = False
     """Set to True only when the manifest has been frozen."""
 
+    inference_mode: str = "real"
+    """Either 'real' or 'simulated' (R0 provenance guard)."""
+
+    simulated: bool = False
+    """True if generated via simulation/mock seam; False for real inference."""
+
     extra: dict[str, Any] = field(default_factory=dict)
     """Any extra fields saved alongside the config (not in JSONL records)."""
 
@@ -96,8 +102,10 @@ class RunConfig:
         payload = {
             "git_commit": self.git_commit,
             "git_dirty": self.git_dirty,
+            "inference_mode": self.inference_mode,
             "run_id": self.run_id,
             "seed": self.seed,
+            "simulated": self.simulated,
             "split": self.split,
             "system": self.system,
         }
@@ -110,10 +118,12 @@ class RunConfig:
             "energy_status": self.energy_status,
             "git_commit": self.git_commit,
             "git_dirty": self.git_dirty,
+            "inference_mode": self.inference_mode,
             "manifest_frozen": self.manifest_frozen,
             "output_path": str(self.output_path),
             "run_id": self.run_id,
             "seed": self.seed,
+            "simulated": self.simulated,
             "split": self.split,
             "system": self.system,
             **self.extra,
@@ -228,9 +238,11 @@ class RunMatrix:
             "git_commit": config.git_commit,
             "git_dirty": config.git_dirty,
             "group": group,
+            "inference_mode": config.inference_mode,
             "item_id": item_id,
             "run_id": config.run_id,
             "seed": config.seed,
+            "simulated": config.simulated,
             "split": config.split,
             "system": config.system,
             **partial,

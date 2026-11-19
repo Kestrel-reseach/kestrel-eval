@@ -46,6 +46,8 @@ class TestNoFutureLeakage:
             "tokens_generated": 10,
             "verifier_score": None,
             "wall_time_ms": 100.0,
+            "inference_mode": "real",
+            "simulated": False,
         }
         errors = validate_record(record, allow_locked_test=False)
         assert any("allow_locked_test" in e for e in errors), "schema must block locked_test"
@@ -74,6 +76,8 @@ class TestNoFutureLeakage:
             "tokens_generated": 10,
             "verifier_score": None,
             "wall_time_ms": 100.0,
+            "inference_mode": "real",
+            "simulated": False,
         }
         errors = validate_record(
             record,

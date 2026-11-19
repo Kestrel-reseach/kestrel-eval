@@ -48,6 +48,8 @@ class BaselineMetricSummary:
     p95_latency_ms: float
     retrieval_gain_pp: float | None = None
     raw_records: list[dict[str, Any]] = None  # type: ignore[assignment]
+    simulated: bool = False
+    inference_mode: str = "real"
 
 
 def load_validation_items(repo_root: Path | None = None) -> list[dict[str, Any]]:
@@ -68,9 +70,26 @@ def run_candidate_evaluation(
     idle_power_w: float = 6.1444,
     seed: int = 20260102,
     git_commit: str = "82c99b7",
-    run_simulation: bool = True,
+    run_simulation: bool = False,
+    simulate: bool = False,
 ) -> BaselineMetricSummary:
     """Execute evaluation for one model candidate over the validation set."""
+    is_simulated = simulate or run_simulation
+    if is_simulated:
+        # Refuse to write simulated data to reports/ or baselines/
+        resolved = output_dir.resolve()
+        for forbidden in (Path("reports").resolve(), Path("baselines").resolve()):
+            try:
+                if resolved.is_relative_to(forbidden):
+                    raise RuntimeError(
+                        f"Provenance guard violated: Simulated run cannot write to {forbidden}."
+                    )
+            except AttributeError:
+                if str(resolved).startswith(str(forbidden)):
+                    raise RuntimeError(
+                        f"Provenance guard violated: Simulated run cannot write to {forbidden}."
+                    )
+
     candidate = get_candidate(candidate_id)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -86,6 +105,8 @@ def run_candidate_evaluation(
         system="B_LLM",
         output_path=output_path,
         energy_status="relative_only",
+        inference_mode="simulated" if is_simulated else "real",
+        simulated=is_simulated,
         extra={
             "candidate_id": candidate_id,
             "model_name": candidate.model_name,
@@ -232,6 +253,8 @@ def run_candidate_evaluation(
                 "seed": config.seed,
                 "split": config.split,
                 "system": config.system,
+                "inference_mode": config.inference_mode,
+                "simulated": config.simulated,
                 "bytes_read_from_ssd": bytes_read,
                 "correct": correct,
                 "energy_joules": energy_j,
@@ -297,6 +320,8 @@ def run_candidate_evaluation(
         p50_latency_ms=round(p50, 1),
         p95_latency_ms=round(p95, 1),
         raw_records=records,
+        simulated=is_simulated,
+        inference_mode="simulated" if is_simulated else "real",
     )
 
 
@@ -305,6 +330,17 @@ def generate_baseline_table(
     diagnostic_summary: BaselineMetricSummary | None = None,
 ) -> str:
     """Generate the Markdown table matching skill baseline-runs specification."""
+    for cid, s in summaries.items():
+        if s.simulated or s.inference_mode == "simulated":
+            raise ValueError(
+                f"Provenance guard violated: Candidate {cid} contains simulated data. "
+                "Simulated data never enters baseline tables or reports per kestrel-core.md."
+            )
+    if diagnostic_summary and (diagnostic_summary.simulated or diagnostic_summary.inference_mode == "simulated"):
+        raise ValueError(
+            "Provenance guard violated: Diagnostic summary contains simulated data. "
+            "Simulated data never enters baseline tables or reports per kestrel-core.md."
+        )
     lines = [
         "# Kestrel Prototype 1 — Baseline Evaluation Table (Validation Partition)",
         "",

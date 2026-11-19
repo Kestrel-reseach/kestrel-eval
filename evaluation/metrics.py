@@ -198,6 +198,11 @@ def gate_q_accuracy(
 
     Returns a dict with 'passes', 'difference_pp', 'ci_lo', 'ci_hi', 'detail'.
     """
+    for r in p1_records + bllm_records:
+        if r.get("simulated") or r.get("inference_mode") == "simulated":
+            raise ValueError(
+                "Provenance guard violated: Simulated records cannot enter pass gates per kestrel-core.md."
+            )
     p1_correct = [bool(r.get("correct")) for r in p1_records]
     bllm_correct = [bool(r.get("correct")) for r in bllm_records]
     diff_pp = (accuracy(p1_records) - accuracy(bllm_records)) * 100
@@ -227,6 +232,11 @@ def gate_q_energy(
     P1 energy per correct task must be at most ``energy_cap_ratio`` times B-LLM's.
     Returns a dict with 'passes', 'p1_j_per_correct', 'bllm_j_per_correct', 'ratio'.
     """
+    for r in p1_records + bllm_records:
+        if r.get("simulated") or r.get("inference_mode") == "simulated":
+            raise ValueError(
+                "Provenance guard violated: Simulated records cannot enter pass gates per kestrel-core.md."
+            )
     p1_j = joules_per_correct_task(p1_records)
     bllm_j = joules_per_correct_task(bllm_records)
     if p1_j is None or bllm_j is None or bllm_j == 0:
@@ -325,6 +335,13 @@ def format_energy_table(
             "Refusing to generate energy report without mandatory label: "
             f"'{MANDATORY_ENERGY_LABEL}'"
         )
+
+    for row in rows:
+        for cell in row:
+            if isinstance(cell, str) and "simulated" in cell.lower():
+                raise ValueError(
+                    "Provenance guard violated: Simulated data cannot enter energy tables per kestrel-core.md."
+                )
 
     header_line = "| " + " | ".join(headers) + " |"
     sep_line = "| " + " | ".join(["---"] * len(headers)) + " |"

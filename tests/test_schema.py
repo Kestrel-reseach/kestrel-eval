@@ -52,6 +52,8 @@ def _valid_record(**overrides: object) -> dict:
         "wall_time_ms": 450.0,
         "peak_vram_mb": 512.0,
         "correct": True,
+        "inference_mode": "real",
+        "simulated": False,
     }
     base.update(overrides)
     return base

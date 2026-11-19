@@ -58,6 +58,8 @@ REQUIRED_FIELDS: tuple[str, ...] = (
     "wall_time_ms",
     "peak_vram_mb",
     "correct",
+    "inference_mode",
+    "simulated",
 )
 
 #: Valid partition names. Never use "locked_test" in development runs.
@@ -75,6 +77,9 @@ ENERGY_STATUSES: frozenset[str] = frozenset(
         "unmeasured",
     }
 )
+
+#: Valid inference modes for provenance guarding (R0).
+INFERENCE_MODES: frozenset[str] = frozenset({"real", "simulated"})
 
 # ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -182,6 +187,19 @@ def validate_record(
 
     if not isinstance(record["correct"], bool):
         errors.append("correct must be a boolean")
+
+    if record["inference_mode"] not in INFERENCE_MODES:
+        errors.append(
+            f"inference_mode must be one of {sorted(INFERENCE_MODES)!r}, "
+            f"got {record['inference_mode']!r}"
+        )
+
+    if not isinstance(record["simulated"], bool):
+        errors.append("simulated must be a boolean")
+    elif record["inference_mode"] == "simulated" and not record["simulated"]:
+        errors.append("simulated must be True when inference_mode is 'simulated'")
+    elif record["inference_mode"] == "real" and record["simulated"]:
+        errors.append("simulated must be False when inference_mode is 'real'")
 
     return errors
 
