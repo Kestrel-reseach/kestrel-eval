@@ -18,6 +18,12 @@ def extract_mcq_answer(text: str) -> str | None:
 
     Must NOT match characters inside ordinary English words (e.g. 'characterized', 'lead').
     Prefers explicit final answer declarations over stray option mentions.
+    Supports formats like:
+      - 'The correct answer is C) ...' or 'The correct answer is A.'
+      - 'correct answer is X)' or 'the answer is X'
+      - 'Answer: X' or 'Final Answer: X'
+      - '\\boxed{X}'
+      - Leading line options 'X) ...' or 'X. ...'
     """
     if not text:
         return None
@@ -36,20 +42,26 @@ def extract_mcq_answer(text: str) -> str | None:
     if boxed_match:
         return boxed_match.group(1).upper()
 
-    # 3. Explicit final answer lines at the end of text (searched in reverse lines)
+    # 3. Explicit answer declarations:
+    # Matches "The correct answer is C)", "correct answer is A", "the answer is B", "Answer: D", "Final Answer: C"
+    decl_pattern = re.compile(
+        r"(?i)(?:the\s+)?(?:correct\s+)?(?:final\s+)?(?:answer|choice|option)\s*(?:is|are|[:=\*])\s*[\(\[]?\s*([A-D])(?:\)|\.|\s|$)"
+    )
+    # Search backwards through lines so the concluding answer wins if multiple
     lines = [ln.strip() for ln in clean.splitlines() if ln.strip()]
     for line in reversed(lines):
-        # Matches: "Answer: A", "Final Answer: (B)", "Option: [C]", "Choice: D", "**Answer**: D"
-        m = re.search(
-            r"(?i)(?:final\s+)?(?:answer|choice|option)\s*[:=\*]*\s*[\(\[]?\s*([A-D])\s*[\)\]\.]?(?:\s|$)",
-            line,
-        )
+        m = decl_pattern.search(line)
         if m:
             return m.group(1).upper()
 
+    # Also check full text if line breaks split words
+    m_full = decl_pattern.search(clean)
+    if m_full:
+        return m_full.group(1).upper()
+
     # 4. Leading option format on any line: "A) ...", "(B) ...", "C. ...", "**D**"
-    for line in reversed(lines):
-        m_lead = re.match(r"^[\(\[]?\s*([A-D])\s*[\)\.\:\-]\s+", line)
+    for line in lines:
+        m_lead = re.match(r"^[\(\[]?\s*([A-D])\s*[\)\.\:\-]\s*", line)
         if m_lead:
             return m_lead.group(1).upper()
 
@@ -58,10 +70,8 @@ def extract_mcq_answer(text: str) -> str | None:
     if bold_matches:
         return bold_matches[-1].upper()
 
-    # 6. Look for standalone option statement near the end
-    # Note: Requires word boundaries and excludes any surrounding alphabetic characters.
+    # 6. Standalone isolated letter if text is short (at most 6 words)
     end_matches = re.findall(r"\b([A-D])\b", clean)
-    # If the text has only 1-2 words and one isolated letter:
     if len(lines) <= 2 and len(clean.split()) <= 6 and end_matches:
         return end_matches[0].upper()
 
@@ -154,6 +164,15 @@ def check_key_match(predicted: str, target: str) -> bool:
     if not norm_target:
         return False
     return norm_target in norm_pred
+
+
+def check_exact_match(predicted: str, target: str) -> bool:
+    """Check if the predicted string exactly equals the target key (case/punctuation normalized)."""
+    norm_pred = normalize_text(predicted)
+    norm_target = normalize_text(target)
+    if not norm_target:
+        return False
+    return norm_pred == norm_target
 
 
 def extract_answer_for_group(item: dict[str, Any], raw_output: str) -> tuple[Any, bool]:

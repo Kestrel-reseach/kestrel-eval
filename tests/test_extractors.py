@@ -42,6 +42,42 @@ class TestMCQExtractor:
         assert extract_mcq_answer("The asteroid belt lies between Mars and Jupiter") is None
         assert extract_mcq_answer("We need to lead the expedition") is None
 
+    def test_f1_real_output_regression_cases(self) -> None:
+        """F1 regression: Real model outputs of the form 'The correct answer is X)' must extract X."""
+        f1_cases = [
+            (
+                "The correct answer is C) Metamorphic rock.\n\nReasoning:\nMetamorphism refers to...",
+                "C",
+            ),
+            (
+                "The correct answer is A) Post-transition metal.\n\nReasoning:\nAluminum belongs to...",
+                "A",
+            ),
+            ("The correct answer is A) Endogeneity.\n\nEndogeneity refers to a situation...", "A"),
+            (
+                "The correct answer is C) British global maritime hegemony and cession of New France.",
+                "C",
+            ),
+            (
+                "The correct answer is C) The Dormant Commerce Clause (for discriminating against interstate commerce).",
+                "C",
+            ),
+            (
+                "The correct answer is D) sophisticated vigesimal (base-20) mathematics including a symbol for zero.",
+                "D",
+            ),
+            (
+                "The correct answer is D) Felony Murder Rule.\n\nReasoning: The Felgy Murder Rule...",
+                "D",
+            ),
+            ("The answer is B", "B"),
+            ("correct answer is A)", "A"),
+            ("the answer is D", "D"),
+        ]
+        for text, expected in f1_cases:
+            got = extract_mcq_answer(text)
+            assert got == expected, f"Failed for {text!r}: expected {expected}, got {got}"
+
     def test_valid_mcq_formats(self) -> None:
         """Verify standard answer representations are correctly extracted."""
         assert extract_mcq_answer("Answer: C") == "C"
