@@ -21,10 +21,10 @@
 # These decisions are frozen. Do not change a threshold after seeing results.
 
 schema_version: "1"
-manifest_version: "1.3"       # v1.3: Invalidate mock Step 2 results; reset chosen B-LLM pending real inference under Part 4R
+manifest_version: "2.0"       # v2.0: Rebuilt suite with separate public and synthetic arms per Owner Decision D14 (Option B); Suite v1 superseded
 git_commit: UNSET            # filled by run_matrix.py at run time
-created_at: "2026-11-18"
-frozen: true                 # confirmed by owner decision D4 on 2026-11-18; non-inferiority margin 3 pp
+created_at: "2026-11-19"
+frozen: true                 # confirmed by owner decisions D4 and D14; non-inferiority margin 3 pp
 
 # ── Reproducibility ────────────────────────────────────────────────────────────
 seeds:
@@ -108,13 +108,13 @@ partition_fractions: null
 # Hashes of the locked-test partition files (filled by suite_hash.py at Step 1).
 # Never run or tune against the locked-test partition before Step 10.
 locked_test_hashes:
-  math: "25c052ee25cac22aa193d8386f425ec334bf89de9f0598064ae2f9dff1a52f1d"
-  science_mcq: "08e82a53794b6314d74aaefcd9bf58a21bef0ab2940579e2c2da7565bdd84172"
-  knowledge_mcq: "4fc1c7de12ea4f9da57b50733eb78f77369c856e46e1e23d4a4629a5871c10a6"
-  code: "3ea39eaea70d62d2cd77f533633a307a45e195e7d5a57a903ae8fcb471b9c7da"
-  knowledge_qa: "f994d4793291d59e4809a1e7588324fc1842a4d726900446e7394feffaa532b0"
-  memory_probe: "f0f819178d78523a8640161651816d8d50c50ce76974a6cc1ad39932cf019acd"
-root_hash: "22fff5e005245148f85e29c75029e85034ada793ee6b7e7c33b130e8fd9e99b7"
+  math: "497e5a9c91ffb9971f550fca6b889fe24da23f932e68620c3124a07ea8d98ce0"
+  science_mcq: "813d5afed8af93c5dfd0388d79e640a9a078e18ddfaeee94b4c0fb02f441f054"
+  knowledge_mcq: "3b1061c871459b007e58f000a72bac20ebc2809ae5e81cfc0246c86fc7e89503"
+  code: "2d65b8d6e215060f3773daac4fadd0271ac7df0f8948596cf320b8076ecb4268"
+  knowledge_qa: "537d2cb7f35b35ee930189e07f37c54df877bd8f14fb802c6f1832d9705e60e1"
+  memory_probe: "445c3d5ae5579df6a6c0334c58eb57d5c138b74dbd6b1425e0ec6c159504e1c1"
+root_hash: "39cbe48e161f75a1bd4b57e8abf555012fe7b3b515092d96cf5e843bb3a97b68"
 # ── Hardware budget ────────────────────────────────────────────────────────────
 hardware:
   gpu_tier:
