@@ -21,7 +21,7 @@
 # These decisions are frozen. Do not change a threshold after seeing results.
 
 schema_version: "1"
-manifest_version: "1.1"       # version bump after owner decisions D1-D11 confirmed
+manifest_version: "1.2"       # v1.2: Record chosen B-LLM Qwen2.5-1.5B-Instruct and candidate measurements (Step 2 Part 4b/4V)
 git_commit: UNSET            # filled by run_matrix.py at run time
 created_at: "2026-11-18"
 frozen: true                 # confirmed by owner decision D4 on 2026-11-18; non-inferiority margin 3 pp
