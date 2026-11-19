@@ -88,7 +88,7 @@ def run_candidate_evaluation(
                 if str(resolved).startswith(str(forbidden)):
                     raise RuntimeError(
                         f"Provenance guard violated: Simulated run cannot write to {forbidden}."
-                    )
+                    ) from None
 
     candidate = get_candidate(candidate_id)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -336,7 +336,9 @@ def generate_baseline_table(
                 f"Provenance guard violated: Candidate {cid} contains simulated data. "
                 "Simulated data never enters baseline tables or reports per kestrel-core.md."
             )
-    if diagnostic_summary and (diagnostic_summary.simulated or diagnostic_summary.inference_mode == "simulated"):
+    if diagnostic_summary and (
+        diagnostic_summary.simulated or diagnostic_summary.inference_mode == "simulated"
+    ):
         raise ValueError(
             "Provenance guard violated: Diagnostic summary contains simulated data. "
             "Simulated data never enters baseline tables or reports per kestrel-core.md."
