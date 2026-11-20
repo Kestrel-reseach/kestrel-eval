@@ -1,0 +1,29 @@
+{
+  "model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "n": 100,
+  "fp16": {
+    "accuracy_pct": 56.0,
+    "correct": 56,
+    "p50_latency_ms": 386.7,
+    "p95_latency_ms": 6561.4,
+    "ms_per_token": 22.3,
+    "vram_breakdown": {
+      "nvml_process_used_mb": 1058.0,
+      "torch_allocated_mb": 950.44873046875,
+      "torch_reserved_mb": 962.0
+    }
+  },
+  "4bit_nf4": {
+    "accuracy_pct": 55.0,
+    "correct": 55,
+    "p50_latency_ms": 221.4,
+    "p95_latency_ms": 10879.6,
+    "ms_per_token": 35.81,
+    "vram_breakdown": {
+      "nvml_process_used_mb": 1098.0,
+      "torch_allocated_mb": 460.04638671875,
+      "torch_reserved_mb": 994.0
+    }
+  },
+  "delta_accuracy_pp": -1.0
+}
