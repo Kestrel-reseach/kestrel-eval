@@ -1,0 +1,85 @@
+{
+  "suite_manifest_root_hash": "15be5befee80bde2c624d06cd2b8826475e13bb3f45298be1ced584a884e6fa5",
+  "energy_label": "Relative energy only; GPU NVML scope; same machine and session; not comparable across machines.",
+  "frontier_reference": "F = gemini-2.5-pro free tier, not run yet",
+  "bm25_recall_audit": {
+    "top_k": 3,
+    "overall": {
+      "n": 300,
+      "title_recall_hits": 300,
+      "title_recall_pct": 100.0,
+      "doc_id_recall_hits": 298,
+      "doc_id_recall_pct": 99.33,
+      "answer_containment_hits": 299,
+      "answer_containment_pct": 99.67
+    },
+    "real_wikipedia": {
+      "n": 200,
+      "title_recall_hits": 200,
+      "title_recall_pct": 100.0,
+      "doc_id_recall_hits": 198,
+      "doc_id_recall_pct": 99.0,
+      "answer_containment_hits": 199,
+      "answer_containment_pct": 99.5
+    },
+    "fictional_entity": {
+      "n": 100,
+      "title_recall_hits": 100,
+      "title_recall_pct": 100.0,
+      "doc_id_recall_hits": 100,
+      "doc_id_recall_pct": 100.0,
+      "answer_containment_hits": 100,
+      "answer_containment_pct": 100.0
+    }
+  },
+  "retrieval_ablation": {
+    "qwen2.5-0.5b-instruct-q4": {
+      "model_name": "Qwen/Qwen2.5-0.5B-Instruct",
+      "overall": {
+        "with_retrieval_acc_pct": 66.33,
+        "no_retrieval_acc_pct": 0.33,
+        "retrieval_gain_pp": 66.0,
+        "paired_bootstrap_ci_95": [
+          60.67,
+          71.33
+        ]
+      },
+      "arms": {
+        "real_wikipedia": {
+          "with_retrieval_acc_pct": 64.5,
+          "no_retrieval_acc_pct": 0.5,
+          "retrieval_gain_pp": 64.0
+        },
+        "fictional_entity": {
+          "with_retrieval_acc_pct": 70.0,
+          "no_retrieval_acc_pct": 0.0,
+          "retrieval_gain_pp": 70.0
+        }
+      }
+    },
+    "qwen2.5-1.5b-instruct-q4": {
+      "model_name": "Qwen/Qwen2.5-1.5B-Instruct",
+      "overall": {
+        "with_retrieval_acc_pct": 65.0,
+        "no_retrieval_acc_pct": 3.67,
+        "retrieval_gain_pp": 61.33,
+        "paired_bootstrap_ci_95": [
+          55.67,
+          67.0
+        ]
+      },
+      "arms": {
+        "real_wikipedia": {
+          "with_retrieval_acc_pct": 65.0,
+          "no_retrieval_acc_pct": 5.5,
+          "retrieval_gain_pp": 59.5
+        },
+        "fictional_entity": {
+          "with_retrieval_acc_pct": 65.0,
+          "no_retrieval_acc_pct": 0.0,
+          "retrieval_gain_pp": 65.0
+        }
+      }
+    }
+  }
+}
