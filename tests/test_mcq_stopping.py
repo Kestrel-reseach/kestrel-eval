@@ -8,7 +8,51 @@ Verifies:
 
 from __future__ import annotations
 
-import torch
+try:
+    import torch
+except ImportError:
+
+    class _MockTensor:
+        def __init__(self, data: list):
+            self._data = data
+            self.shape = (
+                len(data),
+                len(data[0]) if data and isinstance(data[0], list) else len(data),
+            )
+            self.dtype = int
+
+        def tolist(self) -> list:
+            if isinstance(self._data, list) and self._data and isinstance(self._data[0], list):
+                return list(self._data[0])
+            return list(self._data)
+
+        def __getitem__(self, item):
+            if isinstance(item, tuple):
+                row_idx, col_slice = item
+                row = self._data[row_idx]
+                return _MockTensor(row[col_slice])
+            return self._data[item]
+
+    class _MockTorch:
+        @staticmethod
+        def device(name: str) -> str:
+            return name
+
+        @staticmethod
+        def tensor(data, dtype=int):
+            return _MockTensor(data)
+
+        @staticmethod
+        def cat(tensors, dim=1):
+            row0 = []
+            for t in tensors:
+                if isinstance(t, _MockTensor):
+                    row0.extend(t._data[0] if isinstance(t._data[0], list) else t._data)
+                elif isinstance(t, list):
+                    row0.extend(t[0] if isinstance(t[0], list) else t)
+            return _MockTensor([row0])
+
+    torch = _MockTorch()  # type: ignore[assignment]
 
 
 class StubCausalLM:
