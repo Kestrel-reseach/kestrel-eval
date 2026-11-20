@@ -1,0 +1,133 @@
+{
+  "suite_manifest_root_hash": "15be5befee80bde2c624d06cd2b8826475e13bb3f45298be1ced584a884e6fa5",
+  "energy_label": "Relative energy only; GPU NVML scope; same machine and session; not comparable across machines.",
+  "frontier_reference": "F = gemini-2.5-pro free tier, not run yet",
+  "selected_b_llm": {
+    "model_name": "Qwen/Qwen2.5-1.5B-Instruct",
+    "quantization": "bitsandbytes 4-bit NF4",
+    "context_length": 2048,
+    "overall_accuracy_pct": 58.96,
+    "overall_ci_95": [
+      56.23,
+      61.69
+    ]
+  },
+  "gates": {
+    "G_Q": {
+      "name": "Quality Hurdle (Checkable Groups)",
+      "scope_items": 800,
+      "groups": [
+        "math",
+        "science_mcq",
+        "code",
+        "knowledge_qa"
+      ],
+      "breakdown_by_group": {
+        "math": {
+          "n": 200,
+          "correct": 129,
+          "accuracy_pct": 64.5,
+          "ci_95": [
+            57.65,
+            70.8
+          ]
+        },
+        "science_mcq": {
+          "n": 200,
+          "correct": 125,
+          "accuracy_pct": 62.5,
+          "ci_95": [
+            55.61,
+            68.91
+          ]
+        },
+        "code": {
+          "n": 100,
+          "correct": 18,
+          "accuracy_pct": 18.0,
+          "ci_95": [
+            11.7,
+            26.67
+          ]
+        },
+        "knowledge_qa": {
+          "n": 300,
+          "correct": 195,
+          "accuracy_pct": 65.0,
+          "ci_95": [
+            59.44,
+            70.18
+          ]
+        }
+      },
+      "baseline_correct": 467,
+      "baseline_accuracy_pct": 58.38,
+      "baseline_ci_95": [
+        54.93,
+        61.74
+      ],
+      "baseline_net_joules_per_correct": 120.4,
+      "target_accuracy_pct": 63.38,
+      "target_delta_pp": 5.0,
+      "target_energy_cap_j": 120.4,
+      "alt_efficiency_target": {
+        "non_inferiority_floor_pct": 55.38,
+        "target_energy_cap_j": 60.2,
+        "energy_reduction_pct": 50.0
+      },
+      "paired_bootstrap_power_5pp": 1.0,
+      "status": "FROZEN_BASELINE_ESTABLISHED"
+    },
+    "G_M": {
+      "name": "Memory Probe & Stale Fact Hurdle",
+      "scope_items": 150,
+      "stale_items_n_eff": 100,
+      "baseline_stale_errors": 22,
+      "baseline_stale_error_rate_pct": 22.0,
+      "baseline_stale_ci_95": [
+        68.93,
+        85.0
+      ],
+      "baseline_static_accuracy_pct": 92.0,
+      "baseline_overall_accuracy_pct": 82.67,
+      "target_max_stale_errors": 11,
+      "target_stale_error_rate_cap_pct": 11.0,
+      "mcnemar_power_at_halving": 0.94,
+      "frontier_criteria": {
+        "no_history_lower_bound": "P1 >= F (no_history)",
+        "full_history_upper_bound": "P1 within 5.0 pp of F (full_history)"
+      },
+      "status": "FROZEN_BASELINE_ESTABLISHED"
+    },
+    "G_R": {
+      "name": "Hardware Budget & Resource Caps",
+      "hardware_device": "NVIDIA GeForce RTX 3050 Laptop GPU (4 GB)",
+      "context_length_tokens": 2048,
+      "vram_budget_mb": 1536.0,
+      "baseline_nvml_process_vram_mb": 1416.0,
+      "baseline_torch_allocated_mb": 1166.03369140625,
+      "headroom_mb": 120.0,
+      "compliant": true,
+      "baseline_net_joules_per_correct": 120.4,
+      "baseline_latency_p50_ms": 622.9,
+      "baseline_latency_p95_ms": 12101.2,
+      "baseline_ms_per_token": 45.14,
+      "status": "FROZEN_BASELINE_ESTABLISHED"
+    },
+    "G_F": {
+      "name": "Frontier Gap Closing Metric",
+      "formula": "C = (Acc_P1 - Acc_B) / (Acc_F - Acc_B)",
+      "strong_result_threshold_pct": 25.0,
+      "condition": "Reported on checkable groups if Acc_F - Acc_B >= 5.0 pp",
+      "frontier_model": "gemini-2.5-pro (free tier reference)",
+      "frontier_status": "F = gemini-2.5-pro free tier, not run yet",
+      "status": "FORMULA_FROZEN_EXECUTION_DEFERRED_TO_STEP10"
+    },
+    "no_regression": {
+      "name": "Component Addition Non-Inferiority Margin",
+      "margin_pp": 3.0,
+      "rule": "Adding a component must not drop earlier-step scores by more than 3.0 pp",
+      "status": "FROZEN"
+    }
+  }
+}

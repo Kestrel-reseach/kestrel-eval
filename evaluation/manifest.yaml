@@ -147,6 +147,13 @@ gates:
     energy_multiplier_cap: 1.0   # P1 energy <= B-LLM energy for the accuracy gate
     energy_savings_cap: 0.50     # P1 energy <= 50 % of B-LLM for the efficiency gate
     status: ACCEPTED
+    b_llm_model: "qwen2.5-1.5b-instruct-q4"
+    baseline_accuracy_pct: 58.38   # 467 / 800 checkable validation items (D18)
+    baseline_ci_95: [54.93, 61.74]
+    target_accuracy_pct: 63.38     # baseline + 5 pp
+    baseline_net_joules_per_correct: 120.40
+    target_efficiency_energy_cap: 60.20 # 50% of B-LLM energy
+    alt_non_inferiority_floor_pct: 55.38 # within 3 pp margin
 
   G_F:
     description: >
@@ -155,6 +162,8 @@ gates:
       reported, not promised.
     strong_result_threshold_pct: 25   # accepted 2026-11-17
     status: ACCEPTED
+    formula: "C = (Acc_P1 - Acc_B) / (Acc_F - Acc_B)"
+    frontier_status: "F = gemini-2.5-pro free tier, not run yet"
 
   G_M:
     description: >
@@ -166,6 +175,11 @@ gates:
     stale_fact_error_ratio_cap: 0.50 # accepted 2026-11-17
     stale_items_count: 100           # updated per D16 (was 30)
     status: ACCEPTED
+    b_llm_model: "qwen2.5-1.5b-instruct-q4"
+    baseline_stale_errors: 22        # out of 100 stale fact items (D18)
+    baseline_stale_error_rate_pct: 22.00
+    target_max_stale_errors: 11      # at most half of B-LLM
+    target_stale_error_rate_cap_pct: 11.00
 
   G_R:
     description: >
@@ -176,6 +190,13 @@ gates:
     ram_cap_gb: 4.0           # accepted 2026-11-17
     latency_percentiles: [50, 95]
     status: ACCEPTED
+    b_llm_model: "qwen2.5-1.5b-instruct-q4"
+    baseline_nvml_process_vram_mb: 1416.0 # at 2048 context (D18)
+    baseline_torch_allocated_mb: 1166.0
+    vram_cap_mb: 1536.0
+    headroom_mb: 120.0
+    baseline_latency_p50_ms: 622.9
+    baseline_latency_p95_ms: 12101.2
 
   no_regression:
     description: >
