@@ -14,7 +14,9 @@ from __future__ import annotations
 from typing import Any
 
 # Mandatory status and verification statement
-F_EXECUTION_NOTICE = "Zero external calls were made during this pass. Execution begins only on explicit instruction."
+F_EXECUTION_NOTICE = (
+    "Zero external calls were made during this pass. Execution begins only on explicit instruction."
+)
 
 F_MCQ_DIRECTIVE = "Reply with only the option letter (e.g. A, B, C, D, or E) and nothing else."
 
@@ -28,7 +30,9 @@ F_SYSTEM_PROMPTS: dict[str, str] = {
 }
 
 
-def format_f_prompt(item: dict[str, Any], context_passages: list[str] | None = None) -> list[dict[str, str]]:
+def format_f_prompt(
+    item: dict[str, Any], context_passages: list[str] | None = None
+) -> list[dict[str, str]]:
     """Format chat messages for Model F without assistant prefill."""
     group = item.get("group", "")
     system_text = F_SYSTEM_PROMPTS.get(group, "You are a helpful assistant.")
@@ -59,7 +63,9 @@ def format_f_prompt(item: dict[str, Any], context_passages: list[str] | None = N
                         break
             parts = [prompt_text]
             if first_assert:
-                parts.append(f"Your code should satisfy the following test:\n```python\n{first_assert}\n```")
+                parts.append(
+                    f"Your code should satisfy the following test:\n```python\n{first_assert}\n```"
+                )
             if ep:
                 parts.append(f"Write a function named `{ep}`.")
             user_content = "\n\n".join(parts)
@@ -84,7 +90,7 @@ def compute_f_pacing_schedule() -> dict[str, Any]:
     # math: 200, science_mcq: 200, knowledge_mcq: 300, code: 100, knowledge_qa: 300
     # memory_probe: 150 items evaluated twice (no_history + full_history) = 300 calls
     validation_standard_items = 200 + 200 + 300 + 100 + 300  # 1100 items
-    memory_probe_calls = 150 * 2                              # 300 calls
+    memory_probe_calls = 150 * 2  # 300 calls
     total_calls = validation_standard_items + memory_probe_calls  # 1400 calls
 
     # From config/f_limits.yaml
@@ -111,4 +117,3 @@ def compute_f_pacing_schedule() -> dict[str, Any]:
         "status": "PREPARED_UNEXECUTED",
         "notice": F_EXECUTION_NOTICE,
     }
-

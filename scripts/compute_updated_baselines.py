@@ -16,6 +16,8 @@ import random
 from pathlib import Path
 
 from evaluation.extractors import extract_answer_for_group
+
+
 def wilson_score_interval(correct: int, total: int) -> tuple[float, float]:
     if total == 0:
         return 0.0, 0.0
@@ -25,6 +27,7 @@ def wilson_score_interval(correct: int, total: int) -> tuple[float, float]:
     center = (p + (z**2) / (2.0 * total)) / denom
     half = (z * math.sqrt((p * (1.0 - p) / total) + (z**2) / (4.0 * (total**2)))) / denom
     return max(0.0, center - half), min(1.0, center + half)
+
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -79,10 +82,7 @@ def analyze_model(records: list[dict], model_tag: str, idle_power_w: float = 6.1
     lo_chk, hi_chk = wilson_score_interval(c_chk, n_chk)
 
     wall_s_chk = sum(r.get("wall_time_ms", 0.0) for r in checkable_items) / 1000.0
-    # From NVML measurement log: compute energy on checkable scope
-    # Total wall time of full run vs checkable wall time fraction
-    total_wall_s = sum(r.get("wall_time_ms", 0.0) for r in records) / 1000.0
-    
+
     # Arm breakdown
     arm_stats = {}
     arms = set(r.get("arm", "public") for r in records)
@@ -101,7 +101,9 @@ def analyze_model(records: list[dict], model_tag: str, idle_power_w: float = 6.1
 
     # Memory probe stale error
     mem_items = by_group["memory_probe"]
-    stale_items = [r for r in mem_items if r.get("metadata", {}).get("stale_values") or r.get("stale_values")]
+    stale_items = [
+        r for r in mem_items if r.get("metadata", {}).get("stale_values") or r.get("stale_values")
+    ]
     n_stale = len(stale_items)
     # Stale error: model outputs the deprecated historical value
     stale_errors = sum(1 for r in stale_items if not r["correct"])
@@ -113,7 +115,11 @@ def analyze_model(records: list[dict], model_tag: str, idle_power_w: float = 6.1
     clusters = {}
     for r in stale_items:
         # Cluster key: person entity id
-        ent = r.get("metadata", {}).get("person_id") or r.get("metadata", {}).get("entity") or r.get("item_id", "")[:12]
+        ent = (
+            r.get("metadata", {}).get("person_id")
+            or r.get("metadata", {}).get("entity")
+            or r.get("item_id", "")[:12]
+        )
         clusters.setdefault(ent, []).append(1 if not r["correct"] else 0)
 
     cluster_keys = list(clusters.keys())
@@ -179,16 +185,24 @@ def main():
         summaries[tag] = s
 
         print(f"\nMODEL: {tag}")
-        print(f"  Overall (1,250 items): {s['total_1250']['correct']}/{s['total_1250']['n']} ({s['total_1250']['accuracy_pct']}%), 95% CI {s['total_1250']['ci_95']}")
-        print(f"  Checkable G-Q Scope (800 items): {s['checkable_800']['correct']}/{s['checkable_800']['n']} ({s['checkable_800']['accuracy_pct']}%), 95% CI {s['checkable_800']['ci_95']}")
+        print(
+            f"  Overall (1,250 items): {s['total_1250']['correct']}/{s['total_1250']['n']} ({s['total_1250']['accuracy_pct']}%), 95% CI {s['total_1250']['ci_95']}"
+        )
+        print(
+            f"  Checkable G-Q Scope (800 items): {s['checkable_800']['correct']}/{s['checkable_800']['n']} ({s['checkable_800']['accuracy_pct']}%), 95% CI {s['checkable_800']['ci_95']}"
+        )
         print("  Groups:")
         for g, gs in s["groups"].items():
-            print(f"    {g:15s}: {gs['correct']:3d}/{gs['n']:3d} ({gs['accuracy_pct']:5.2f}%), 95% CI {gs['ci_95']}")
+            print(
+                f"    {g:15s}: {gs['correct']:3d}/{gs['n']:3d} ({gs['accuracy_pct']:5.2f}%), 95% CI {gs['ci_95']}"
+            )
         print("  Memory Probe Stale Fact:")
         st = s["memory_probe_stale"]
         print(f"    Errors: {st['stale_errors']}/{st['n_stale']} ({st['stale_error_rate_pct']}%)")
         print(f"    Wilson 95% CI : {st['wilson_ci_95']}%")
-        print(f"    Cluster 95% CI: {st['cluster_ci_95']}% (across {st['clusters_count']} clusters)")
+        print(
+            f"    Cluster 95% CI: {st['cluster_ci_95']}% (across {st['clusters_count']} clusters)"
+        )
 
     # Save summary
     out_file = REPO_ROOT / "reports/step2/c6_updated_gate_baselines.json"

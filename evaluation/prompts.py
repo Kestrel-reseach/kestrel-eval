@@ -106,7 +106,9 @@ def format_user_prompt(
                         break
             parts = [base_prompt]
             if first_assertion:
-                parts.append(f"Your code should satisfy the following test:\n```python\n{first_assertion}\n```")
+                parts.append(
+                    f"Your code should satisfy the following test:\n```python\n{first_assertion}\n```"
+                )
             if entry_point:
                 parts.append(f"Write a function named `{entry_point}`.")
             return "\n\n".join(parts)

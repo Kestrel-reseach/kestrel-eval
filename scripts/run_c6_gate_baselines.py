@@ -49,6 +49,7 @@ def wilson_score_interval(correct: int, total: int) -> tuple[float, float]:
     half = (z * math.sqrt((p * (1 - p) + (z**2) / (4 * total)) / total)) / denom
     return (round(max(0.0, centre - half) * 100, 2), round(min(1.0, centre + half) * 100, 2))
 
+
 F_REFERENCE_LABEL: str = "F = gemini-2.5-pro free tier, not run yet"
 SUITE_MANIFEST_ROOT_HASH: str = "15be5befee80bde2c624d06cd2b8826475e13bb3f45298be1ced584a884e6fa5"
 
@@ -76,7 +77,9 @@ def simulate_gq_bootstrap_power(
         for idx in flipped:
             p1_correct[idx] = True
 
-        lo, hi = paired_bootstrap_ci(p1_correct, baseline_correct, n_bootstrap=n_boot, seed=seed + sim)
+        lo, hi = paired_bootstrap_ci(
+            p1_correct, baseline_correct, n_bootstrap=n_boot, seed=seed + sim
+        )
         if lo > 0.0:
             passes += 1
 
@@ -100,7 +103,9 @@ def simulate_gm_mcnemar_power(
         total_discordant = b + c
         if total_discordant > 0:
             # One-sided exact binomial test: P(X >= b) where X ~ Binomial(total_discordant, 0.5)
-            p_val = sum(math.comb(total_discordant, i) for i in range(b, total_discordant + 1)) * (0.5 ** total_discordant)
+            p_val = sum(math.comb(total_discordant, i) for i in range(b, total_discordant + 1)) * (
+                0.5**total_discordant
+            )
             if p_val < 0.05:
                 passes += 1
 
@@ -132,7 +137,7 @@ def build_markdown_report(gate_summary: dict[str, Any]) -> str:
         "This report establishes and freezes the official empirical baseline values and target pass criteria for all Prototype 1 evaluation gates. All metrics are computed strictly against the selected **B-LLM (`Qwen2.5-1.5B-Instruct` 4-bit NF4)** evaluated on the full **1,250 items** of the Suite v2.1 validation partition.",
         "",
         "Per the frozen project rules:",
-        "> **\"Never change a metric or threshold after seeing results.\"**  ",
+        '> **"Never change a metric or threshold after seeing results."**  ',
         "All gate thresholds, formulas, and target values established herein are immutable for Prototype 1 evaluation.",
         "",
         "---",
@@ -162,107 +167,109 @@ def build_markdown_report(gate_summary: dict[str, Any]) -> str:
             f"| **`{grp}`** | {desc} | {info['n']} | {info['correct']} | {info['accuracy_pct']:.2f}% | [{info['ci_95'][0]:.2f}, {info['ci_95'][1]:.2f}]% |"
         )
 
-    lines.extend([
-        f"| **Pooled Checkable** | **All 4 Groups Combined** | **{gq['scope_items']}** | **{gq['baseline_correct']}** | **{gq['baseline_accuracy_pct']:.2f}%** | **[{gq['baseline_ci_95'][0]:.2f}, {gq['baseline_ci_95'][1]:.2f}]%** |",
-        "",
-        f"- **Baseline Checkable Accuracy**: **{gq['baseline_accuracy_pct']:.2f}%** ({gq['baseline_correct']} / {gq['scope_items']})",
-        f"- **Baseline Net Energy per Correct Task**: **{gq['baseline_net_joules_per_correct']:.2f} J**",
-        "",
-        "### B. Target Criteria for Prototype 1 (P1)",
-        "To pass Gate G-Q, Prototype 1 must satisfy either Clause 1 or Clause 2:",
-        "",
-        "1. **Clause 1 (Accuracy Superiority)**:",
-        f"   - Checkable Accuracy: $\\text{{Acc}}(P1) \\ge \\mathbf{{{gq['target_accuracy_pct']:.2f}\\%}}$ (+5.00 pp over B-LLM).",
-        "   - Statistical Significance: Paired bootstrap 95% confidence interval on $\\Delta = \\text{Acc}(P1) - \\text{Acc}(B)$ strictly excludes zero ($\\Delta_{\\text{lo}} > 0$).",
-        f"   - Energy Constraint: Net energy $\\le \\mathbf{{{gq['target_energy_cap_j']:.2f}\\text{{ J / correct}}}}$ ($E(P1) \\le E(B)$).",
-        f"   - *Statistical Power*: At $n = 800$, empirical power to detect a +5.00 pp shift with paired bootstrap is **{gq['paired_bootstrap_power_5pp'] * 100.0:.1f}%**.",
-        "",
-        "2. **Clause 2 (Efficiency Dominance / Non-Inferiority Parity)**:",
-        f"   - Accuracy Non-Inferiority: $\\text{{Acc}}(P1) \\ge \\mathbf{{{gq['alt_efficiency_target']['non_inferiority_floor_pct']:.2f}\\%}}$ (within 3.00 pp margin confirmed in D4).",
-        f"   - Energy Constraint: Net energy $\\le \\mathbf{{{gq['alt_efficiency_target']['target_energy_cap_j']:.2f}\\text{{ J / correct}}}}$ (<= 50.0% of B-LLM energy per correct task).",
-        "",
-        "---",
-        "",
-        "## 3. Gate G-M: Personal Memory Probe & Stale Fact Hurdle",
-        "",
-        "Gate G-M evaluates memory retrieval integrity and guards against stale fact hallucination across personal history logs.",
-        "",
-        "### A. Baseline Measurement (150 Memory Probe Validation Items)",
-        f"Per Owner Decision D16, the memory probe contains $n_{{\\text{{eff}}}} = {gm['stale_items_n_eff']}$ stale fact items:",
-        "",
-        "| Arm | Item Description | $n$ | Baseline Correct | Accuracy | Errors | Error Rate | 95% Wilson CI |",
-        "| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |",
-        f"| **Stale Facts** | Outdated historical values present | {gm['stale_items_n_eff']} | {gm['stale_items_n_eff'] - gm['baseline_stale_errors']} | {100.0 - gm['baseline_stale_error_rate_pct']:.2f}% | **{gm['baseline_stale_errors']}** | **{gm['baseline_stale_error_rate_pct']:.2f}%** | [{gm['baseline_stale_ci_95'][0]:.2f}, {gm['baseline_stale_ci_95'][1]:.2f}]% |",
-        f"| **Static Facts** | Ground truth constant across logs | 50 | 46 | {gm['baseline_static_accuracy_pct']:.2f}% | 4 | 8.00% | [2.70, 19.30]% |",
-        f"| **Total Memory** | Combined Personal History Probe | {gm['scope_items']} | 124 | {gm['baseline_overall_accuracy_pct']:.2f}% | 26 | 17.33% | [76.61, 88.72]% |",
-        "",
-        f"- **Baseline Stale-Fact Errors**: **{gm['baseline_stale_errors']} errors** out of 100 items (**{gm['baseline_stale_error_rate_pct']:.2f}%** stale error rate).",
-        f"- **Baseline Overall Memory Accuracy**: **{gm['baseline_overall_accuracy_pct']:.2f}%** (124 / 150).",
-        "",
-        "### B. Target Criteria for Prototype 1 (P1)",
-        "1. **Stale Fact Error Rate**: P1 must cut stale fact errors at least in half relative to B-LLM:",
-        f"   $$\\text{{Stale Errors}}(P1) \\le \\mathbf{{{gm['target_max_stale_errors']}\\text{{ errors}}}} \\quad (\\text{{Stale Error Rate}} \\le \\mathbf{{{gm['target_stale_error_rate_cap_pct']:.2f}\\%}})$$ ",
-        f"   *Statistical Power*: At $n_{{\\text{{eff}}}} = 100$, one-sided McNemar test power for cutting errors from 22 to 11 is **{gm['mcnemar_power_at_halving'] * 100.0:.1f}%**.",
-        "2. **Frontier Reference Bound**:",
-        "   - Without history: $\\text{Acc}(P1) \\ge \\text{Acc}(F_{\\text{no\\_history}})$",
-        "   - With full history: $\\text{Acc}(P1) \\ge \\text{Acc}(F_{\\text{full\\_history}}) - 5.00\\text{ pp}$",
-        "",
-        "---",
-        "",
-        "## 4. Gate G-R: Hardware Residency & Resource Budget",
-        "",
-        "Gate G-R enforces strict execution within local edge assistant hardware constraints.",
-        "",
-        "### A. Empirical Baseline & Headroom",
-        f"- **Target Hardware Tier**: {gr['hardware_device']}.",
-        f"- **Context Length**: {gr['context_length_tokens']} tokens.",
-        f"- **Assistant VRAM Cap**: $\\le \\mathbf{{{gr['vram_budget_mb']:.1f}\\text{{ MB}}}}$ (1.5 GB resident GPU memory).",
-        "",
-        "| Resource Metric | B-LLM Baseline | Gate G-R Budget Cap | Margin / Headroom | Status |",
-        "| :--- | :---: | :---: | :---: | :---: |",
-        f"| **NVML Process VRAM** | **{gr['baseline_nvml_process_vram_mb']:.1f} MB** | {gr['vram_budget_mb']:.1f} MB | **+{gr['headroom_mb']:.1f} MB** (7.8% buffer) | **COMPLIANT** |",
-        f"| **PyTorch Allocated VRAM** | {gr['baseline_torch_allocated_mb']:.1f} MB | — | — | Diagnostic only |",
-        f"| **Net Joules / Correct Task** | {gr['baseline_net_joules_per_correct']:.2f} J | $\\le {gr['baseline_net_joules_per_correct']:.2f}\\text{{ J}}$ (for G-Q acc) | — | Relative NVML Scope |",
-        f"| **Inference Latency (p50)** | {gr['baseline_latency_p50_ms']:.1f} ms | — | — | Reported per G-R |",
-        f"| **Inference Latency (p95)** | {gr['baseline_latency_p95_ms']:.1f} ms | — | — | Reported per G-R |",
-        f"| **Per-Token Latency** | {gr['baseline_ms_per_token']:.2f} ms/tok | — | — | Reported per G-R |",
-        "",
-        "---",
-        "",
-        "## 5. Gate G-F: Frontier Reference Gap-Closing Metric",
-        "",
-        "Gate G-F provides an external benchmark of Prototype 1's progress toward frontier capabilities.",
-        "",
-        "### A. Formal Metric Definition",
-        "$$\\mathcal{C} = \\frac{\\text{Acc}(P1) - \\text{Acc}(B\\text{-LLM})}{\\text{Acc}(F) - \\text{Acc}(B\\text{-LLM})} \\times 100\\%$$",
-        "",
-        "- **Evaluation Scope**: Checkable groups (800 items).",
-        f"- **Strong Result Definition**: If $\\text{{Acc}}(F) - \\text{{Acc}}(B\\text{{-LLM}}) \\ge 5.00\\text{{ pp}}$, achieving $\\mathcal{{C}} \\ge \\mathbf{{{gf['strong_result_threshold_pct']:.2f}\\%}}$ is formally designated as a strong result.",
-        f"- **Reference Model**: {gf['frontier_model']}.",
-        f"- **Execution Status**: *\"{gate_summary['frontier_reference']}\"*. Execution is deferred to post-suite freeze at Step 10 under one-time-use exposure constraints (Decision D12).",
-        "",
-        "---",
-        "",
-        "## 6. No-Regression Gate",
-        "",
-        "- **Margin**: 3.00 percentage points (confirmed by Owner Decision D4).",
-        "- **Rule**: When adding any component to Prototype 1 (e.g., verifier head, memory cache, tool execution), accuracy on previously evaluated groups must not decrease by more than 3.00 pp relative to the immediate prior step.",
-        "",
-        "---",
-        "",
-        "## 7. Authoritative Gate Baselines Summary Table",
-        "",
-        "| Gate | Scope | Metric / Condition | B-LLM Baseline | Prototype 1 Target Hurdle |",
-        "| :--- | :--- | :--- | :---: | :--- |",
-        f"| **Gate G-Q** | 800 checkable items | Accuracy Superiority | **{gq['baseline_accuracy_pct']:.2f}%** ({gq['baseline_correct']}/{gq['scope_items']}) | $\\ge \\mathbf{{{gq['target_accuracy_pct']:.2f}\\%}}$ (95% CI excludes 0) at $\\le \\mathbf{{{gq['target_energy_cap_j']:.2f}\\text{{ J/correct}}}}$ |",
-        f"| **Gate G-Q (Alt)**| 800 checkable items | Efficiency Parity | {gq['baseline_net_joules_per_correct']:.2f} J / correct | $\\ge \\mathbf{{{gq['alt_efficiency_target']['non_inferiority_floor_pct']:.2f}\\%}}$ (non-inferiority) at $\\le \\mathbf{{{gq['alt_efficiency_target']['target_energy_cap_j']:.2f}\\text{{ J/correct}}}}$ |",
-        f"| **Gate G-M** | 100 stale fact items | Stale Fact Error Rate | **{gm['baseline_stale_error_rate_pct']:.2f}%** ({gm['baseline_stale_errors']} errors) | $\\le \\mathbf{{{gm['target_stale_error_rate_cap_pct']:.2f}\\%}}$ (at most **{gm['target_max_stale_errors']} errors**) |",
-        f"| **Gate G-M (F)** | 150 memory items | vs Frontier Bounds | {gm['baseline_overall_accuracy_pct']:.2f}% overall | $\\ge F_{{\\text{{no\\_hist}}}}$, within 5 pp of $F_{{\\text{{full\\_hist}}}}$ |",
-        f"| **Gate G-R** | 2048 context length | Resident Process VRAM | **{gr['baseline_nvml_process_vram_mb']:.1f} MB** | $\\le \\mathbf{{{gr['vram_budget_mb']:.1f}\\text{{ MB}}}}$ (1.5 GB limit) |",
-        f"| **Gate G-F** | 800 checkable items | Gap Closed $\\mathcal{{C}}$ | — | $\\mathcal{{C}} \\ge \\mathbf{{{gf['strong_result_threshold_pct']:.2f}\\%}}$ when $\\Delta(F - B) \\ge 5\\text{{ pp}}$ |",
-        "| **No-Regression**| All groups | Component delta | — | $\\Delta \\ge -3.00\\text{ pp}$ between incremental components |",
-        "",
-    ])
+    lines.extend(
+        [
+            f"| **Pooled Checkable** | **All 4 Groups Combined** | **{gq['scope_items']}** | **{gq['baseline_correct']}** | **{gq['baseline_accuracy_pct']:.2f}%** | **[{gq['baseline_ci_95'][0]:.2f}, {gq['baseline_ci_95'][1]:.2f}]%** |",
+            "",
+            f"- **Baseline Checkable Accuracy**: **{gq['baseline_accuracy_pct']:.2f}%** ({gq['baseline_correct']} / {gq['scope_items']})",
+            f"- **Baseline Net Energy per Correct Task**: **{gq['baseline_net_joules_per_correct']:.2f} J**",
+            "",
+            "### B. Target Criteria for Prototype 1 (P1)",
+            "To pass Gate G-Q, Prototype 1 must satisfy either Clause 1 or Clause 2:",
+            "",
+            "1. **Clause 1 (Accuracy Superiority)**:",
+            f"   - Checkable Accuracy: $\\text{{Acc}}(P1) \\ge \\mathbf{{{gq['target_accuracy_pct']:.2f}\\%}}$ (+5.00 pp over B-LLM).",
+            "   - Statistical Significance: Paired bootstrap 95% confidence interval on $\\Delta = \\text{Acc}(P1) - \\text{Acc}(B)$ strictly excludes zero ($\\Delta_{\\text{lo}} > 0$).",
+            f"   - Energy Constraint: Net energy $\\le \\mathbf{{{gq['target_energy_cap_j']:.2f}\\text{{ J / correct}}}}$ ($E(P1) \\le E(B)$).",
+            f"   - *Statistical Power*: At $n = 800$, empirical power to detect a +5.00 pp shift with paired bootstrap is **{gq['paired_bootstrap_power_5pp'] * 100.0:.1f}%**.",
+            "",
+            "2. **Clause 2 (Efficiency Dominance / Non-Inferiority Parity)**:",
+            f"   - Accuracy Non-Inferiority: $\\text{{Acc}}(P1) \\ge \\mathbf{{{gq['alt_efficiency_target']['non_inferiority_floor_pct']:.2f}\\%}}$ (within 3.00 pp margin confirmed in D4).",
+            f"   - Energy Constraint: Net energy $\\le \\mathbf{{{gq['alt_efficiency_target']['target_energy_cap_j']:.2f}\\text{{ J / correct}}}}$ (<= 50.0% of B-LLM energy per correct task).",
+            "",
+            "---",
+            "",
+            "## 3. Gate G-M: Personal Memory Probe & Stale Fact Hurdle",
+            "",
+            "Gate G-M evaluates memory retrieval integrity and guards against stale fact hallucination across personal history logs.",
+            "",
+            "### A. Baseline Measurement (150 Memory Probe Validation Items)",
+            f"Per Owner Decision D16, the memory probe contains $n_{{\\text{{eff}}}} = {gm['stale_items_n_eff']}$ stale fact items:",
+            "",
+            "| Arm | Item Description | $n$ | Baseline Correct | Accuracy | Errors | Error Rate | 95% Wilson CI |",
+            "| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |",
+            f"| **Stale Facts** | Outdated historical values present | {gm['stale_items_n_eff']} | {gm['stale_items_n_eff'] - gm['baseline_stale_errors']} | {100.0 - gm['baseline_stale_error_rate_pct']:.2f}% | **{gm['baseline_stale_errors']}** | **{gm['baseline_stale_error_rate_pct']:.2f}%** | [{gm['baseline_stale_ci_95'][0]:.2f}, {gm['baseline_stale_ci_95'][1]:.2f}]% |",
+            f"| **Static Facts** | Ground truth constant across logs | 50 | 46 | {gm['baseline_static_accuracy_pct']:.2f}% | 4 | 8.00% | [2.70, 19.30]% |",
+            f"| **Total Memory** | Combined Personal History Probe | {gm['scope_items']} | 124 | {gm['baseline_overall_accuracy_pct']:.2f}% | 26 | 17.33% | [76.61, 88.72]% |",
+            "",
+            f"- **Baseline Stale-Fact Errors**: **{gm['baseline_stale_errors']} errors** out of 100 items (**{gm['baseline_stale_error_rate_pct']:.2f}%** stale error rate).",
+            f"- **Baseline Overall Memory Accuracy**: **{gm['baseline_overall_accuracy_pct']:.2f}%** (124 / 150).",
+            "",
+            "### B. Target Criteria for Prototype 1 (P1)",
+            "1. **Stale Fact Error Rate**: P1 must cut stale fact errors at least in half relative to B-LLM:",
+            f"   $$\\text{{Stale Errors}}(P1) \\le \\mathbf{{{gm['target_max_stale_errors']}\\text{{ errors}}}} \\quad (\\text{{Stale Error Rate}} \\le \\mathbf{{{gm['target_stale_error_rate_cap_pct']:.2f}\\%}})$$ ",
+            f"   *Statistical Power*: At $n_{{\\text{{eff}}}} = 100$, one-sided McNemar test power for cutting errors from 22 to 11 is **{gm['mcnemar_power_at_halving'] * 100.0:.1f}%**.",
+            "2. **Frontier Reference Bound**:",
+            "   - Without history: $\\text{Acc}(P1) \\ge \\text{Acc}(F_{\\text{no\\_history}})$",
+            "   - With full history: $\\text{Acc}(P1) \\ge \\text{Acc}(F_{\\text{full\\_history}}) - 5.00\\text{ pp}$",
+            "",
+            "---",
+            "",
+            "## 4. Gate G-R: Hardware Residency & Resource Budget",
+            "",
+            "Gate G-R enforces strict execution within local edge assistant hardware constraints.",
+            "",
+            "### A. Empirical Baseline & Headroom",
+            f"- **Target Hardware Tier**: {gr['hardware_device']}.",
+            f"- **Context Length**: {gr['context_length_tokens']} tokens.",
+            f"- **Assistant VRAM Cap**: $\\le \\mathbf{{{gr['vram_budget_mb']:.1f}\\text{{ MB}}}}$ (1.5 GB resident GPU memory).",
+            "",
+            "| Resource Metric | B-LLM Baseline | Gate G-R Budget Cap | Margin / Headroom | Status |",
+            "| :--- | :---: | :---: | :---: | :---: |",
+            f"| **NVML Process VRAM** | **{gr['baseline_nvml_process_vram_mb']:.1f} MB** | {gr['vram_budget_mb']:.1f} MB | **+{gr['headroom_mb']:.1f} MB** (7.8% buffer) | **COMPLIANT** |",
+            f"| **PyTorch Allocated VRAM** | {gr['baseline_torch_allocated_mb']:.1f} MB | — | — | Diagnostic only |",
+            f"| **Net Joules / Correct Task** | {gr['baseline_net_joules_per_correct']:.2f} J | $\\le {gr['baseline_net_joules_per_correct']:.2f}\\text{{ J}}$ (for G-Q acc) | — | Relative NVML Scope |",
+            f"| **Inference Latency (p50)** | {gr['baseline_latency_p50_ms']:.1f} ms | — | — | Reported per G-R |",
+            f"| **Inference Latency (p95)** | {gr['baseline_latency_p95_ms']:.1f} ms | — | — | Reported per G-R |",
+            f"| **Per-Token Latency** | {gr['baseline_ms_per_token']:.2f} ms/tok | — | — | Reported per G-R |",
+            "",
+            "---",
+            "",
+            "## 5. Gate G-F: Frontier Reference Gap-Closing Metric",
+            "",
+            "Gate G-F provides an external benchmark of Prototype 1's progress toward frontier capabilities.",
+            "",
+            "### A. Formal Metric Definition",
+            "$$\\mathcal{C} = \\frac{\\text{Acc}(P1) - \\text{Acc}(B\\text{-LLM})}{\\text{Acc}(F) - \\text{Acc}(B\\text{-LLM})} \\times 100\\%$$",
+            "",
+            "- **Evaluation Scope**: Checkable groups (800 items).",
+            f"- **Strong Result Definition**: If $\\text{{Acc}}(F) - \\text{{Acc}}(B\\text{{-LLM}}) \\ge 5.00\\text{{ pp}}$, achieving $\\mathcal{{C}} \\ge \\mathbf{{{gf['strong_result_threshold_pct']:.2f}\\%}}$ is formally designated as a strong result.",
+            f"- **Reference Model**: {gf['frontier_model']}.",
+            f"- **Execution Status**: *\"{gate_summary['frontier_reference']}\"*. Execution is deferred to post-suite freeze at Step 10 under one-time-use exposure constraints (Decision D12).",
+            "",
+            "---",
+            "",
+            "## 6. No-Regression Gate",
+            "",
+            "- **Margin**: 3.00 percentage points (confirmed by Owner Decision D4).",
+            "- **Rule**: When adding any component to Prototype 1 (e.g., verifier head, memory cache, tool execution), accuracy on previously evaluated groups must not decrease by more than 3.00 pp relative to the immediate prior step.",
+            "",
+            "---",
+            "",
+            "## 7. Authoritative Gate Baselines Summary Table",
+            "",
+            "| Gate | Scope | Metric / Condition | B-LLM Baseline | Prototype 1 Target Hurdle |",
+            "| :--- | :--- | :--- | :---: | :--- |",
+            f"| **Gate G-Q** | 800 checkable items | Accuracy Superiority | **{gq['baseline_accuracy_pct']:.2f}%** ({gq['baseline_correct']}/{gq['scope_items']}) | $\\ge \\mathbf{{{gq['target_accuracy_pct']:.2f}\\%}}$ (95% CI excludes 0) at $\\le \\mathbf{{{gq['target_energy_cap_j']:.2f}\\text{{ J/correct}}}}$ |",
+            f"| **Gate G-Q (Alt)**| 800 checkable items | Efficiency Parity | {gq['baseline_net_joules_per_correct']:.2f} J / correct | $\\ge \\mathbf{{{gq['alt_efficiency_target']['non_inferiority_floor_pct']:.2f}\\%}}$ (non-inferiority) at $\\le \\mathbf{{{gq['alt_efficiency_target']['target_energy_cap_j']:.2f}\\text{{ J/correct}}}}$ |",
+            f"| **Gate G-M** | 100 stale fact items | Stale Fact Error Rate | **{gm['baseline_stale_error_rate_pct']:.2f}%** ({gm['baseline_stale_errors']} errors) | $\\le \\mathbf{{{gm['target_stale_error_rate_cap_pct']:.2f}\\%}}$ (at most **{gm['target_max_stale_errors']} errors**) |",
+            f"| **Gate G-M (F)** | 150 memory items | vs Frontier Bounds | {gm['baseline_overall_accuracy_pct']:.2f}% overall | $\\ge F_{{\\text{{no\\_hist}}}}$, within 5 pp of $F_{{\\text{{full\\_hist}}}}$ |",
+            f"| **Gate G-R** | 2048 context length | Resident Process VRAM | **{gr['baseline_nvml_process_vram_mb']:.1f} MB** | $\\le \\mathbf{{{gr['vram_budget_mb']:.1f}\\text{{ MB}}}}$ (1.5 GB limit) |",
+            f"| **Gate G-F** | 800 checkable items | Gap Closed $\\mathcal{{C}}$ | — | $\\mathcal{{C}} \\ge \\mathbf{{{gf['strong_result_threshold_pct']:.2f}\\%}}$ when $\\Delta(F - B) \\ge 5\\text{{ pp}}$ |",
+            "| **No-Regression**| All groups | Component delta | — | $\\Delta \\ge -3.00\\text{ pp}$ between incremental components |",
+            "",
+        ]
+    )
 
     return "\n".join(lines)
 
@@ -345,7 +352,9 @@ def main() -> None:
 
     gm_target_max_stale_errors = int(stale_errors * 0.50)  # 22 * 0.50 = 11
     gm_target_stale_error_rate_cap = round(stale_error_rate_pct * 0.50, 2)
-    gm_power = simulate_gm_mcnemar_power(b_stale_errors=stale_errors, p1_stale_errors=gm_target_max_stale_errors, n=100)
+    gm_power = simulate_gm_mcnemar_power(
+        b_stale_errors=stale_errors, p1_stale_errors=gm_target_max_stale_errors, n=100
+    )
 
     # 4. Gate G-R Computations (Resident VRAM, Energy, Latency)
     gr_vram_mb = s15["vram_breakdown_mb"]["nvml_process_used_mb"]

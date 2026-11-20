@@ -76,10 +76,18 @@ def main() -> None:
 
     # Gate G-M stale error baseline (100 items)
     stale05_corr = sum(
-        1 for r in r05 if r["group"] == "memory_probe" and r.get("metadata", {}).get("is_stale_fact") and r["correct"]
+        1
+        for r in r05
+        if r["group"] == "memory_probe"
+        and r.get("metadata", {}).get("is_stale_fact")
+        and r["correct"]
     )
     stale15_corr = sum(
-        1 for r in r15 if r["group"] == "memory_probe" and r.get("metadata", {}).get("is_stale_fact") and r["correct"]
+        1
+        for r in r15
+        if r["group"] == "memory_probe"
+        and r.get("metadata", {}).get("is_stale_fact")
+        and r["correct"]
     )
 
     pareto_data: dict[str, Any] = {
@@ -123,14 +131,40 @@ def main() -> None:
         "head_to_head": {
             "accuracy_delta_pp": round(delta_pp, 2),
             "paired_bootstrap_ci_95": [round(delta_lo, 2), round(delta_hi, 2)],
-            "math_delta_pp": round(s15["groups"]["math"]["accuracy_pct"] - s05["groups"]["math"]["accuracy_pct"], 2),
-            "science_delta_pp": round(s15["groups"]["science_mcq"]["accuracy_pct"] - s05["groups"]["science_mcq"]["accuracy_pct"], 2),
-            "knowledge_mcq_delta_pp": round(s15["groups"]["knowledge_mcq"]["accuracy_pct"] - s05["groups"]["knowledge_mcq"]["accuracy_pct"], 2),
-            "code_delta_pp": round(s15["groups"]["code"]["accuracy_pct"] - s05["groups"]["code"]["accuracy_pct"], 2),
-            "qa_delta_pp": round(s15["groups"]["knowledge_qa"]["accuracy_pct"] - s05["groups"]["knowledge_qa"]["accuracy_pct"], 2),
-            "memory_delta_pp": round(s15["groups"]["memory_probe"]["accuracy_pct"] - s05["groups"]["memory_probe"]["accuracy_pct"], 2),
-            "vram_delta_mb": round(s15["vram_breakdown_mb"]["nvml_process_used_mb"] - s05["vram_breakdown_mb"]["nvml_process_used_mb"], 1),
-            "energy_delta_j_per_correct": round(s15["energy"]["net_joules_per_correct"] - s05["energy"]["net_joules_per_correct"], 2),
+            "math_delta_pp": round(
+                s15["groups"]["math"]["accuracy_pct"] - s05["groups"]["math"]["accuracy_pct"], 2
+            ),
+            "science_delta_pp": round(
+                s15["groups"]["science_mcq"]["accuracy_pct"]
+                - s05["groups"]["science_mcq"]["accuracy_pct"],
+                2,
+            ),
+            "knowledge_mcq_delta_pp": round(
+                s15["groups"]["knowledge_mcq"]["accuracy_pct"]
+                - s05["groups"]["knowledge_mcq"]["accuracy_pct"],
+                2,
+            ),
+            "code_delta_pp": round(
+                s15["groups"]["code"]["accuracy_pct"] - s05["groups"]["code"]["accuracy_pct"], 2
+            ),
+            "qa_delta_pp": round(
+                s15["groups"]["knowledge_qa"]["accuracy_pct"]
+                - s05["groups"]["knowledge_qa"]["accuracy_pct"],
+                2,
+            ),
+            "memory_delta_pp": round(
+                s15["groups"]["memory_probe"]["accuracy_pct"]
+                - s05["groups"]["memory_probe"]["accuracy_pct"],
+                2,
+            ),
+            "vram_delta_mb": round(
+                s15["vram_breakdown_mb"]["nvml_process_used_mb"]
+                - s05["vram_breakdown_mb"]["nvml_process_used_mb"],
+                1,
+            ),
+            "energy_delta_j_per_correct": round(
+                s15["energy"]["net_joules_per_correct"] - s05["energy"]["net_joules_per_correct"], 2
+            ),
         },
         "selection_decision": {
             "chosen_model": "qwen2.5-1.5b-instruct-q4",
@@ -162,8 +196,8 @@ def main() -> None:
         f"**Phase**: Phase C — Step C5 (R7 Candidate Selection & Pareto Frontier)\n"
         f"**Branch**: `suite-v2`\n"
         f"**Suite Manifest Root Hash**: `{SUITE_MANIFEST_ROOT_HASH}`\n"
-        f"**Energy Label**: *\"{MANDATORY_ENERGY_LABEL}\"*\n"
-        f"**Frontier Reference Status**: *\"{F_REFERENCE_LABEL}\"*\n\n"
+        f'**Energy Label**: *"{MANDATORY_ENERGY_LABEL}"*\n'
+        f'**Frontier Reference Status**: *"{F_REFERENCE_LABEL}"*\n\n'
         f"---\n\n"
         f"## 1. Executive Summary & Selection Decision\n\n"
         f"Based on full measurement across all 1,250 validation items under the frozen scoring specification, "

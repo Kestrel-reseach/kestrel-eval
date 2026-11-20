@@ -40,16 +40,18 @@ def rescore_run(file_path: Path) -> dict:
         after_arm[arm_key] = after_arm.get(arm_key, 0) + (1 if new_corr else 0)
 
         if old_corr != new_corr:
-            changed.append({
-                "item_id": r["item_id"],
-                "group": grp,
-                "arm": arm,
-                "old_correct": old_corr,
-                "new_correct": new_corr,
-                "target": r.get("target"),
-                "old_ext": r.get("extracted_answer"),
-                "new_ext": ext,
-            })
+            changed.append(
+                {
+                    "item_id": r["item_id"],
+                    "group": grp,
+                    "arm": arm,
+                    "old_correct": old_corr,
+                    "new_correct": new_corr,
+                    "target": r.get("target"),
+                    "old_ext": r.get("extracted_answer"),
+                    "new_ext": ext,
+                }
+            )
 
     return {
         "file": str(file_path),
@@ -70,10 +72,14 @@ def main():
         path = Path(f"reports/step2/run_qwen2.5-{m}-instruct-q4_validation.jsonl")
         res = rescore_run(path)
         print(f"=== Results for Qwen2.5-{m}-Instruct NF4 ===")
-        print(f"Total correct: {res['before_total_correct']} -> {res['after_total_correct']} (delta: {res['after_total_correct'] - res['before_total_correct']:+d})")
+        print(
+            f"Total correct: {res['before_total_correct']} -> {res['after_total_correct']} (delta: {res['after_total_correct'] - res['before_total_correct']:+d})"
+        )
         print(f"Total changed items: {len(res['changed_items'])}")
         for c in res["changed_items"]:
-            print(f"  [{c['item_id']}] ({c['group']}/{c['arm']}) {c['old_correct']} -> {c['new_correct']}: target={c['target']!r}, new_ext={c['new_ext']!r}")
+            print(
+                f"  [{c['item_id']}] ({c['group']}/{c['arm']}) {c['old_correct']} -> {c['new_correct']}: target={c['target']!r}, new_ext={c['new_ext']!r}"
+            )
         print("Group Breakdown (Before -> After):")
         for g in sorted(res["before_group"].keys()):
             b_cnt = res["before_group"][g]
@@ -89,4 +95,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

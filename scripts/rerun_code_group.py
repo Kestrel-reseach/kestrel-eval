@@ -61,7 +61,7 @@ def rerun_candidate_code(cand: dict[str, Any]):
     print(f"Loading tokenizer: {model_name}...")
     tokenizer = AutoTokenizer.from_pretrained(model_name, local_files_only=True)
 
-    print(f"Loading NF4 model onto cuda:0...")
+    print("Loading NF4 model onto cuda:0...")
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
         quantization_config=BNB_CONFIG,
@@ -132,7 +132,9 @@ def rerun_candidate_code(cand: dict[str, Any]):
         new_code_records[item["id"]] = rec
 
         if idx % 20 == 0 or idx == len(code_items):
-            print(f"  Processed {idx:3d}/100 items | Current Code Accuracy: {correct_count}/{idx} ({correct_count/idx:.1%})")
+            print(
+                f"  Processed {idx:3d}/100 items | Current Code Accuracy: {correct_count}/{idx} ({correct_count/idx:.1%})"
+            )
 
     total_time = time.perf_counter() - t_start
     print(f"\nFinished in {total_time:.1f}s.")
@@ -171,7 +173,9 @@ def rerun_candidate_code(cand: dict[str, Any]):
         for r in updated_records:
             f.write(json.dumps(r) + "\n")
 
-    print(f"Updated {jsonl_path}: code correct changed from {old_code_correct} to {correct_count} (+{correct_count - old_code_correct})")
+    print(
+        f"Updated {jsonl_path}: code correct changed from {old_code_correct} to {correct_count} (+{correct_count - old_code_correct})"
+    )
     return {
         "candidate": cand["id"],
         "old_correct": old_code_correct,
@@ -194,10 +198,11 @@ def main():
     for r in results:
         print(f"Candidate {r['candidate']}:")
         print(f"  Before: {r['old_correct']}/100 ({r['old_correct']}%)")
-        print(f"  After : {r['new_correct']}/100 ({r['new_correct']}%) [MBPP: {r['mbpp_correct']}/50 ({r['mbpp_correct']*2}%), Synth: {r['synthetic_correct']}/50 ({r['synthetic_correct']*2}%)]")
+        print(
+            f"  After : {r['new_correct']}/100 ({r['new_correct']}%) [MBPP: {r['mbpp_correct']}/50 ({r['mbpp_correct']*2}%), Synth: {r['synthetic_correct']}/50 ({r['synthetic_correct']*2}%)]"
+        )
         print(f"  Truncation: {r['truncation_count']}/100 ({r['truncation_count']}%)")
 
 
 if __name__ == "__main__":
     main()
-

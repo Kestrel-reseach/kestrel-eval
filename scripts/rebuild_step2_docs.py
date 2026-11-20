@@ -93,7 +93,9 @@ def generate_baseline_table_md(data: dict[str, Any]) -> str:
 
     # F rows
     for grp in groups + ["overall"]:
-        lines.append(f"| F | {grp} | UNMEASURED | UNMEASURED | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |")
+        lines.append(
+            f"| F | {grp} | UNMEASURED | UNMEASURED | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |"
+        )
 
     # B-LLM rows
     for grp in groups:
@@ -117,49 +119,51 @@ def generate_baseline_table_md(data: dict[str, Any]) -> str:
         f"| Qwen2.5-0.5B | overall | {s05['overall_accuracy_pct']:.2f}% | [{s05['overall_ci_95'][0]:.2f}, {s05['overall_ci_95'][1]:.2f}]% | {s05['energy']['net_joules_per_correct']:.2f} J | {round(s05['vram_breakdown_mb']['nvml_process_used_mb'] / 1024.0, 2):.2f} | {s05['overall_latency_p50_ms']:.1f} | {s05['overall_latency_p95_ms']:.1f} |"
     )
 
-    lines.extend([
-        "",
-        "---",
-        "",
-        "## 3. Per-Group Accuracy Breakdown",
-        "",
-        "| Candidate Model | Math (n=200) | Science MCQ (n=200) | Knowledge MCQ (n=300) | Code (n=100) | Knowledge QA (n=300) | Memory Probe (n=150) | Overall (n=1,250) |",
-        "| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |",
-        "| **F (gemini-2.5-pro)** | UNMEASURED | UNMEASURED | UNMEASURED | UNMEASURED | UNMEASURED | UNMEASURED | UNMEASURED |",
-        f"| **Qwen2.5-1.5B (B-LLM)** | **{s15['groups']['math']['accuracy_pct']:.2f}%** | **{s15['groups']['science_mcq']['accuracy_pct']:.2f}%** | **{s15['groups']['knowledge_mcq']['accuracy_pct']:.2f}%** | {s15['groups']['code']['accuracy_pct']:.2f}% | {s15['groups']['knowledge_qa']['accuracy_pct']:.2f}% | **{s15['groups']['memory_probe']['accuracy_pct']:.2f}%** | **{s15['overall_accuracy_pct']:.2f}%** |",
-        f"| Qwen2.5-0.5B-Instruct | {s05['groups']['math']['accuracy_pct']:.2f}% | {s05['groups']['science_mcq']['accuracy_pct']:.2f}% | {s05['groups']['knowledge_mcq']['accuracy_pct']:.2f}% | **{s05['groups']['code']['accuracy_pct']:.2f}%** | **{s05['groups']['knowledge_qa']['accuracy_pct']:.2f}%** | {s05['groups']['memory_probe']['accuracy_pct']:.2f}% | {s05['overall_accuracy_pct']:.2f}% |",
-        f"| **Delta (1.5B - 0.5B)** | **+{h2h['math_delta_pp']:.2f} pp** | **+{h2h['science_delta_pp']:.2f} pp** | **+{h2h['knowledge_mcq_delta_pp']:.2f} pp** | {h2h['code_delta_pp']:.2f} pp | {h2h['qa_delta_pp']:.2f} pp | **+{h2h['memory_delta_pp']:.2f} pp** | **+{h2h['accuracy_delta_pp']:.2f} pp** |",
-        "",
-        "---",
-        "",
-        "## 4. Diagnostic: Knowledge-QA Retrieval Gain & Contamination Verification",
-        "",
-        "| Model Candidate | Knowledge QA (No Retrieval) | Knowledge QA (With BM25) | Absolute Retrieval Gain | Parametric Memorization on Fictional Entities |",
-        "| :--- | :---: | :---: | :---: | :---: |",
-        f"| **Qwen2.5-1.5B-Instruct** | {abl15['overall']['no_retrieval_acc_pct']:.2f}% | {abl15['overall']['with_retrieval_acc_pct']:.2f}% | **+{abl15['overall']['retrieval_gain_pp']:.2f} pp** | **0.00%** (0 / 100 correct without retrieval) |",
-        f"| Qwen2.5-0.5B-Instruct | {abl05['overall']['no_retrieval_acc_pct']:.2f}% | {abl05['overall']['with_retrieval_acc_pct']:.2f}% | **+{abl05['overall']['retrieval_gain_pp']:.2f} pp** | **0.00%** (0 / 100 correct without retrieval) |",
-        "",
-        "- **Contamination Check**: Zero accuracy (0.00%) on the fictional entity arm without retrieval proves clean separation and zero pretraining leakage.",
-        "- **BM25 Retrieval Quality**: BM25 flat retriever over 6,065 corpus chunks achieves **100.0% Title Recall@3** and **99.67% Answer Containment Recall@3**.",
-        "",
-        "---",
-        "",
-        "## 5. Measurement Controls Summary (Step C3)",
-        "",
-        f"- **Control 1 (Determinism)**: 100/100 outputs bit-for-bit identical across independent runs (**{ctrl['determinism_control']['match_rate_pct']:.2f}%**).",
-        f"- **Control 2 (Option Shuffling)**: Cyclic permutation of MCQ options produced **{ctrl['shuffled_option_control']['original_accuracy_pct']:.2f}% vs {ctrl['shuffled_option_control']['permuted_accuracy_pct']:.2f}%** ($\\Delta = 0.00\\text{{ pp}}$).",
-        f"- **Control 3 (Constant Baselines)**: 'Always A' scored **{ctrl['constant_baselines']['mcq']['always_a']['accuracy_pct']:.2f}%**; most frequent key ('D') scored **{ctrl['constant_baselines']['mcq']['most_frequent_key']['accuracy_pct']:.2f}%**. Both models comfortably beat all constant baselines by $> 12.6\\text{{ pp}}$.",
-        "- **Control 4 (Uniform Random Chance)**: Random chance is 25.0%. 0.5B scored 40.80% ($Z = +8.16, p < 10^{-15}$); 1.5B scored 54.20% ($Z = +15.08, p < 10^{-30}$).",
-        "",
-        "---",
-        "",
-        "## 6. Frozen Empirical Gate Baselines Established for B-LLM",
-        "",
-        f"- **Gate G-Q Hurdle** (800 checkable items): **{gq['baseline_accuracy_pct']:.2f}%** baseline (467/800). Target: $\\ge \\mathbf{{{gq['target_accuracy_pct']:.2f}\\%}}$ at $\\le \\mathbf{{{gq['target_energy_cap_j']:.2f}\\text{{ J/correct}}}}$, or $\\ge \\mathbf{{{gq['alt_efficiency_target']['non_inferiority_floor_pct']:.2f}\\%}}$ at $\\le \\mathbf{{{gq['alt_efficiency_target']['target_energy_cap_j']:.2f}\\text{{ J/correct}}}}$.",
-        f"- **Gate G-M Hurdle** (100 stale fact items): **{gm['baseline_stale_error_rate_pct']:.2f}%** baseline (22 errors). Target: $\\le \\mathbf{{{gm['target_stale_error_rate_cap_pct']:.2f}\\%}}$ (at most **{gm['target_max_stale_errors']} errors**).",
-        f"- **Gate G-R Hurdle** (Resident VRAM): **{gr['baseline_nvml_process_vram_mb']:.1f} MB** baseline. Target: $\\le \\mathbf{{{gr['vram_budget_mb']:.1f}\\text{{ MB}}}}$ (**+{gr['headroom_mb']:.1f} MB headroom**).",
-        "",
-    ])
+    lines.extend(
+        [
+            "",
+            "---",
+            "",
+            "## 3. Per-Group Accuracy Breakdown",
+            "",
+            "| Candidate Model | Math (n=200) | Science MCQ (n=200) | Knowledge MCQ (n=300) | Code (n=100) | Knowledge QA (n=300) | Memory Probe (n=150) | Overall (n=1,250) |",
+            "| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |",
+            "| **F (gemini-2.5-pro)** | UNMEASURED | UNMEASURED | UNMEASURED | UNMEASURED | UNMEASURED | UNMEASURED | UNMEASURED |",
+            f"| **Qwen2.5-1.5B (B-LLM)** | **{s15['groups']['math']['accuracy_pct']:.2f}%** | **{s15['groups']['science_mcq']['accuracy_pct']:.2f}%** | **{s15['groups']['knowledge_mcq']['accuracy_pct']:.2f}%** | {s15['groups']['code']['accuracy_pct']:.2f}% | {s15['groups']['knowledge_qa']['accuracy_pct']:.2f}% | **{s15['groups']['memory_probe']['accuracy_pct']:.2f}%** | **{s15['overall_accuracy_pct']:.2f}%** |",
+            f"| Qwen2.5-0.5B-Instruct | {s05['groups']['math']['accuracy_pct']:.2f}% | {s05['groups']['science_mcq']['accuracy_pct']:.2f}% | {s05['groups']['knowledge_mcq']['accuracy_pct']:.2f}% | **{s05['groups']['code']['accuracy_pct']:.2f}%** | **{s05['groups']['knowledge_qa']['accuracy_pct']:.2f}%** | {s05['groups']['memory_probe']['accuracy_pct']:.2f}% | {s05['overall_accuracy_pct']:.2f}% |",
+            f"| **Delta (1.5B - 0.5B)** | **+{h2h['math_delta_pp']:.2f} pp** | **+{h2h['science_delta_pp']:.2f} pp** | **+{h2h['knowledge_mcq_delta_pp']:.2f} pp** | {h2h['code_delta_pp']:.2f} pp | {h2h['qa_delta_pp']:.2f} pp | **+{h2h['memory_delta_pp']:.2f} pp** | **+{h2h['accuracy_delta_pp']:.2f} pp** |",
+            "",
+            "---",
+            "",
+            "## 4. Diagnostic: Knowledge-QA Retrieval Gain & Contamination Verification",
+            "",
+            "| Model Candidate | Knowledge QA (No Retrieval) | Knowledge QA (With BM25) | Absolute Retrieval Gain | Parametric Memorization on Fictional Entities |",
+            "| :--- | :---: | :---: | :---: | :---: |",
+            f"| **Qwen2.5-1.5B-Instruct** | {abl15['overall']['no_retrieval_acc_pct']:.2f}% | {abl15['overall']['with_retrieval_acc_pct']:.2f}% | **+{abl15['overall']['retrieval_gain_pp']:.2f} pp** | **0.00%** (0 / 100 correct without retrieval) |",
+            f"| Qwen2.5-0.5B-Instruct | {abl05['overall']['no_retrieval_acc_pct']:.2f}% | {abl05['overall']['with_retrieval_acc_pct']:.2f}% | **+{abl05['overall']['retrieval_gain_pp']:.2f} pp** | **0.00%** (0 / 100 correct without retrieval) |",
+            "",
+            "- **Contamination Check**: Zero accuracy (0.00%) on the fictional entity arm without retrieval proves clean separation and zero pretraining leakage.",
+            "- **BM25 Retrieval Quality**: BM25 flat retriever over 6,065 corpus chunks achieves **100.0% Title Recall@3** and **99.67% Answer Containment Recall@3**.",
+            "",
+            "---",
+            "",
+            "## 5. Measurement Controls Summary (Step C3)",
+            "",
+            f"- **Control 1 (Determinism)**: 100/100 outputs bit-for-bit identical across independent runs (**{ctrl['determinism_control']['match_rate_pct']:.2f}%**).",
+            f"- **Control 2 (Option Shuffling)**: Cyclic permutation of MCQ options produced **{ctrl['shuffled_option_control']['original_accuracy_pct']:.2f}% vs {ctrl['shuffled_option_control']['permuted_accuracy_pct']:.2f}%** ($\\Delta = 0.00\\text{{ pp}}$).",
+            f"- **Control 3 (Constant Baselines)**: 'Always A' scored **{ctrl['constant_baselines']['mcq']['always_a']['accuracy_pct']:.2f}%**; most frequent key ('D') scored **{ctrl['constant_baselines']['mcq']['most_frequent_key']['accuracy_pct']:.2f}%**. Both models comfortably beat all constant baselines by $> 12.6\\text{{ pp}}$.",
+            "- **Control 4 (Uniform Random Chance)**: Random chance is 25.0%. 0.5B scored 40.80% ($Z = +8.16, p < 10^{-15}$); 1.5B scored 54.20% ($Z = +15.08, p < 10^{-30}$).",
+            "",
+            "---",
+            "",
+            "## 6. Frozen Empirical Gate Baselines Established for B-LLM",
+            "",
+            f"- **Gate G-Q Hurdle** (800 checkable items): **{gq['baseline_accuracy_pct']:.2f}%** baseline (467/800). Target: $\\ge \\mathbf{{{gq['target_accuracy_pct']:.2f}\\%}}$ at $\\le \\mathbf{{{gq['target_energy_cap_j']:.2f}\\text{{ J/correct}}}}$, or $\\ge \\mathbf{{{gq['alt_efficiency_target']['non_inferiority_floor_pct']:.2f}\\%}}$ at $\\le \\mathbf{{{gq['alt_efficiency_target']['target_energy_cap_j']:.2f}\\text{{ J/correct}}}}$.",
+            f"- **Gate G-M Hurdle** (100 stale fact items): **{gm['baseline_stale_error_rate_pct']:.2f}%** baseline (22 errors). Target: $\\le \\mathbf{{{gm['target_stale_error_rate_cap_pct']:.2f}\\%}}$ (at most **{gm['target_max_stale_errors']} errors**).",
+            f"- **Gate G-R Hurdle** (Resident VRAM): **{gr['baseline_nvml_process_vram_mb']:.1f} MB** baseline. Target: $\\le \\mathbf{{{gr['vram_budget_mb']:.1f}\\text{{ MB}}}}$ (**+{gr['headroom_mb']:.1f} MB headroom**).",
+            "",
+        ]
+    )
 
     return "\n".join(lines)
 
@@ -258,19 +262,21 @@ def generate_step2_baselines_md(data: dict[str, Any]) -> str:
         f"| **Overall** | **2 / 21 / 284 / 768** | **{s15['overall_latency_p50_ms']:.1f} ms** | **{s15['overall_latency_p95_ms']:.1f} ms** | **{s15['overall_ms_per_token']:.2f} ms/tok** | **{total_trunc15 / 1250.0 * 100.0:.2f}%** |"
     )
 
-    lines.extend([
-        "",
-        "- **Truncation Audit**: Zero groups exceeded the 1.0% truncation violation threshold (max truncation was 0.50% in math, within acceptable limits).",
-        "",
-        "---",
-        "",
-        "## 6. Pass Gates Readiness (G-Q, G-M, G-R)",
-        "",
-        f"- **Gate G-Q Hurdle** (800 checkable items): Baseline = **{gq['baseline_accuracy_pct']:.2f}%** (467/800). Target: $\\ge \\mathbf{{{gq['target_accuracy_pct']:.2f}\\%}}$ at $\\le \\mathbf{{{gq['target_energy_cap_j']:.2f}\\text{{ J/correct}}}}$, or match at $\\le \\mathbf{{{gq['alt_efficiency_target']['target_energy_cap_j']:.2f}\\text{{ J/correct}}}}$.",
-        f"- **Gate G-M Hurdle** (100 stale fact items): Baseline = **{gm['baseline_stale_error_rate_pct']:.2f}%** (22 errors). Target: $\\le \\mathbf{{{gm['target_stale_error_rate_cap_pct']:.2f}\\%}}$ (at most **{gm['target_max_stale_errors']} errors**).",
-        f"- **Gate G-R Hurdle** (Resident VRAM): Baseline = **{gr['baseline_nvml_process_vram_mb']:.1f} MB** process VRAM $\\le 1,536.0\\text{{ MB}}$ (**+{gr['headroom_mb']:.1f} MB headroom**).",
-        "",
-    ])
+    lines.extend(
+        [
+            "",
+            "- **Truncation Audit**: Zero groups exceeded the 1.0% truncation violation threshold (max truncation was 0.50% in math, within acceptable limits).",
+            "",
+            "---",
+            "",
+            "## 6. Pass Gates Readiness (G-Q, G-M, G-R)",
+            "",
+            f"- **Gate G-Q Hurdle** (800 checkable items): Baseline = **{gq['baseline_accuracy_pct']:.2f}%** (467/800). Target: $\\ge \\mathbf{{{gq['target_accuracy_pct']:.2f}\\%}}$ at $\\le \\mathbf{{{gq['target_energy_cap_j']:.2f}\\text{{ J/correct}}}}$, or match at $\\le \\mathbf{{{gq['alt_efficiency_target']['target_energy_cap_j']:.2f}\\text{{ J/correct}}}}$.",
+            f"- **Gate G-M Hurdle** (100 stale fact items): Baseline = **{gm['baseline_stale_error_rate_pct']:.2f}%** (22 errors). Target: $\\le \\mathbf{{{gm['target_stale_error_rate_cap_pct']:.2f}\\%}}$ (at most **{gm['target_max_stale_errors']} errors**).",
+            f"- **Gate G-R Hurdle** (Resident VRAM): Baseline = **{gr['baseline_nvml_process_vram_mb']:.1f} MB** process VRAM $\\le 1,536.0\\text{{ MB}}$ (**+{gr['headroom_mb']:.1f} MB headroom**).",
+            "",
+        ]
+    )
 
     return "\n".join(lines)
 

@@ -29,17 +29,24 @@ def audit_model(model_tag: str, seed: int = 20260102) -> dict:
         r["new_extracted"] = extract_math_answer(r.get("raw_output", ""))
         tgt = float(r["target"])
         ext = r["new_extracted"]
-        r["new_correct"] = ext is not None and (abs(ext - tgt) <= 1e-4 or (tgt != 0 and abs(ext - tgt) / abs(tgt) <= 1e-4))
+        r["new_correct"] = ext is not None and (
+            abs(ext - tgt) <= 1e-4 or (tgt != 0 and abs(ext - tgt) / abs(tgt) <= 1e-4)
+        )
 
     for r in synthetic_records:
         r["new_extracted"] = extract_math_answer(r.get("raw_output", ""))
         tgt = float(r["target"])
         ext = r["new_extracted"]
-        r["new_correct"] = ext is not None and (abs(ext - tgt) <= 1e-4 or (tgt != 0 and abs(ext - tgt) / abs(tgt) <= 1e-4))
+        r["new_correct"] = ext is not None and (
+            abs(ext - tgt) <= 1e-4 or (tgt != 0 and abs(ext - tgt) / abs(tgt) <= 1e-4)
+        )
 
     gsm8k_acc = sum(1 for r in gsm8k_records if r["new_correct"]) / len(gsm8k_records)
     synth_acc = sum(1 for r in synthetic_records if r["new_correct"]) / len(synthetic_records)
-    combined_acc = (sum(1 for r in gsm8k_records if r["new_correct"]) + sum(1 for r in synthetic_records if r["new_correct"])) / len(records)
+    combined_acc = (
+        sum(1 for r in gsm8k_records if r["new_correct"])
+        + sum(1 for r in synthetic_records if r["new_correct"])
+    ) / len(records)
 
     # 30 random sample
     rng = random.Random(seed)
@@ -67,18 +74,23 @@ def main():
     for m in ["0.5b", "1.5b"]:
         res = audit_model(m)
         print(f"\nModel: {res['model']}")
-        print(f"  GSM8K-only Accuracy : {res['gsm8k_correct']}/{res['gsm8k_count']} ({res['gsm8k_acc_pct']:.2f}%)")
-        print(f"  Synthetic Math Acc  : {res['synth_correct']}/{res['synth_count']} ({res['synth_acc_pct']:.2f}%)")
+        print(
+            f"  GSM8K-only Accuracy : {res['gsm8k_correct']}/{res['gsm8k_count']} ({res['gsm8k_acc_pct']:.2f}%)"
+        )
+        print(
+            f"  Synthetic Math Acc  : {res['synth_correct']}/{res['synth_count']} ({res['synth_acc_pct']:.2f}%)"
+        )
         print(f"  Combined Math Acc   : {res['combined_acc_pct']:.2f}%")
         print("\n30 Random Audited GSM8K Items:")
         for idx, item in enumerate(res["sample"], 1):
             raw = item.get("raw_output", "").strip().replace("\n", " ")
             if len(raw) > 90:
                 raw = raw[:45] + " ... " + raw[-40:]
-            print(f"  {idx:2d}. [{item['item_id']}] Key: {item['target']} | Extracted: {item['new_extracted']} | Match: {item['new_correct']}")
+            print(
+                f"  {idx:2d}. [{item['item_id']}] Key: {item['target']} | Extracted: {item['new_extracted']} | Match: {item['new_correct']}"
+            )
             print(f"      Raw snippet: {raw}")
 
 
 if __name__ == "__main__":
     main()
-

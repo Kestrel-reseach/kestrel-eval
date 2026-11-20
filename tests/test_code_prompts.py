@@ -12,8 +12,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from evaluation.prompts import format_user_prompt
 
 
@@ -31,11 +29,15 @@ def test_code_items_ascii_and_identifiers():
         ep = item.get("metadata", {}).get("entry_point") or item.get("entry_point")
         assert ep, f"[{item_id}] Missing entry_point in metadata"
         assert ep.isidentifier(), f"[{item_id}] Entry point {ep!r} is not a valid Python identifier"
-        assert all(ord(c) < 128 for c in ep), f"[{item_id}] Entry point {ep!r} contains non-ASCII characters"
+        assert all(
+            ord(c) < 128 for c in ep
+        ), f"[{item_id}] Entry point {ep!r} contains non-ASCII characters"
 
         # Check prompt has no non-ASCII
         prompt = item.get("prompt", "")
-        assert all(ord(c) < 128 for c in prompt), f"[{item_id}] Prompt contains non-ASCII characters"
+        assert all(
+            ord(c) < 128 for c in prompt
+        ), f"[{item_id}] Prompt contains non-ASCII characters"
 
 
 def test_code_val_0033_integrity():
@@ -72,4 +74,3 @@ def test_mbpp_and_synthetic_prompt_formatting():
         formatted = format_user_prompt(it)
         ep = it["metadata"]["entry_point"]
         assert f"Define a top-level function named `{ep}`, no class." in formatted
-

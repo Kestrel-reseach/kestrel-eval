@@ -46,7 +46,12 @@ def extract_mcq_answer(text: str) -> str | None:
     lines = [ln.strip() for ln in clean.splitlines() if ln.strip()]
 
     # Guard against broken sentences where line 1 is 'A' and line 2 is lowercase continuation
-    if len(lines) > 1 and lines[0] in ("A", "B", "C", "D", "E") and lines[1] and lines[1][0].islower():
+    if (
+        len(lines) > 1
+        and lines[0] in ("A", "B", "C", "D", "E")
+        and lines[1]
+        and lines[1][0].islower()
+    ):
         return None
 
     # 3. Explicit declarative answer statements (wins over leading-option lines)
