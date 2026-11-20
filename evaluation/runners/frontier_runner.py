@@ -71,22 +71,41 @@ class FrontierConfig:
                 data = yaml.safe_load(f) or {}
         else:
             # Fallback simple parser for bare test environments without pyyaml
+            current_section = None
             with config_path.open(encoding="utf-8") as f:
                 for line in f:
-                    line = line.strip()
-                    if ":" in line and not line.startswith("#"):
-                        k, v = line.split(":", 1)
+                    raw_line = line.rstrip()
+                    stripped = line.strip()
+                    if not stripped or stripped.startswith("#"):
+                        continue
+                    if ":" in stripped:
+                        k, v = stripped.split(":", 1)
                         k = k.strip()
                         v = v.split("#")[0].strip().strip("\"'")
-                        if v.isdigit():
-                            data[k] = int(v)
-                        elif v.replace(".", "", 1).isdigit():
-                            data[k] = float(v)
-                        else:
-                            data[k] = v
+                        indent = len(raw_line) - len(raw_line.lstrip())
 
-        limits = data.get("limits", {})
-        retry = data.get("retry", {})
+                        val: Any
+                        if v == "":
+                            val = {}
+                        elif v.isdigit():
+                            val = int(v)
+                        elif v.replace(".", "", 1).isdigit():
+                            val = float(v)
+                        else:
+                            val = v
+
+                        if indent == 0:
+                            current_section = k if v == "" else None
+                            data[k] = val
+                        elif current_section and isinstance(data.get(current_section), dict):
+                            data[current_section][k] = val
+                        else:
+                            data[k] = val
+
+        raw_limits = data.get("limits")
+        limits = raw_limits if isinstance(raw_limits, dict) else {}
+        raw_retry = data.get("retry")
+        retry = raw_retry if isinstance(raw_retry, dict) else {}
 
         return cls(
             model=data.get("model", "gemini-2.5-pro"),
