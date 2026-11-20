@@ -35,11 +35,22 @@ Step C4 conducted the formal retrieval ablation across all 300 validation Knowle
 
 ## 3. BM25 Retrieval Recall@3 Audit
 
-| Corpus Arm | Documents Indexed | Evaluated Items | Title Recall@3 | Answer Containment Recall@3 |
-| :--- | :---: | :---: | :---: | :---: |
-| **Wikipedia Abstracts** | 5,065 | 200 | 100.0% (200/200) | 99.5% (199/200) |
-| **Fictional Abstracts** | 1,000 | 100 | 100.0% (100/100) | 100.0% (100/100) |
-| **Combined Index** | **6,065** | **300** | **100.0%** (300/300) | **99.67%** (299/300) |
+### Authoritative Corpus Reconciliation (Step 2 Part 1b)
+The Knowledge-QA retrieval index is constructed from exactly two frozen files:
+- **English Wikipedia Abstracts Subset**: `data/wikipedia_abstracts_5k.jsonl`
+  - Record count: **6,000 documents**
+  - SHA-256: `cbded097e866a71bb74ff5d093bb14081bf2d809dabf1be08a2cdc5c78792f00`
+- **Fictional Abstracts Corpus**: `data/fictional_abstracts_corpus.jsonl`
+  - Record count: **65 documents**
+  - SHA-256: `001c64c3899be55b2a5669c14cfcd88cc66614fc6a68bc2846981e01e23c080b`
+- **Total Combined Index**: **6,065 documents** (6,000 + 65).
+*(Note: A typographical error in an earlier draft split 6,065 as 5,065 + 1,000; the physical disk records confirmed above are 6,000 Wikipedia + 65 Fictional = 6,065 total documents).*
+
+| Corpus Arm | File Path | Documents Indexed | Evaluated Items | Title Recall@3 | Answer Containment Recall@3 |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **Wikipedia Abstracts** | `data/wikipedia_abstracts_5k.jsonl` | 6,000 | 200 | 100.0% (200/200) | 99.5% (199/200) |
+| **Fictional Abstracts** | `data/fictional_abstracts_corpus.jsonl` | 65 | 100 | 100.0% (100/100) | 100.0% (100/100) |
+| **Combined Index** | *(Merged)* | **6,065** | **300** | **100.0%** (300/300) | **99.67%** (299/300) |
 
 ---
 

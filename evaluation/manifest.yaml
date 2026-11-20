@@ -21,9 +21,11 @@
 # These decisions are frozen. Do not change a threshold after seeing results.
 
 schema_version: "1"
-manifest_version: "2.1"       # v2.1: Private locked seed, expanded memory probe (150 items, 100 stale facts) per Owner Decision D16; Suite v2.0 superseded
+manifest_version: "2.2"       # v2.2: Revert chosen B-LLM and gate baselines to PENDING_OWNER_CONFIRMATION; record D18-D20 verbatim; candidate evaluation underway per Owner Decisions
 git_commit: UNSET            # filled by run_matrix.py at run time
-created_at: "2026-11-19"
+created_at: "2026-11-20"
+changelog_v2_2: >
+  Reverted B_LLM.chosen and G-Q/G-M/G-R empirical baselines to PENDING_OWNER_CONFIRMATION pending full candidate evaluation under D18-D20.
 frozen: true                 # confirmed by owner decisions D4, D14, D15, D16; non-inferiority margin 3 pp
 
 # ── Reproducibility ────────────────────────────────────────────────────────────
@@ -147,13 +149,13 @@ gates:
     energy_multiplier_cap: 1.0   # P1 energy <= B-LLM energy for the accuracy gate
     energy_savings_cap: 0.50     # P1 energy <= 50 % of B-LLM for the efficiency gate
     status: ACCEPTED
-    b_llm_model: "qwen2.5-1.5b-instruct-q4"
-    baseline_accuracy_pct: 58.38   # 467 / 800 checkable validation items (D18)
-    baseline_ci_95: [54.93, 61.74]
-    target_accuracy_pct: 63.38     # baseline + 5 pp
-    baseline_net_joules_per_correct: 120.40
-    target_efficiency_energy_cap: 60.20 # 50% of B-LLM energy
-    alt_non_inferiority_floor_pct: 55.38 # within 3 pp margin
+    b_llm_model: "PENDING_OWNER_CONFIRMATION"
+    baseline_accuracy_pct: "PENDING_OWNER_CONFIRMATION"   # to be filled post-candidate evaluation under D18
+    baseline_ci_95: "PENDING_OWNER_CONFIRMATION"
+    target_accuracy_pct: "PENDING_OWNER_CONFIRMATION"
+    baseline_net_joules_per_correct: "PENDING_OWNER_CONFIRMATION"
+    target_efficiency_energy_cap: "PENDING_OWNER_CONFIRMATION"
+    alt_non_inferiority_floor_pct: "PENDING_OWNER_CONFIRMATION"
 
   G_F:
     description: >
@@ -175,11 +177,11 @@ gates:
     stale_fact_error_ratio_cap: 0.50 # accepted 2026-11-17
     stale_items_count: 100           # updated per D16 (was 30)
     status: ACCEPTED
-    b_llm_model: "qwen2.5-1.5b-instruct-q4"
-    baseline_stale_errors: 22        # out of 100 stale fact items (D18)
-    baseline_stale_error_rate_pct: 22.00
-    target_max_stale_errors: 11      # at most half of B-LLM
-    target_stale_error_rate_cap_pct: 11.00
+    b_llm_model: "PENDING_OWNER_CONFIRMATION"
+    baseline_stale_errors: "PENDING_OWNER_CONFIRMATION"        # to be filled post-candidate evaluation under D18
+    baseline_stale_error_rate_pct: "PENDING_OWNER_CONFIRMATION"
+    target_max_stale_errors: "PENDING_OWNER_CONFIRMATION"
+    target_stale_error_rate_cap_pct: "PENDING_OWNER_CONFIRMATION"
 
   G_R:
     description: >
@@ -190,13 +192,13 @@ gates:
     ram_cap_gb: 4.0           # accepted 2026-11-17
     latency_percentiles: [50, 95]
     status: ACCEPTED
-    b_llm_model: "qwen2.5-1.5b-instruct-q4"
-    baseline_nvml_process_vram_mb: 1416.0 # at 2048 context (D18)
-    baseline_torch_allocated_mb: 1166.0
+    b_llm_model: "PENDING_OWNER_CONFIRMATION"
+    baseline_nvml_process_vram_mb: "PENDING_OWNER_CONFIRMATION" # at 2048 context (D18)
+    baseline_torch_allocated_mb: "PENDING_OWNER_CONFIRMATION"
     vram_cap_mb: 1536.0
-    headroom_mb: 120.0
-    baseline_latency_p50_ms: 622.9
-    baseline_latency_p95_ms: 12101.2
+    headroom_mb: "PENDING_OWNER_CONFIRMATION"
+    baseline_latency_p50_ms: "PENDING_OWNER_CONFIRMATION"
+    baseline_latency_p95_ms: "PENDING_OWNER_CONFIRMATION"
 
   no_regression:
     description: >
@@ -250,9 +252,13 @@ systems:
     candidates:
       - "Qwen/Qwen2.5-0.5B-Instruct (bitsandbytes 4-bit NF4)"
       - "Qwen/Qwen2.5-1.5B-Instruct (bitsandbytes 4-bit NF4)"
-    candidates_note: "Evaluated on full 1250 validation items. Qwen3.5/Granite 4.0/LFM2 from original draft were unverified after early 2026; confirmed verified Qwen2.5 series under Owner Decision 1."
-    chosen: "qwen2.5-1.5b-instruct-q4"
-    selection_criterion: "accuracy-versus-energy-versus-memory trade-off, by measurement (C5 Pareto selection: +11.52 pp gain over 0.5B, 58.96% acc, 1416 MB VRAM <= 1536 MB budget)"
+      - "meta-llama/Llama-3.2-1B-Instruct (bitsandbytes 4-bit NF4)"
+      - "HuggingFaceTB/SmolLM2-1.7B-Instruct (bitsandbytes 4-bit NF4)"
+      - "ibm-granite/granite-4.0-1b-instruct (bitsandbytes 4-bit NF4)"
+      - "Qwen/Qwen3.5-0.8B-Instruct (bitsandbytes 4-bit NF4, time-boxed exploration per D19)"
+    candidates_note: "Five Option A candidates stand per Owner Decision D19; plus time-boxed exploration of Qwen3.5-0.8B."
+    chosen: "PENDING_OWNER_CONFIRMATION"
+    selection_criterion: "Under Owner Decision D18: most accurate candidate with NVML process VRAM at 2048 context <= 1,536 MB; ties broken by lower net energy per correct on 800-item scope; final only after all candidates are run and owners confirm."
   P1:
     description: "Kestrel-lite prototype from the kestrel repository."
     base_model: "PENDING_REAL_RUN"
