@@ -149,7 +149,7 @@ def generate_baseline_table_md(data: dict[str, Any]) -> str:
         f"- **Control 1 (Determinism)**: 100/100 outputs bit-for-bit identical across independent runs (**{ctrl['determinism_control']['match_rate_pct']:.2f}%**).",
         f"- **Control 2 (Option Shuffling)**: Cyclic permutation of MCQ options produced **{ctrl['shuffled_option_control']['original_accuracy_pct']:.2f}% vs {ctrl['shuffled_option_control']['permuted_accuracy_pct']:.2f}%** ($\\Delta = 0.00\\text{{ pp}}$).",
         f"- **Control 3 (Constant Baselines)**: 'Always A' scored **{ctrl['constant_baselines']['mcq']['always_a']['accuracy_pct']:.2f}%**; most frequent key ('D') scored **{ctrl['constant_baselines']['mcq']['most_frequent_key']['accuracy_pct']:.2f}%**. Both models comfortably beat all constant baselines by $> 12.6\\text{{ pp}}$.",
-        f"- **Control 4 (Uniform Random Chance)**: Random chance is 25.0%. 0.5B scored 40.80% ($Z = +8.16, p < 10^{{-15}}$); 1.5B scored 54.20% ($Z = +15.08, p < 10^{{-30}}$).",
+        "- **Control 4 (Uniform Random Chance)**: Random chance is 25.0%. 0.5B scored 40.80% ($Z = +8.16, p < 10^{-15}$); 1.5B scored 54.20% ($Z = +15.08, p < 10^{-30}$).",
         "",
         "---",
         "",
@@ -167,12 +167,9 @@ def generate_baseline_table_md(data: dict[str, Any]) -> str:
 def generate_step2_baselines_md(data: dict[str, Any]) -> str:
     s05 = data["c2"]["qwen2.5-0.5b-instruct-q4"]
     s15 = data["c2"]["qwen2.5-1.5b-instruct-q4"]
-    h2h = data["c5"]["head_to_head"]
     gq = data["c6"]["gates"]["G_Q"]
     gm = data["c6"]["gates"]["G_M"]
     gr = data["c6"]["gates"]["G_R"]
-    ctrl = data["c3"]["controls"]
-    abl15 = data["c4"]["retrieval_ablation"]["qwen2.5-1.5b-instruct-q4"]
 
     lines = [
         "# Step 2 Baseline Candidate Evaluation & B-LLM Selection Report",
@@ -224,21 +221,21 @@ def generate_step2_baselines_md(data: dict[str, Any]) -> str:
         "",
         "| Group | Arm / Sub-task | $n$ | `Qwen2.5-0.5B` (NF4) | `Qwen2.5-1.5B` (B-LLM) | $\\Delta\\text{Acc} (1.5B - 0.5B)$ |",
         "| :--- | :--- | :---: | :---: | :---: | :---: |",
-        f"| `math` | GSM8K (Public benchmark) | 100 | 28.00% | **59.00%** | +31.00 pp |",
-        f"| `math` | Procedural Word Problems | 100 | 39.00% | **70.00%** | +31.00 pp |",
-        f"| `math` | **Combined Math** | **200** | **33.50%** | **64.50%** | **+31.00 pp** |",
-        f"| `science_mcq` | ARC-Challenge (Public) | **200** | **47.50%** | **62.50%** | **+15.00 pp** |",
-        f"| `knowledge_mcq` | MMLU (10 Academic Subjects) | **300** | **36.33%** | **48.67%** | **+12.33 pp** |",
-        f"| `code` | MBPP (Public benchmark) | 50 | 22.00% | 20.00% | -2.00 pp |",
-        f"| `code` | Synthetic Functions | 50 | 16.00% | 16.00% | 0.00 pp |",
-        f"| `code` | **Combined Code** | **100** | **19.00%** | **18.00%** | **-1.00 pp** |",
-        f"| `knowledge_qa` | Wikipedia Real Abstracts | 200 | 64.50% | 65.00% | +0.50 pp |",
-        f"| `knowledge_qa` | Fictional Store Diagnostic | 100 | 70.00% | 65.00% | -5.00 pp |",
-        f"| `knowledge_qa` | **Combined Knowledge QA** | **300** | **66.33%** | **65.00%** | **-1.33 pp** |",
-        f"| `memory_probe` | Stale Facts ($n_{{\\text{{eff}}}} = 100$) | 100 | 59.00% (41 err) | **78.00% (22 err)** | **+19.00 pp (-19 err)** |",
-        f"| `memory_probe` | Static Facts (Control) | 50 | 90.00% | **92.00%** | +2.00 pp |",
-        f"| `memory_probe` | **Combined Memory Probe** | **150** | **69.33%** | **82.67%** | **+13.33 pp** |",
-        f"| **Overall** | **Full Validation Partition** | **1,250** | **47.44%** | **58.96%** | **+11.52 pp** |",
+        "| `math` | GSM8K (Public benchmark) | 100 | 28.00% | **59.00%** | +31.00 pp |",
+        "| `math` | Procedural Word Problems | 100 | 39.00% | **70.00%** | +31.00 pp |",
+        "| `math` | **Combined Math** | **200** | **33.50%** | **64.50%** | **+31.00 pp** |",
+        "| `science_mcq` | ARC-Challenge (Public) | **200** | **47.50%** | **62.50%** | **+15.00 pp** |",
+        "| `knowledge_mcq` | MMLU (10 Academic Subjects) | **300** | **36.33%** | **48.67%** | **+12.33 pp** |",
+        "| `code` | MBPP (Public benchmark) | 50 | 22.00% | 20.00% | -2.00 pp |",
+        "| `code` | Synthetic Functions | 50 | 16.00% | 16.00% | 0.00 pp |",
+        "| `code` | **Combined Code** | **100** | **19.00%** | **18.00%** | **-1.00 pp** |",
+        "| `knowledge_qa` | Wikipedia Real Abstracts | 200 | 64.50% | 65.00% | +0.50 pp |",
+        "| `knowledge_qa` | Fictional Store Diagnostic | 100 | 70.00% | 65.00% | -5.00 pp |",
+        "| `knowledge_qa` | **Combined Knowledge QA** | **300** | **66.33%** | **65.00%** | **-1.33 pp** |",
+        "| `memory_probe` | Stale Facts ($n_{\\text{eff}} = 100$) | 100 | 59.00% (41 err) | **78.00% (22 err)** | **+19.00 pp (-19 err)** |",
+        "| `memory_probe` | Static Facts (Control) | 50 | 90.00% | **92.00%** | +2.00 pp |",
+        "| `memory_probe` | **Combined Memory Probe** | **150** | **69.33%** | **82.67%** | **+13.33 pp** |",
+        "| **Overall** | **Full Validation Partition** | **1,250** | **47.44%** | **58.96%** | **+11.52 pp** |",
         "",
         "---",
         "",
@@ -285,7 +282,6 @@ def generate_step2_summary_md(data: dict[str, Any]) -> str:
     gq = data["c6"]["gates"]["G_Q"]
     gm = data["c6"]["gates"]["G_M"]
     gr = data["c6"]["gates"]["G_R"]
-    ctrl = data["c3"]["controls"]
     abl15 = data["c4"]["retrieval_ablation"]["qwen2.5-1.5b-instruct-q4"]
 
     lines = [
@@ -310,7 +306,7 @@ def generate_step2_summary_md(data: dict[str, Any]) -> str:
         "2. **Quantization Selection**: Selected **`bitsandbytes` 4-bit NF4** quantization across all models, providing uniform GPU execution, standard PyTorch hidden-state exposure for Member B ($d = 1,536$), and cutting resident VRAM by 51.6% (non-inferiority verified within 1.0 pp).",
         f"3. **B-LLM Selection by Measurement**: Formally selected **`Qwen2.5-1.5B-Instruct` (4-bit NF4)** as **B-LLM** based on Pareto dominance. It achieves **{s15['overall_accuracy_pct']:.2f}% accuracy** (+11.52 pp over 0.5B), provides massive gains in multi-step reasoning (+31.0 pp on math), cuts memory hallucinations in half (22.0% stale error rate vs 41.0%), and consumes **1,416.0 MB process VRAM** (fitting under the 1,536 MB budget with +120 MB headroom).",
         f"4. **Retrieval Baseline & Zero Parametric Contamination**: Verified a **+{abl15['overall']['retrieval_gain_pp']:.2f} percentage point gain** from BM25 retrieval over 6,065 corpus chunks. Confirmed **0.00% parametric memorization** on the fictional entity diagnostic arm, proving clean separation and zero contamination.",
-        f"5. **Rigorous Measurement Controls**: Verified **100% determinism**, invariance to option order shuffling (38% vs 38%), and beat all constant baselines by $> 12.6\\text{{ pp}}$ and random chance by $Z = +15.08$.",
+        "5. **Rigorous Measurement Controls**: Verified **100% determinism**, invariance to option order shuffling (38% vs 38%), and beat all constant baselines by $> 12.6\\text{ pp}$ and random chance by $Z = +15.08$.",
         "6. **Empirical Gate Baselines Established**: Formally recorded baseline values and pass criteria for Gate G-Q, Gate G-M, and Gate G-R in `docs/decisions/gate_baselines.md` and `evaluation/manifest.yaml` (Decision D18).",
         "",
         "---",

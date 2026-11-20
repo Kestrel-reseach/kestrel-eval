@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import random
 import sys
 from pathlib import Path
@@ -33,7 +34,6 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-import math
 from energy.harness import MANDATORY_ENERGY_LABEL  # noqa: E402
 from evaluation.metrics import paired_bootstrap_ci  # noqa: E402
 
@@ -66,7 +66,7 @@ def simulate_gq_bootstrap_power(
     p_base = sum(baseline_correct) / n
     target_p = p_base + (effect_pp / 100.0)
 
-    flips_needed = int(round((target_p - p_base) * n))
+    flips_needed = round((target_p - p_base) * n)
 
     passes = 0
     for sim in range(n_sims):
