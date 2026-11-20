@@ -227,13 +227,11 @@ systems:
   B_LLM:
     description: "Best quantized small model from the shortlist, plain retrieval."
     candidates:
-      - "Qwen3.5-0.8B-Instruct 4-bit (example candidate; unverified after early 2026, confirm before download)"
-      - "Qwen3.5-2B-Instruct 4-bit (example candidate; unverified after early 2026, confirm before download)"
-      - "Granite-4.0-Nano-1.5B 4-bit (example candidate; unverified after early 2026, confirm before download)"
-      - "LFM2 (example candidate; unverified after early 2026, confirm version and size before download)"
-    candidates_note: "Model versions and sizes dated after early 2026 are unverified; confirm before downloading per rules.md."
-    chosen: "PENDING_REAL_RUN"
-    selection_criterion: "accuracy-versus-energy-versus-memory trade-off, by measurement"
+      - "Qwen/Qwen2.5-0.5B-Instruct (bitsandbytes 4-bit NF4)"
+      - "Qwen/Qwen2.5-1.5B-Instruct (bitsandbytes 4-bit NF4)"
+    candidates_note: "Evaluated on full 1250 validation items. Qwen3.5/Granite 4.0/LFM2 from original draft were unverified after early 2026; confirmed verified Qwen2.5 series under Owner Decision 1."
+    chosen: "qwen2.5-1.5b-instruct-q4"
+    selection_criterion: "accuracy-versus-energy-versus-memory trade-off, by measurement (C5 Pareto selection: +11.52 pp gain over 0.5B, 58.96% acc, 1416 MB VRAM <= 1536 MB budget)"
   P1:
     description: "Kestrel-lite prototype from the kestrel repository."
     base_model: "PENDING_REAL_RUN"
