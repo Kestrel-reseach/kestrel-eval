@@ -15,7 +15,7 @@ from evaluation.code_sandbox import run_code_in_sandbox
 
 
 def extract_mcq_answer(text: str) -> str | None:
-    """Extract multiple-choice letter (A, B, C, or D) from model output.
+    """Extract multiple-choice letter (A, B, C, D, or E) from model output.
 
     Must NOT match characters inside ordinary English words (e.g. 'characterized', 'lead').
     Prefers explicit final answer declarations over stray option mentions.
@@ -32,28 +32,28 @@ def extract_mcq_answer(text: str) -> str | None:
     clean = text.strip()
 
     # 1. Exact single letter or single letter in brackets/parentheses
-    if clean.upper() in ("A", "B", "C", "D"):
+    if clean.upper() in ("A", "B", "C", "D", "E"):
         return clean.upper()
-    exact_match = re.fullmatch(r"[\(\[\{]?([A-Da-d])[\)\]\}]?", clean)
+    exact_match = re.fullmatch(r"[\(\[\{]?([A-Ea-e])[\)\]\}]?", clean)
     if exact_match:
         return exact_match.group(1).upper()
 
     # 2. LaTeX boxed: \boxed{A} or \boxed{\text{A}}
-    boxed_match = re.search(r"\\boxed\{\s*(?:\\text\{)?\s*([A-Da-d])\s*\}?", clean)
+    boxed_match = re.search(r"\\boxed\{\s*(?:\\text\{)?\s*([A-Ea-e])\s*\}?", clean)
     if boxed_match:
         return boxed_match.group(1).upper()
 
     lines = [ln.strip() for ln in clean.splitlines() if ln.strip()]
 
     # Guard against broken sentences where line 1 is 'A' and line 2 is lowercase continuation
-    if len(lines) > 1 and lines[0] in ("A", "B", "C", "D") and lines[1] and lines[1][0].islower():
+    if len(lines) > 1 and lines[0] in ("A", "B", "C", "D", "E") and lines[1] and lines[1][0].islower():
         return None
 
     # 3. Explicit declarative answer statements (wins over leading-option lines)
     # Operates strictly single-line (never matching across newlines)
     # Matches: "The correct answer is C)", "correct answer is A", "the answer is B", "Answer: D", "Final Answer: C"
     decl_pattern = re.compile(
-        r"(?i)\b(?:the\s+)?(?:correct\s+)?(?:final\s+)?(?:answer|choice|option)\s*(?:is|are|[:=\*])\s*[\(\[]?\s*([A-D])(?:\)|\]|\.|\s|$)"
+        r"(?i)\b(?:the\s+)?(?:correct\s+)?(?:final\s+)?(?:answer|choice|option)\s*(?:is|are|[:=\*])\s*[\(\[]?\s*([A-E])(?:\)|\]|\.|\s|$)"
     )
     # Search backwards through lines so the concluding answer wins if multiple
     for line in reversed(lines):
@@ -65,7 +65,7 @@ def extract_mcq_answer(text: str) -> str | None:
     # Several option lines without a declarative statement return None (option-list output).
     lead_options = []
     for line in lines:
-        m_lead = re.match(r"^[\(\[]?\s*([A-D])\s*(?:[\)\]\.\:\-]|\s*$)", line)
+        m_lead = re.match(r"^[\(\[]?\s*([A-E])\s*(?:[\)\]\.\:\-]|\s*$)", line)
         if m_lead:
             lead_options.append(m_lead.group(1).upper())
 
@@ -75,18 +75,18 @@ def extract_mcq_answer(text: str) -> str | None:
         return None
 
     # 5. Option / Choice label prefix (e.g. "Option (A)", "Option A is the best answer.")
-    opt_prefix = re.search(r"(?i)\b(?:option|choice)\s*[\(\[]?\s*([A-D])(?:\)|\]|\.|\s|$)", clean)
+    opt_prefix = re.search(r"(?i)\b(?:option|choice)\s*[\(\[]?\s*([A-E])(?:\)|\]|\.|\s|$)", clean)
     if opt_prefix:
         return opt_prefix.group(1).upper()
 
     # 6. Bold option marker: "**A**" or "__B__" (only if single unique marker)
-    bold_matches = re.findall(r"(?:\*\*|__)\s*([A-D])\s*(?:\*\*|__)", clean)
+    bold_matches = re.findall(r"(?:\*\*|__)\s*([A-E])\s*(?:\*\*|__)", clean)
     if len(bold_matches) == 1:
         return bold_matches[0].upper()
 
     # 7. Standalone isolated letter if text is very short (at most 2 lines, <= 6 words, exactly 1 letter)
     # Strictly guards against English indefinite article "A" (e.g. "A car is moving fast", "A dog barked")
-    end_matches = re.findall(r"\b([A-D])\b", clean)
+    end_matches = re.findall(r"\b([A-E])\b", clean)
     if len(lines) <= 2 and len(clean.split()) <= 6 and len(end_matches) == 1:
         letter = end_matches[0].upper()
         if letter == "A" and re.match(
@@ -105,8 +105,8 @@ def extract_math_answer(text: str) -> float | None:
 
     clean = text.strip()
 
-    # 1. LaTeX boxed format: \boxed{123} or \boxed{123.45}
-    boxed = re.findall(r"\\boxed\{\s*(-?[\d,]+(?:\.\d+)?)\s*\}", clean)
+    # 1. LaTeX boxed format: \boxed{123} or \boxed{123.45} or \boxed{$123}
+    boxed = re.findall(r"\\boxed\{\s*\\?\$?\s*(-?[\d,]+(?:\.\d+)?)\s*\}", clean)
     if boxed:
         clean_num = boxed[-1].replace(",", "")
         try:
@@ -114,8 +114,8 @@ def extract_math_answer(text: str) -> float | None:
         except ValueError:
             pass
 
-    # 2. Standard math benchmark format '#### 1234'
-    match_hash = re.findall(r"####\s*(-?[\d,]+(?:\.\d+)?)", clean)
+    # 2. Standard math benchmark format '#### 1234' or '#### $1234'
+    match_hash = re.findall(r"####\s*\\?\$?\s*(-?[\d,]+(?:\.\d+)?)", clean)
     if match_hash:
         clean_num = match_hash[-1].replace(",", "")
         try:
@@ -123,8 +123,11 @@ def extract_math_answer(text: str) -> float | None:
         except ValueError:
             pass
 
-    # 3. Explicit 'Final Answer: 123'
-    explicit = re.findall(r"(?i)(?:final\s+)?answer\s*[:=\*]*\s*\$?\s*(-?[\d,]+(?:\.\d+)?)", clean)
+    # 3. Explicit 'Final Answer: 123' or 'Answer: $123' or 'Final Answer: \(123\)'
+    explicit = re.findall(
+        r"(?i)(?:final\s+)?answer\s*[:=\*]*\s*(?:\\[(\[])?\s*\\?\$?\s*(-?[\d,]+(?:\.\d+)?)",
+        clean,
+    )
     if explicit:
         clean_num = explicit[-1].replace(",", "")
         try:
@@ -132,7 +135,28 @@ def extract_math_answer(text: str) -> float | None:
         except ValueError:
             pass
 
-    # 4. Fallback: extract last valid number
+    # 4. Bold answer marker: **310** or **310 ounces** or **$310**
+    bold = re.findall(r"\*\*\s*\\?\$?\s*(-?[\d,]+(?:\.\d+)?)\s*(?:[a-zA-Z%]+)?\s*\*\*", clean)
+    if bold:
+        clean_num = bold[-1].replace(",", "")
+        try:
+            return float(clean_num)
+        except ValueError:
+            pass
+
+    # 5. Declarative conclusion: 'Therefore, ... needs 310 ounces'
+    concl = re.findall(
+        r"(?i)(?:therefore|thus|hence|in total|she has|he has|they have|there are|there were)\s+[^.\n]*?\\?\$?\s*(-?[\d,]+(?:\.\d+)?)\s*(?:[a-zA-Z%]+)?[.]",
+        clean,
+    )
+    if concl:
+        clean_num = concl[-1].replace(",", "")
+        try:
+            return float(clean_num)
+        except ValueError:
+            pass
+
+    # 6. Fallback: extract last valid number
     cleaned_text = re.sub(r"[\$,]", "", clean)
     matches = re.findall(r"[-+]?\d*\.?\d+", cleaned_text)
     if not matches:
@@ -254,9 +278,12 @@ def extract_answer_span(raw_text: str) -> str:
         r"(?i)^.*?\b(?:was|were)?\s*born\s+(?:on|in)\s+",
         r"(?i)^.*?\b(?:was|were)?\s*died\s+(?:on|in)\s+",
         r"(?i)^.*?\bdied\s+(?:on|in)\s+",
-        r"(?i)^.*?\b(?:the\s+)?profession\s+(?:or\s+occupation\s+)?of\s+.*?\s+was\s+",
-        r"(?i)^.*?\b(?:the\s+)?reported\s+population\s+(?:of\s+.*?\s+)?was\s+",
+        r"(?i)^.*?\b(?:the\s+)?(?:profession|occupation|job|role)\s+(?:or\s+occupation\s+)?of\s+.*?\s+was\s+(?:a\s+|an\s+|the\s+)?",
+        r"(?i)^.*?\b(?:was|is|became|worked\s+as)\s+(?:an?|the)\s+",
+        r"(?i)^.*?\b(?:the\s+)?(?:reported\s+)?population\s+(?:of\s+.*?\s+)?(?:was|is)\s+",
         r"(?i)^.*?\b(?:the\s+)?award\s+(?:or\s+prize\s+)?.*?\s+received\s+was\s+",
+        r"(?i)^.*?\b(?:was|were|is|has\s+been)\s*awarded\s+(?:the\s+|a\s+|an\s+)?",
+        r"(?i)^.*?\b(?:won|received|earned)\s+(?:the\s+|a\s+|an\s+)?",
         r"(?i)^.*?\b(?:was|were)?\s*founded\s+in\s+",
         r"(?i)^.*?\b(?:was|were)?\s*released\s+in\s+",
     ]
@@ -266,7 +293,9 @@ def extract_answer_span(raw_text: str) -> str:
             clean = clean[m.end() :].strip()
             break
 
-    clean = re.sub(r",\s*aged\s+\d+.*$", "", clean, flags=re.IGNORECASE)
+    clean = re.sub(r",?\s*aged\s+\d+.*$", "", clean, flags=re.IGNORECASE)
+    clean = re.sub(r"(?i)\s+(?:residents|people|inhabitants|citizens|individuals)\b.*$", "", clean)
+    clean = re.sub(r"(?i)\s+in\s+(?:the\s+year\s+)?\d{4}\b.*$", "", clean)
     clean = re.sub(r"[.,;:'\"!?]+$", "", clean).strip()
     return clean
 
@@ -280,9 +309,14 @@ def score_frozen_exact_match(pred: str, target: str, aliases: list[str] | None =
     if norm_pred == norm_target:
         return True
 
+    # Hyphen normalization: 'singer-songwriter' vs 'singer songwriter'
+    if norm_pred.replace("-", " ") == norm_target.replace("-", " "):
+        return True
+
     if aliases:
         for al in aliases:
-            if norm_pred == normalize_number_str(normalize_text_basic(al)):
+            norm_al = normalize_number_str(normalize_text_basic(al))
+            if norm_pred == norm_al or norm_pred.replace("-", " ") == norm_al.replace("-", " "):
                 return True
 
     dt_target, gran_target = parse_date_strict(target)

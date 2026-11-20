@@ -692,6 +692,52 @@ GOLDEN_CASES: list[tuple[dict[str, any], str, bool]] = [
         "invalid syntax error def",
         False,
     ),
+    # ── Dev-02: Step 2 Part 2 Golden Cases (MCQ E, QA copula/awards/units, Math bold) ──
+    (
+        {"group": "science_mcq", "target": "E", "answer_check": "answer_key"},
+        "E",
+        True,
+    ),
+    (
+        {"group": "science_mcq", "target": "E", "answer_check": "answer_key"},
+        "The correct answer is E) heart",
+        True,
+    ),
+    (
+        {"group": "knowledge_qa", "target": "Hugo Award", "answer_check": "key_match"},
+        "A Fire Upon the Deep won the Hugo Award in 1993.",
+        True,
+    ),
+    (
+        {"group": "knowledge_qa", "target": "Israel Prize", "answer_check": "key_match"},
+        "He was awarded the Israel Prize.",
+        True,
+    ),
+    (
+        {"group": "knowledge_qa", "target": "mathematician", "answer_check": "key_match"},
+        "The occupation of Gerolamo Cardano was a mathematician.",
+        True,
+    ),
+    (
+        {"group": "knowledge_qa", "target": "536917", "answer_check": "key_match"},
+        "The population was 536,917 residents.",
+        True,
+    ),
+    (
+        {"group": "knowledge_qa", "target": "29,616", "answer_check": "key_match"},
+        "The reported population of Hatfield, Hertfordshire was 29,616 in 2001.",
+        True,
+    ),
+    (
+        {"group": "knowledge_qa", "target": "singer-songwriter", "answer_check": "key_match"},
+        "She is a singer songwriter.",
+        True,
+    ),
+    (
+        {"group": "math", "target": "310", "answer_check": "exact_numeric"},
+        "Therefore, Mason needs **310 ounces** of sugar to make 1 batch of fudge.",
+        True,
+    ),
 ]
 
 

@@ -88,6 +88,38 @@ def format_user_prompt(
         # No retrieval: pure standalone question
         return f"Question: {question}\nAnswer:"
 
+    if group == "code":
+        base_prompt = item.get("prompt", "").strip()
+        metadata = item.get("metadata", {})
+        arm = item.get("arm") or metadata.get("arm", "")
+        entry_point = metadata.get("entry_point") or item.get("entry_point", "")
+        test_code = metadata.get("test_code") or item.get("test_code", "")
+
+        # Standard MBPP style: show function name and first test assertion
+        if arm == "public" or "mbpp" in str(item.get("template_family", "")).lower():
+            first_assertion = ""
+            if test_code:
+                for line in test_code.splitlines():
+                    clean_l = line.strip()
+                    if clean_l.startswith("assert "):
+                        first_assertion = clean_l
+                        break
+            parts = [base_prompt]
+            if first_assertion:
+                parts.append(f"Your code should satisfy the following test:\n```python\n{first_assertion}\n```")
+            if entry_point:
+                parts.append(f"Write a function named `{entry_point}`.")
+            return "\n\n".join(parts)
+
+        # Synthetic style: explicit top-level function instruction
+        elif arm == "synthetic":
+            parts = [base_prompt]
+            if entry_point:
+                parts.append(f"Define a top-level function named `{entry_point}`, no class.")
+            return "\n\n".join(parts)
+
+        return base_prompt
+
     return item.get("prompt", "")
 
 

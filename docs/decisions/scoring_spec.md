@@ -1,9 +1,9 @@
 # Project Kestrel — Canonical Evaluation Scoring Specification
 
 **Document:** `docs/decisions/scoring_spec.md`  
-**Date:** 2026-11-19  
-**Status:** FROZEN & AUTHORITATIVE (Decisions D14, D15, D16 / Suite v2.1)  
-**Frozen at Git Commit:** `778e7b1` (Branch `suite-v2`, updated with Deviation Dev-01 for Suite v2.1)  
+**Date:** 2026-11-20  
+**Status:** FROZEN & AUTHORITATIVE (Decisions D14, D15, D16, D18, D19 / Suite v2.2)  
+**Frozen at Git Commit:** `PENDING_TAG_v2.2` (Branch `suite-v2`, updated with Deviations Dev-01 and Dev-02)  
 **Tuning Provenance:** Developed and calibrated strictly against Suite v1 mock/pilot outputs prior to Suite v2 generation. Zero tuning was performed on Suite v2 validation or locked partitions.  
 **Authors:** Member A & Member B  
 
@@ -107,6 +107,27 @@ Scoring integrity is continuously verified against a 115-case golden test suite 
   - Re-scored against all 120 saved R2 verification outputs (`reports/step2/r2_verification_samples.jsonl`): **0 score deltas (0 changes)**.
   - Re-scored against all 300 Phase B calibration pilot records (`reports/step2/phase_b_pilot_records.jsonl`): **0 score deltas (0 changes)**.
   - Verified across 115 golden test cases in `tests/test_scoring_golden.py` (100% pass).
+
+### Deviation Dev-02: Knowledge QA Pattern Matching, MCQ Option E, & Math Bold Extractor
+- **Version**: 2.2.0
+- **Date**: 2026-11-20
+- **Scope**: `evaluation/extractors.py` (`extract_mcq_answer`, `extract_math_answer`, `extract_answer_span`, `score_frozen_exact_match`) and `evaluation/prompts.py`
+- **Reason**: 
+  1. **Knowledge QA Conversational Copula & Award Wrappers**: Extends `extract_answer_span` to isolate target entities when model outputs conversational phrases:
+     - `"X received the Y"` / `"X won the Y"` / `"X was awarded Y"` $\to$ isolates award entity `Y`.
+     - `"The occupation of X was Y"` / `"X was an? Y"` $\to$ isolates occupation entity `Y`.
+     - Strips trailing numbers/units: `"536,917 residents"` $\to$ `"536,917"`, and trailing census years `"29,616 in 2001"` $\to$ `"29,616"`.
+     - Hyphen normalization in `score_frozen_exact_match` ensures `"singer-songwriter"` matches `"singer songwriter"`.
+  2. **Proposed Aliases Listed for Owners (NOT added silently)**:
+     - As per project rules, synonyms/aliases are NOT silently added to code. The following proposed aliases are documented for co-owner approval:
+       - `doctor` / `physician`
+       - `singer-songwriter` / `singer`
+  3. **MCQ Option E Support**: Extends `extract_mcq_answer` to support `[A-Ea-e]` keys across all declarative, boxed, and leading line patterns, correctly handling ARC questions with 5 options (e.g., `sci_val_0085`).
+  4. **Math Bold & Suffix Extractor**: Extends `extract_math_answer` to support bold answer formatting (e.g. `**310 ounces**` $\to$ `310.0`), explicit currency prefixes (`$`), and declarative conclusion sentences before fallback.
+  5. **Code Prompts**: Formats MBPP items to show function name and first test assertion (standard MBPP style), and synthetic items to include `"Define a top-level function named X, no class"`.
+- **Effect on Scores**:
+  - Re-scored against all saved validation outputs of both models (detailed in Step 2 Correction Report).
+  - Verified across 124 golden test cases in `tests/test_scoring_golden.py` (100% pass).
 
 ---
 
