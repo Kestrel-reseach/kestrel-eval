@@ -3,7 +3,7 @@
 **Document:** `docs/decisions/scoring_spec.md`  
 **Date:** 2026-11-19  
 **Status:** FROZEN & AUTHORITATIVE (Decisions D14, D15, D16 / Suite v2.1)  
-**Frozen at Git Commit:** `778e7b1` (Branch `suite-v2`, updated for Suite v2.1)  
+**Frozen at Git Commit:** `778e7b1` (Branch `suite-v2`, updated with Deviation Dev-01 for Suite v2.1)  
 **Tuning Provenance:** Developed and calibrated strictly against Suite v1 mock/pilot outputs prior to Suite v2 generation. Zero tuning was performed on Suite v2 validation or locked partitions.  
 **Authors:** Member A & Member B  
 
@@ -83,11 +83,49 @@ All metrics defined herein are frozen prior to any baseline candidate evaluation
 
 ## 3. Golden Test Suite Verification
 
-Scoring integrity is continuously verified against a 101-case golden test suite (`tests/test_scoring_golden.py`). This fixture covers:
+Scoring integrity is continuously verified against a 115-case golden test suite (`tests/test_scoring_golden.py`). This fixture covers:
 - Multiple-choice edge cases (declarative overrides, uncompleted lists, single option lines, boxed keys).
+- Adversarial MCQ cases (guarding against English indefinite article "A", split lines, option lists, lowercase letters, two letters, empty output).
 - Strict numeric equivalence with tolerances and LaTeX formatting.
 - Subprocess sandbox isolation for code unit test execution.
 - Strict date parsing, numeric unit normalization, multi-occupation list rejection, and alias handling for knowledge QA.
 - Stale fact rejection and chronological log retrieval for memory probe.
+
+---
+
+## 4. Deviation Log (Post-Freeze Refinements)
+
+### Deviation Dev-01: MCQ Extractor Refinement & Article Guard
+- **Version**: 2.1.1
+- **Date**: 2026-11-20
+- **Scope**: `evaluation/extractors.py:extract_mcq_answer`
+- **Reason**: 
+  1. Permits valid model outputs emitting a single bare letter on line 1 followed by newline explanations (e.g., `"A\n\nExplanation: ..."`).
+  2. Extends bracket recognition to include square brackets (e.g. `"[D]"`) and explicit option prefixes (e.g. `"Option (A)"`, `"Option A is the best answer."`).
+  3. **Adversarial Article Guard**: Strictly guards against false positives from the English indefinite article "A" (e.g. `"A car is moving fast"` $\to$ `None`, `"A dog barked"` $\to$ `None`) and multi-line lowercase broken continuations (`"A\ncar is moving fast"` $\to$ `None`).
+- **Effect on Scores**:
+  - Re-scored against all 120 saved R2 verification outputs (`reports/step2/r2_verification_samples.jsonl`): **0 score deltas (0 changes)**.
+  - Re-scored against all 300 Phase B calibration pilot records (`reports/step2/phase_b_pilot_records.jsonl`): **0 score deltas (0 changes)**.
+  - Verified across 115 golden test cases in `tests/test_scoring_golden.py` (100% pass).
+
+---
+
+## 5. Peak VRAM Metric Definition (Gate G-R Standard)
+
+For Gate G-R compliance, **Peak VRAM** is formally defined as:
+- **Canonical Metric**: **NVML process-level used memory** (resident GPU VRAM allocated to the model inference process, queried via `pynvml.nvmlDeviceGetComputeRunningProcesses` or equivalent NVML process query).
+- **Measurement Condition**: Measured after warm-up at a **2048-token context length**.
+- **Side-by-Side Reporting**: PyTorch memory stats (`torch.cuda.memory_allocated()` and `torch.cuda.memory_reserved()`) must be reported alongside NVML process memory for diagnostic transparency, capturing framework caching and CUDA runtime overhead.
+- **Enforcement**: Defined in `evaluation/metrics.py:get_vram_breakdown_mb()` and applied uniformly across all candidate and frontier evaluation scripts.
+
+---
+
+## 6. Run Protocol & Truncation Safeguard Rule
+
+- **Truncation Safeguard**: Token generation caps calibrated during pilot runs (Phase B) are preliminary estimates. During the full 1,250-item baseline evaluation run (Phase C), truncation rates must be re-checked for every group.
+- **Violation Threshold**: If any task group exhibits a truncation rate of **$\ge 1.0\%$**, the run is flagged as a truncation violation.
+- **Action Required**: The generation cap for that group must be increased and the group re-evaluated.
+- **Integrity Rule**: **Items are never dropped or omitted** from the suite to satisfy truncation criteria.
+
 
 

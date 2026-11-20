@@ -161,8 +161,8 @@ def main() -> None:
                 "pad_token_id": tokenizer.eos_token_id,
             }
             if g in ("science_mcq", "knowledge_mcq"):
-                gen_kwargs["stop_strings"] = ["\n"]
-                gen_kwargs["tokenizer"] = tokenizer
+                # Use CUDA-evaluated eos_token_id list [eos, \n, \n\n] instead of CPU-GPU syncing stop_strings
+                gen_kwargs["eos_token_id"] = [tokenizer.eos_token_id, 198, 271]
 
             t0 = time.perf_counter()
             with torch.no_grad():
@@ -260,14 +260,20 @@ def main() -> None:
             f.write(json.dumps(r) + "\n")
     print(f"\nWrote {len(pilot_records)} records to {records_file}")
 
+    from evaluation.metrics import get_vram_breakdown_mb
+
+    vram_breakdown = get_vram_breakdown_mb()
+
     summary_file = out_dir / "phase_b_pilot_summary.json"
     with open(summary_file, "w", encoding="utf-8") as f:
         json.dump(
             {
                 "model": model_id,
                 "seed": seed,
+                "label": "calibration pilot, not a result",
                 "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                 "total_items": len(pilot_records),
+                "vram_breakdown": vram_breakdown,
                 "allocated_vram_mb": round(vram_mb, 1),
                 "peak_vram_mb": round(torch.cuda.max_memory_allocated() / (1024 * 1024), 1),
                 "group_summaries": group_summaries,
@@ -291,10 +297,12 @@ def generate_markdown_report(
     vram_mb: float,
 ) -> None:
     lines = [
-        "# Phase B: 50-Item Calibration Pilot Report",
+        "# Phase B: 50-Item Calibration Pilot Report (calibration pilot, not a result)",
+        "",
+        "> **Notice**: This report documents a calibration pilot for prompt verification and token cap estimation, NOT a result or baseline claim.",
         "",
         f"- **Model**: `{model_id}` (FP16, cuda:0)",
-        f"- **VRAM Footprint**: Allocated {vram_mb:.1f} MB (well within 1.5 GB budget)",
+        f"- **VRAM Footprint**: Allocated {vram_mb:.1f} MB (within 1.5 GB budget)",
         "- **Evaluation Split**: `suite/validation/` (Suite v2.1)",
         "- **Sample**: 50 items per group (300 items total, seed 20260102)",
         "- **Acceptance Gates**:",

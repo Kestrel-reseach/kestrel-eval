@@ -80,6 +80,57 @@ GOLDEN_CASES: list[tuple[dict[str, any], str, bool]] = [
         "None of the above choices are correct.",
         False,
     ),
+    # ── Adversarial MCQ Cases (English articles, broken lines, option lists) ──
+    (
+        {"group": "science_mcq", "target": "A", "answer_check": "answer_key"},
+        "A car is moving fast",
+        False,
+    ),
+    (
+        {"group": "science_mcq", "target": "A", "answer_check": "answer_key"},
+        "A dog barked loudly",
+        False,
+    ),
+    (
+        {"group": "science_mcq", "target": "A", "answer_check": "answer_key"},
+        "A\ncar is moving fast",
+        False,
+    ),
+    ({"group": "science_mcq", "target": "A", "answer_check": "answer_key"}, "I", False),
+    (
+        {"group": "science_mcq", "target": "A", "answer_check": "answer_key"},
+        "I choose to not answer",
+        False,
+    ),
+    ({"group": "science_mcq", "target": "A", "answer_check": "answer_key"}, "A B", False),
+    ({"group": "science_mcq", "target": "A", "answer_check": "answer_key"}, "A\nB", False),
+    (
+        {"group": "science_mcq", "target": "B", "answer_check": "answer_key"},
+        "A) Alpha\nB) Beta",
+        False,
+    ),
+    (
+        {"group": "science_mcq", "target": "B", "answer_check": "answer_key"},
+        "A) Alpha\nB) Beta\nAnswer: B",
+        True,
+    ),
+    ({"group": "science_mcq", "target": "A", "answer_check": "answer_key"}, "lowercase a", False),
+    (
+        {"group": "science_mcq", "target": "A", "answer_check": "answer_key"},
+        "an apple fell from tree",
+        False,
+    ),
+    (
+        {"group": "knowledge_mcq", "target": "B", "answer_check": "answer_key"},
+        "B\n\nExplanation: Because photosynthesis occurs.",
+        True,
+    ),
+    (
+        {"group": "knowledge_mcq", "target": "C", "answer_check": "answer_key"},
+        "C) Metamorphic rock",
+        True,
+    ),
+    ({"group": "knowledge_mcq", "target": "A", "answer_check": "answer_key"}, "   \n   \n", False),
     # ── 21-40: Math (Exact Numeric) ──────────────────────────────────────────
     ({"group": "math", "target": "42", "answer_check": "exact_numeric"}, "42", True),
     ({"group": "math", "target": "42", "answer_check": "exact_numeric"}, "42.0", True),
@@ -645,7 +696,7 @@ GOLDEN_CASES: list[tuple[dict[str, any], str, bool]] = [
 
 
 def test_golden_cases_count():
-    assert len(GOLDEN_CASES) == 100, f"Expected exactly 100 golden cases, got {len(GOLDEN_CASES)}"
+    assert len(GOLDEN_CASES) >= 100, f"Expected at least 100 golden cases, got {len(GOLDEN_CASES)}"
 
 
 @pytest.mark.parametrize(

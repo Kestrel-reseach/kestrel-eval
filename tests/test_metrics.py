@@ -307,3 +307,18 @@ class TestClusterBootstrap:
         assert stats["icc"] == pytest.approx(1.0, abs=0.01)
         assert stats["deff"] == pytest.approx(4.0, abs=0.05)
         assert stats["n_eff"] == pytest.approx(10.0, abs=0.5)
+
+
+class TestVRAMMetrics:
+    def test_vram_breakdown_structure(self):
+        from evaluation.metrics import get_vram_breakdown_mb
+
+        breakdown = get_vram_breakdown_mb()
+        assert "nvml_process_used_mb" in breakdown
+        assert "torch_allocated_mb" in breakdown
+        assert "torch_reserved_mb" in breakdown
+        # On GPU runner, values should be non-negative numbers if present
+        if breakdown["torch_allocated_mb"] is not None:
+            assert breakdown["torch_allocated_mb"] >= 0.0
+        if breakdown["nvml_process_used_mb"] is not None:
+            assert breakdown["nvml_process_used_mb"] >= 0.0

@@ -35,6 +35,8 @@ __all__ = [
     "format_half_widths_table",
     "gate_q_accuracy",
     "gate_q_energy",
+    "get_nvml_process_memory_mb",
+    "get_vram_breakdown_mb",
     "joules_per_correct_task",
     "load_records",
     "paired_bootstrap_ci",
@@ -334,6 +336,57 @@ def peak_vram_gb(records: list[Record]) -> float | None:
     if not vrams:
         return None
     return max(vrams) / 1024.0
+
+
+def get_nvml_process_memory_mb(pid: int | None = None) -> float | None:
+    """Query NVML for process-level GPU memory usage (resident VRAM) in MB.
+
+    Canonical metric for Gate G-R: process-level resident VRAM measured after warm-up
+    at 2048-token context length.
+    """
+    import os
+
+    if pid is None:
+        pid = os.getpid()
+    try:
+        import pynvml
+
+        pynvml.nvmlInit()
+        try:
+            device_count = pynvml.nvmlDeviceGetCount()
+            for i in range(device_count):
+                handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+                procs = pynvml.nvmlDeviceGetComputeRunningProcesses(handle)
+                for proc in procs:
+                    if proc.pid == pid:
+                        return proc.usedGpuMemory / (1024.0 * 1024.0)
+        finally:
+            pynvml.nvmlShutdown()
+    except Exception:  # noqa: BLE001
+        pass
+    return None
+
+
+def get_vram_breakdown_mb() -> dict[str, float | None]:
+    """Return canonical VRAM breakdown: NVML process memory, torch allocated, torch reserved."""
+    import os
+
+    nvml_mb = get_nvml_process_memory_mb(os.getpid())
+    torch_alloc = None
+    torch_res = None
+    try:
+        import torch
+
+        if torch.cuda.is_available():
+            torch_alloc = torch.cuda.memory_allocated() / (1024.0 * 1024.0)
+            torch_res = torch.cuda.memory_reserved() / (1024.0 * 1024.0)
+    except ImportError:
+        pass
+    return {
+        "nvml_process_used_mb": nvml_mb,
+        "torch_allocated_mb": torch_alloc,
+        "torch_reserved_mb": torch_res,
+    }
 
 
 # ── Gate helpers ──────────────────────────────────────────────────────────────

@@ -45,11 +45,15 @@ def extract_mcq_answer(text: str) -> str | None:
 
     lines = [ln.strip() for ln in clean.splitlines() if ln.strip()]
 
+    # Guard against broken sentences where line 1 is 'A' and line 2 is lowercase continuation
+    if len(lines) > 1 and lines[0] in ("A", "B", "C", "D") and lines[1] and lines[1][0].islower():
+        return None
+
     # 3. Explicit declarative answer statements (wins over leading-option lines)
     # Operates strictly single-line (never matching across newlines)
     # Matches: "The correct answer is C)", "correct answer is A", "the answer is B", "Answer: D", "Final Answer: C"
     decl_pattern = re.compile(
-        r"(?i)\b(?:the\s+)?(?:correct\s+)?(?:final\s+)?(?:answer|choice|option)\s*(?:is|are|[:=\*])\s*[\(\[]?\s*([A-D])(?:\)|\.|\s|$)"
+        r"(?i)\b(?:the\s+)?(?:correct\s+)?(?:final\s+)?(?:answer|choice|option)\s*(?:is|are|[:=\*])\s*[\(\[]?\s*([A-D])(?:\)|\]|\.|\s|$)"
     )
     # Search backwards through lines so the concluding answer wins if multiple
     for line in reversed(lines):
@@ -61,7 +65,7 @@ def extract_mcq_answer(text: str) -> str | None:
     # Several option lines without a declarative statement return None (option-list output).
     lead_options = []
     for line in lines:
-        m_lead = re.match(r"^[\(\[]?\s*([A-D])\s*(?:[\)\.\:\-]|\s*$)", line)
+        m_lead = re.match(r"^[\(\[]?\s*([A-D])\s*(?:[\)\]\.\:\-]|\s*$)", line)
         if m_lead:
             lead_options.append(m_lead.group(1).upper())
 
@@ -70,15 +74,26 @@ def extract_mcq_answer(text: str) -> str | None:
     elif len(lead_options) > 1:
         return None
 
-    # 5. Bold option marker: "**A**" or "__B__" (only if single unique marker)
+    # 5. Option / Choice label prefix (e.g. "Option (A)", "Option A is the best answer.")
+    opt_prefix = re.search(r"(?i)\b(?:option|choice)\s*[\(\[]?\s*([A-D])(?:\)|\]|\.|\s|$)", clean)
+    if opt_prefix:
+        return opt_prefix.group(1).upper()
+
+    # 6. Bold option marker: "**A**" or "__B__" (only if single unique marker)
     bold_matches = re.findall(r"(?:\*\*|__)\s*([A-D])\s*(?:\*\*|__)", clean)
     if len(bold_matches) == 1:
         return bold_matches[0].upper()
 
-    # 6. Standalone isolated letter if text is very short (at most 2 lines, <= 6 words, exactly 1 letter)
+    # 7. Standalone isolated letter if text is very short (at most 2 lines, <= 6 words, exactly 1 letter)
+    # Strictly guards against English indefinite article "A" (e.g. "A car is moving fast", "A dog barked")
     end_matches = re.findall(r"\b([A-D])\b", clean)
     if len(lines) <= 2 and len(clean.split()) <= 6 and len(end_matches) == 1:
-        return end_matches[0].upper()
+        letter = end_matches[0].upper()
+        if letter == "A" and re.match(
+            r"^A\s+(?!is\b|are\b|was\b|would\b|could\b|should\b)[a-z]", clean
+        ):
+            return None
+        return letter
 
     return None
 
