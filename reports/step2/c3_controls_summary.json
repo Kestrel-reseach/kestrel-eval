@@ -1,0 +1,109 @@
+{
+  "suite_manifest_root_hash": "15be5befee80bde2c624d06cd2b8826475e13bb3f45298be1ced584a884e6fa5",
+  "energy_label": "Relative energy only; GPU NVML scope; same machine and session; not comparable across machines.",
+  "frontier_reference": "F = gemini-2.5-pro free tier, not run yet",
+  "controls": {
+    "determinism_control": {
+      "n_items": 100,
+      "identical_matches": 100,
+      "match_rate_pct": 100.0,
+      "is_deterministic": true
+    },
+    "shuffled_option_control": {
+      "n_items": 100,
+      "original_correct": 38,
+      "original_accuracy_pct": 38.0,
+      "permuted_correct": 38,
+      "permuted_accuracy_pct": 38.0,
+      "accuracy_delta_pp": 0.0,
+      "positional_bias_count": 27,
+      "positional_bias_rate_pct": 27.0
+    },
+    "constant_baselines": {
+      "mcq": {
+        "n_total": 500,
+        "key_distribution": {
+          "A": 112,
+          "D": 141,
+          "C": 119,
+          "B": 127,
+          "E": 1
+        },
+        "always_a": {
+          "correct": 112,
+          "accuracy_pct": 22.4,
+          "ci_95": [
+            18.75,
+            26.05
+          ],
+          "by_group": {
+            "science_mcq": {
+              "correct": 43,
+              "n": 200,
+              "accuracy_pct": 21.5
+            },
+            "knowledge_mcq": {
+              "correct": 69,
+              "n": 300,
+              "accuracy_pct": 23.0
+            }
+          }
+        },
+        "most_frequent_key": {
+          "key": "D",
+          "correct": 141,
+          "accuracy_pct": 28.2,
+          "ci_95": [
+            24.26,
+            32.14
+          ]
+        }
+      },
+      "open_ended_degenerates": {
+        "math_constant_zero": {
+          "n": 200,
+          "correct": 0,
+          "accuracy_pct": 0.0
+        },
+        "code_empty_pass": {
+          "n": 100,
+          "correct": 0,
+          "accuracy_pct": 0.0
+        },
+        "qa_constant_unknown": {
+          "n": 300,
+          "correct": 0,
+          "accuracy_pct": 0.0
+        },
+        "memory_constant_unknown": {
+          "n": 150,
+          "correct": 0,
+          "accuracy_pct": 0.0
+        }
+      }
+    },
+    "random_baseline": {
+      "p_chance": 0.25,
+      "n_items": 500,
+      "standard_error": 0.0194,
+      "chance_ci_95": [
+        21.2,
+        28.8
+      ],
+      "candidate_tests": {
+        "qwen2.5-0.5b-instruct-q4": {
+          "accuracy_pct": 40.8,
+          "z_score": 8.16,
+          "p_value_approx": "3.38e-16",
+          "statistically_above_chance": true
+        },
+        "qwen2.5-1.5b-instruct-q4": {
+          "accuracy_pct": 54.2,
+          "z_score": 15.08,
+          "p_value_approx": "2.23e-51",
+          "statistically_above_chance": true
+        }
+      }
+    }
+  }
+}

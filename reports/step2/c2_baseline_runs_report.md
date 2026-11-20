@@ -187,3 +187,4 @@ Per the frozen scoring spec (Section 6), all task groups must maintain a truncat
    - `reports/step2/c2_run_summary.json`
 4. Runner script:
    - `scripts/run_c2_baselines.py`
+
