@@ -72,3 +72,4 @@ def test_mbpp_and_synthetic_prompt_formatting():
         formatted = format_user_prompt(it)
         ep = it["metadata"]["entry_point"]
         assert f"Define a top-level function named `{ep}`, no class." in formatted
+

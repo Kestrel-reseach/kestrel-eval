@@ -1,72 +1,68 @@
-# Project Kestrel Prototype 1 — Step C5 B-LLM Selection & Pareto Frontier Report
+# Project Kestrel Prototype 1 — Step C5 B-LLM Selection Proposal & Pareto Analysis
 
-**Date**: 2026-11-20
-**Phase**: Phase C — Step C5 (R7 Candidate Selection & Pareto Frontier)
-**Branch**: `suite-v2`
-**Suite Manifest Root Hash**: `15be5befee80bde2c624d06cd2b8826475e13bb3f45298be1ced584a884e6fa5`
-**Energy Label**: *"Relative energy only; GPU NVML scope; same machine and session; not comparable across machines."*
-**Frontier Reference Status**: *"F = gemini-2.5-pro free tier, not run yet"*
-
----
-
-## 1. Executive Summary & Selection Decision
-
-Based on full measurement across all 1,250 validation items under the frozen scoring specification, **`Qwen2.5-1.5B-Instruct` (4-bit NF4)** is officially selected as **B-LLM** for Project Kestrel Prototype 1.
-
-### Key Decision Drivers:
-1. **Decisive Quality Hurdle**: `Qwen2.5-1.5B` achieves **58.96% accuracy** vs. **47.44%** for `Qwen2.5-0.5B` (**+11.52 pp**, 95% paired bootstrap CI: **[+8.40, +14.56] pp**, $p < 0.0001$).
-2. **Real Multi-Step Reasoning Capacity**: On GSM8K math word problems, `Qwen2.5-1.5B` achieves **64.50%** vs **33.50%** for `0.5B` (**+31.00 pp**).
-3. **Memory Integrity (Gate G-M)**: `Qwen2.5-1.5B` cuts the stale-fact error rate nearly in half from **41.00%** (0.5B) down to **22.00%** (**-19.00 pp** reduction in hallucinations).
-4. **Resident VRAM Compliance (Gate G-R)**: At a 2048-token context, `Qwen2.5-1.5B` consumes **1,416.0 MB** NVML process VRAM (and 1,166.0 MB PyTorch allocated), **strictly within the 1,536.0 MB (1.5 GB) assistant GPU budget**.
-5. **Energy-Quality Trade-Off**: `1.5B` consumes **120.40 Net Joules per correct task** (vs 68.80 J for 0.5B). This +75.0% energy investment delivers +24.3% more correct tasks, eliminating severe capability bottlenecks.
+**Date**: 2026-11-20  
+**Phase**: Phase C — Step C5 (R7 Candidate Selection & Pareto Frontier)  
+**Status**: **PROPOSAL (PENDING CO-OWNER CONFIRMATION PER DECISION D18)**  
+**Branch**: `suite-v2`  
+**Suite Manifest Root Hash**: `15be5befee80bde2c624d06cd2b8826475e13bb3f45298be1ced584a884e6fa5`  
+**Mandatory Energy Label**: *"Relative energy only; GPU NVML scope; same machine and session; not comparable across machines."*  
+**Frontier Reference Status**: *"F = gemini-2.5-pro free tier, not run yet"*  
 
 ---
 
-## 2. Pareto Frontier Analysis
+## 1. Candidate Scope & Release Provenance
 
-Both candidate models define non-dominated points on the Pareto frontier:
+Per Owner Decision **D18** and **D19**, candidate evaluation encompasses the five Option A shortlist candidates plus time-boxed exploration of Qwen3.5:
 
-| Metric | `Qwen2.5-0.5B-Instruct` (NF4) | `Qwen2.5-1.5B-Instruct` (NF4) | Trade-Off Analysis |
-| :--- | :---: | :---: | :--- |
-| **Overall Accuracy** | 47.44% [44.67, 50.21] | **58.96%** [56.23, 61.69] | 1.5B dominates on quality (+11.52 pp) |
-| **Math Accuracy** | 33.50% [26.96, 40.04] | **64.50%** [57.87, 71.13] | 1.5B dominates on reasoning (+31.00 pp) |
-| **Science MCQ** | 47.50% [40.58, 54.42] | **62.50%** [55.79, 69.21] | 1.5B dominates on science (+15.00 pp) |
-| **Knowledge MCQ** | 36.33% [30.89, 41.78] | **48.67%** [43.01, 54.32] | 1.5B dominates on MMLU (+12.33 pp) |
-| **Code Generation** | 19.00% [11.31, 26.69] | 18.00% [10.47, 25.53] | Parity within 95% CI (-1.00 pp) |
-| **Knowledge QA (BM25)** | 66.33% [60.99, 71.68] | 65.00% [59.60, 70.40] | Parity within 95% CI (-1.33 pp) |
-| **Memory Probe** | 69.33% [61.95, 76.71] | **82.67%** [76.61, 88.72] | 1.5B dominates on history (+13.33 pp) |
-| **Stale Fact Error Rate** | 41.00% (41 errors) | **22.00%** (22 errors) | 1.5B dominates on G-M (-19.00 pp) |
-| **NVML Process VRAM** | **632.0 MB** | **1416.0 MB** | 0.5B is lighter; both fit <= 1.5 GB budget |
-| **PyTorch Allocated VRAM** | **460.2 MB** | **1166.0 MB** | 0.5B is lighter |
-| **Net Joules / Correct Task** | **68.80 J** | 120.40 J | 0.5B dominates on energy efficiency |
-| **Latency p50** | **212.6 ms** | 622.9 ms | 0.5B has lower latency |
-| **Throughput (ms / token)** | **34.48 ms/tok** | 45.14 ms/tok | 0.5B is 1.31x faster per token |
+| Candidate Model | Creator / Org | Release Date | License | HF Gating / Hub Status | Evaluation Status |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| `Qwen/Qwen2.5-0.5B-Instruct` | Alibaba Group | Sept 2024 | Apache 2.0 | Ungated | **Evaluated (1,250 items)** |
+| `Qwen/Qwen2.5-1.5B-Instruct` | Alibaba Group | Sept 2024 | Apache 2.0 | Ungated | **Evaluated (1,250 items)** |
+| `meta-llama/Llama-3.2-1B-Instruct` | Meta AI | Sept 2024 | Llama 3.2 Community | **Gated (`manual`)** | **BLOCKED: HF_TOKEN unset** |
+| `HuggingFaceTB/SmolLM2-1.7B-Instruct` | Hugging Face | Oct 2024 | Apache 2.0 | Ungated | Shortlisted under D19 |
+| `ibm-granite/granite-4.0-1b` | IBM Research | Oct 2024 | Apache 2.0 | Ungated | Shortlisted under D19 |
+| `Qwen/Qwen3.5-0.8B` | Alibaba Group | March 2026 | Apache 2.0 | Ungated | Time-boxed exploration (D19) |
+
+*Audit Notice*: `meta-llama/Llama-3.2-1B-Instruct` returned `401 Client Error: You are trying to access a gated repo.` when queried without an active `HF_TOKEN`. Per prompt protocol, execution pauses for co-owner token provision.
 
 ---
 
-## 3. Justification for B-LLM Selection
+## 2. Pareto Frontier Analysis (800-Item Checkable Scope)
 
-1. **Rejection of 0.5B as B-LLM**:
-   - Although `Qwen2.5-0.5B` achieves high energy efficiency (68.80 J/correct), its 33.5% math accuracy and 41% stale-fact error rate are severely impaired. Selecting 0.5B would compromise the baseline against which Prototype 1 (P1) is judged, allowing trivial modifications to claim artificial victories.
-2. **Selection of 1.5B as B-LLM**:
-   - `Qwen2.5-1.5B-Instruct` provides a realistic, robust, and competitive assistant baseline.
-   - It operates well within the 1.5 GB resident GPU budget (1,416 MB process used, 1,166 MB allocated).
-   - Its hidden dimension ($d = 1,536$) provides Member B with rich internal representations for training the verifier head in Step 3.
+Trade-off analysis evaluated under Deviation Dev-02 scoring and post-code prompt fix:
+
+| Metric | `Qwen2.5-0.5B-Instruct` (NF4) | `Qwen2.5-1.5B-Instruct` (NF4) | Delta (1.5B vs 0.5B) | Trade-Off Direction |
+| :--- | :---: | :---: | :---: | :--- |
+| **Checkable Scope Accuracy (800 items)** | **37.00%** (296/800) | **56.88%** (455/800) | **+19.88 pp** | 1.5B dominates on checkable accuracy |
+| - 95% Wilson CI | [33.72, 40.40]% | [53.42, 60.27]% | Non-overlapping | Decisive separation |
+| **Math Accuracy (200 items)** | 33.50% [27.32, 40.30] | **68.00%** [61.25, 74.07] | **+34.50 pp** | 1.5B dominates on reasoning |
+| - GSM8K Public (100 items) | 24.00% | 63.00% | +39.00 pp | Zero-shot NF4 math capacity |
+| - Synthetic Math (100 items) | 43.00% | 73.00% | +30.00 pp | Procedural math capacity |
+| **Science MCQ (200 items)** | 47.50% [40.69, 54.40] | **62.50%** [55.61, 68.91] | **+15.00 pp** | 1.5B dominates on ARC |
+| **Knowledge MCQ (300 items)** | 36.33% [31.10, 41.92] | **48.67%** [43.06, 54.30] | **+12.34 pp** | 1.5B dominates on MMLU |
+| **Code Generation (100 items)** | 25.00% [17.55, 34.30] | **48.00%** [38.46, 57.68] | **+23.00 pp** | 1.5B dominates with fixed MBPP prompts |
+| - MBPP Public (50 items) | 22.00% (11/50) | 36.00% (18/50) | +14.00 pp | Unit test pass rate |
+| - Synthetic Code (50 items) | 28.00% (14/50) | 60.00% (30/50) | +32.00 pp | Procedural function pass rate |
+| **Code Truncation Rate** | 1.00% (1/100) | **0.00%** (0/100) | -1.00 pp | 1.5B satisfies <1% rule |
+| **Knowledge QA Diagnostic (300 items)**| 67.00% [61.49, 72.08] | **68.33%** [62.87, 73.34] | +1.33 pp | Parity within 95% CI |
+| - Fictional Entity Arm (100 items) | 71.00% | 72.00% | +1.00 pp | BM25 retrieval without memorization |
+| **Memory Probe (150 items)** | 69.33% [61.55, 76.15] | **82.67%** [75.81, 87.89] | **+13.34 pp** | 1.5B dominates on history |
+| **Stale Fact Error Rate (100 items)** | 41.00% [31.87, 50.80] | **22.00%** [15.00, 31.07] | **-19.00 pp** | 1.5B halves stale hallucinations |
+| - Cluster 95% CI (100 clusters) | [32.0, 50.0]% | [14.0, 30.0]% | Non-overlapping | Robust entity-cluster CI |
+| **NVML Process VRAM (2048 ctx)** | **632.0 MB** | **1,416.0 MB** | +784.0 MB | Both fit under 1,536 MB budget |
+| **PyTorch Allocated VRAM** | **460.2 MB** | **1,166.0 MB** | +705.8 MB | 120.0 MB headroom for 1.5B |
+| **Checkable Net Joules / Correct Task** | **157.54 J** | **171.55 J** | +14.01 J | 0.5B has slightly lower net energy |
+| **Total Wall Time (Checkable Scope)** | **2,180.5 s** (36.3 min) | 2,711.6 s (45.2 min) | +531.1 s | 0.5B runs faster |
 
 ---
 
-## 4. Frozen Gate Baselines Established for B-LLM (`Qwen2.5-1.5B`)
+## 3. Proposal Recommendation for Co-Owners
 
-With `Qwen2.5-1.5B-Instruct` selected as B-LLM, the empirical gate hurdles are formally established:
-
-- **Gate G-Q Hurdle** (800 items: math, science, code, knowledge QA):
-  $$\text{Baseline Accuracy} = \mathbf{58.38\%} \quad (467 / 800)$$
-  *Target*: P1 must achieve $\ge 63.38\%$ (+5.0 pp, paired bootstrap excludes 0) at $\le 120.40\text{ J/correct}$, or match $58.38\%$ at $\le 60.20\text{ J/correct}$ (50% energy savings).
-
-- **Gate G-M Hurdle** (100 stale fact items in memory probe):
-  $$\text{Baseline Stale Error Rate} = \mathbf{22.00\%} \quad (22 / 100)$$
-  *Target*: P1 stale fact error rate must be at most half of baseline: $\le \mathbf{11.00\%}$ (at most 11 errors).
-
-- **Gate G-R Hurdle** (Hardware VRAM):
-  $$\text{Baseline Process VRAM} = \mathbf{1,416.0\text{ MB}} \le 1,536.0\text{ MB}$$
-  *Target*: P1 assistant resident VRAM must remain $\le 1.5\text{ GB}$ (1,536 MB).
+Member A submits the following recommendation for Co-Owner confirmation under **Decision D18**:
+1. **Tentative Selection**: `Qwen2.5-1.5B-Instruct` (NF4) is proposed as B-LLM.
+2. **Rationale**:
+   - Accuracy on the checkable scope is **56.88%** (455/800) vs **37.00%** (296/800) for 0.5B (**+19.88 pp** gain).
+   - Multi-step word problem reasoning is more than double (68% vs 33.5%).
+   - Stale fact error rate is halved from 41% down to 22%.
+   - Process VRAM (1,416.0 MB) fits within the 1,536 MB Gate G-R budget with 120.0 MB headroom.
+3. **Formal Confirmation**: Per D18, this selection becomes final only after all candidates have been evaluated and the co-owners explicitly confirm. Manifest v2.2 maintains `PENDING_OWNER_CONFIRMATION` pending owner action.

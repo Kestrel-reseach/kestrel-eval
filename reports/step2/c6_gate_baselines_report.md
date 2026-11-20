@@ -2,9 +2,10 @@
 
 **Date**: 2026-11-20  
 **Phase**: Phase C — Step C6 (R8 Gate Baseline Computations)  
+**Status**: **PROVISIONAL / PENDING OWNER CONFIRMATION (DECISION D18)**  
 **Branch**: `suite-v2`  
 **Suite Manifest Root Hash**: `15be5befee80bde2c624d06cd2b8826475e13bb3f45298be1ced584a884e6fa5`  
-**Selected B-LLM**: `Qwen/Qwen2.5-1.5B-Instruct` (bitsandbytes 4-bit NF4)  
+**Leading Candidate**: `Qwen/Qwen2.5-1.5B-Instruct` (bitsandbytes 4-bit NF4)  
 **Hardware Tier**: NVIDIA GeForce RTX 3050 Laptop GPU (4 GB)  
 **Energy Label**: *"Relative energy only; GPU NVML scope; same machine and session; not comparable across machines."*  
 **Frontier Reference Status**: *"F = gemini-2.5-pro free tier, not run yet"*  
@@ -13,11 +14,11 @@
 
 ## 1. Executive Summary
 
-This report establishes and freezes the official empirical baseline values and target pass criteria for all Prototype 1 evaluation gates. All metrics are computed strictly against the selected **B-LLM (`Qwen2.5-1.5B-Instruct` 4-bit NF4)** evaluated on the full **1,250 items** of the Suite v2.1 validation partition.
-
-Per the frozen project rules:
-> **"Never change a metric or threshold after seeing results."**  
-All gate thresholds, formulas, and target values established herein are immutable for Prototype 1 evaluation.
+This report establishes the empirical baseline values and target pass criteria for all Prototype 1 evaluation gates under **Owner Decision D18–D20**, following the Step 2 Correction Pass:
+1. **Code Prompt Re-run**: MBPP prompts supplied with function entry point and first test assertion; synthetic code prompted with explicit top-level function directive. Code accuracy for 1.5B jumped from 18.0% to **48.0%** (MBPP: 36.0%, Synthetic: 60.0%).
+2. **Scoring Spec v2.2 (Dev-02)**: Re-scored with conversational copula/award patterns, number unit/year stripping, hyphen normalization, MCQ option E support, and bold math extraction.
+3. **Checkable Scope (800 items)**: Accurately scoped to the 4 checkable task groups (`math`, `science_mcq`, `knowledge_mcq`, `code`), resolving the earlier discrepancy.
+4. **Candidate Status**: `meta-llama/Llama-3.2-1B-Instruct` is gated on Hugging Face and blocked without `HF_TOKEN`. All baseline values in `manifest.yaml` remain `PENDING_OWNER_CONFIRMATION` until co-owner review.
 
 ---
 
@@ -30,27 +31,28 @@ The checkable subset comprises 4 task groups with objective, automated verifiers
 
 | Group | Sub-arm Breakdown | $n$ | Baseline Correct | Baseline Accuracy | 95% Wilson CI |
 | :--- | :--- | :---: | :---: | :---: | :---: |
-| **`math`** | GSM8K (100) + Procedural (100) | 200 | 129 | 64.50% | [57.65, 70.80]% |
+| **`math`** | GSM8K (100) + Procedural (100) | 200 | 136 | 68.00% | [61.25, 74.07]% |
 | **`science_mcq`** | ARC-Challenge (200) | 200 | 125 | 62.50% | [55.61, 68.91]% |
-| **`code`** | MBPP (50) + Synthetic (50) | 100 | 18 | 18.00% | [11.70, 26.67]% |
-| **`knowledge_qa`** | Wikipedia Real (200) + Fictional (100) | 300 | 195 | 65.00% | [59.44, 70.18]% |
-| **Pooled Checkable** | **All 4 Groups Combined** | **800** | **467** | **58.38%** | **[54.93, 61.74]%** |
+| **`knowledge_mcq`** | MMLU 10 Subjects (300) | 300 | 146 | 48.67% | [43.06, 54.30]% |
+| **`code`** | MBPP (50) + Synthetic (50) | 100 | 48 | 48.00% | [38.46, 57.68]% |
+| **Checkable Total** | **All 4 Checkable Groups** | **800** | **455** | **56.88%** | **[53.42, 60.27]%** |
 
-- **Baseline Checkable Accuracy**: **58.38%** (467 / 800)
-- **Baseline Net Energy per Correct Task**: **120.40 J**
+- **Baseline Checkable Accuracy**: **56.88%** (455 / 800 items)
+- **Baseline Net Energy per Correct Task**: **171.55 J / correct task** (Checkable net energy = 78,055.7 J across 455 correct items)
+- **Baseline Gross Energy per Correct Task**: **208.17 J / correct task** (Checkable gross energy = 94,717.0 J)
 
 ### B. Target Criteria for Prototype 1 (P1)
 To pass Gate G-Q, Prototype 1 must satisfy either Clause 1 or Clause 2:
 
 1. **Clause 1 (Accuracy Superiority)**:
-   - Checkable Accuracy: $\text{Acc}(P1) \ge \mathbf{63.38\%}$ (+5.00 pp over B-LLM).
+   - Checkable Accuracy: $\text{Acc}(P1) \ge \mathbf{61.88\%}$ (+5.00 pp over baseline).
    - Statistical Significance: Paired bootstrap 95% confidence interval on $\Delta = \text{Acc}(P1) - \text{Acc}(B)$ strictly excludes zero ($\Delta_{\text{lo}} > 0$).
-   - Energy Constraint: Net energy $\le \mathbf{120.40\text{ J / correct}}$ ($E(P1) \le E(B)$).
+   - Energy Constraint: Net energy $\le \mathbf{171.55\text{ J / correct}}$ ($E(P1) \le E(B)$).
    - *Statistical Power*: At $n = 800$, empirical power to detect a +5.00 pp shift with paired bootstrap is **100.0%**.
 
 2. **Clause 2 (Efficiency Dominance / Non-Inferiority Parity)**:
-   - Accuracy Non-Inferiority: $\text{Acc}(P1) \ge \mathbf{55.38\%}$ (within 3.00 pp margin confirmed in D4).
-   - Energy Constraint: Net energy $\le \mathbf{60.20\text{ J / correct}}$ (<= 50.0% of B-LLM energy per correct task).
+   - Accuracy Non-Inferiority: $\text{Acc}(P1) \ge \mathbf{53.88\%}$ (within 3.00 pp margin confirmed in D4).
+   - Energy Constraint: Net energy $\le \mathbf{85.78\text{ J / correct}}$ ($\le 50.0\%$ of B-LLM energy per correct task).
 
 ---
 
@@ -59,21 +61,23 @@ To pass Gate G-Q, Prototype 1 must satisfy either Clause 1 or Clause 2:
 Gate G-M evaluates memory retrieval integrity and guards against stale fact hallucination across personal history logs.
 
 ### A. Baseline Measurement (150 Memory Probe Validation Items)
-Per Owner Decision D16, the memory probe contains $n_{\text{eff}} = 100$ stale fact items:
+Per Owner Decision D16, the memory probe contains $n = 100$ stale fact items across 36 personal entity clusters:
 
-| Arm | Item Description | $n$ | Baseline Correct | Accuracy | Errors | Error Rate | 95% Wilson CI |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Stale Facts** | Outdated historical values present | 100 | 78 | 78.00% | **22** | **22.00%** | [68.93, 85.00]% |
-| **Static Facts** | Ground truth constant across logs | 50 | 46 | 92.00% | 4 | 8.00% | [2.70, 19.30]% |
-| **Total Memory** | Combined Personal History Probe | 150 | 124 | 82.67% | 26 | 17.33% | [76.61, 88.72]% |
+| Arm | Item Description | $n$ | Baseline Correct | Accuracy | Errors | Error Rate | 95% Wilson CI | 95% Cluster CI |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Stale Facts** | Deprecated historical values present | 100 | 78 | 78.00% | **22** | **22.00%** | [15.00, 31.07]% | **[14.0, 30.0]%** |
+| **Static Facts** | Constant facts across history logs | 50 | 46 | 92.00% | 4 | 8.00% | [2.70, 19.30]% | [2.0, 18.0]% |
+| **Total Memory** | Combined Personal History Probe | 150 | 124 | 82.67% | 26 | 17.33% | [75.81, 87.89]% | [75.0, 88.0]% |
 
 - **Baseline Stale-Fact Errors**: **22 errors** out of 100 items (**22.00%** stale error rate).
 - **Baseline Overall Memory Accuracy**: **82.67%** (124 / 150).
 
 ### B. Target Criteria for Prototype 1 (P1)
-1. **Stale Fact Error Rate**: P1 must cut stale fact errors at least in half relative to B-LLM:
-   $$\text{Stale Errors}(P1) \le \mathbf{11\text{ errors}} \quad (\text{Stale Error Rate} \le \mathbf{11.00\%})$$ 
-   *Statistical Power*: At $n_{\text{eff}} = 100$, one-sided McNemar test power for cutting errors from 22 to 11 is **94.0%**.
+1. **Stale Fact Error Rate**:
+   $$\text{Stale Errors}(P1) \le \mathbf{11\text{ errors}} \quad (\text{Stale Error Rate} \le \mathbf{11.00\%})$$
+   > [!IMPORTANT]
+   > **PROVISIONAL STATUS**: Per Decision D16, Gate G-M is defined against **plain external memory**, which is constructed and evaluated in Step 6. The $\le 11.00\%$ target is **PROVISIONAL** relative to the Step 6 plain memory baseline.
+   - *Statistical Power*: At $n = 100$ ($n_{\text{eff}} \approx 40$–$57$ accounting for cluster ICC 0.51), paired testing will be reported with cluster-adjusted bootstrap.
 2. **Frontier Reference Bound**:
    - Without history: $\text{Acc}(P1) \ge \text{Acc}(F_{\text{no\_history}})$
    - With full history: $\text{Acc}(P1) \ge \text{Acc}(F_{\text{full\_history}}) - 5.00\text{ pp}$
@@ -87,37 +91,39 @@ Gate G-R enforces strict execution within local edge assistant hardware constrai
 ### A. Empirical Baseline & Headroom
 - **Target Hardware Tier**: NVIDIA GeForce RTX 3050 Laptop GPU (4 GB).
 - **Context Length**: 2048 tokens.
-- **Assistant VRAM Cap**: $\le \mathbf{1536.0\text{ MB}}$ (1.5 GB resident GPU memory).
+- **Assistant VRAM Cap**: $\le \mathbf{1,536.0\text{ MB}}$ (1.5 GB resident GPU memory).
 
 | Resource Metric | B-LLM Baseline | Gate G-R Budget Cap | Margin / Headroom | Status |
 | :--- | :---: | :---: | :---: | :---: |
-| **NVML Process VRAM** | **1416.0 MB** | 1536.0 MB | **+120.0 MB** (7.8% buffer) | **COMPLIANT** |
-| **PyTorch Allocated VRAM** | 1166.0 MB | — | — | Diagnostic only |
-| **Net Joules / Correct Task** | 120.40 J | $\le 120.40\text{ J}$ (for G-Q acc) | — | Relative NVML Scope |
+| **NVML Process VRAM** | **1,416.0 MB** | 1,536.0 MB | **+120.0 MB** (7.8% buffer) | **COMPLIANT** |
+| **PyTorch Allocated VRAM** | 1,166.0 MB | — | — | Diagnostic only |
+| **Checkable Net Joules / Correct** | 171.55 J | $\le 171.55\text{ J}$ (for G-Q acc) | — | Relative NVML Scope |
 | **Inference Latency (p50)** | 622.9 ms | — | — | Reported per G-R |
-| **Inference Latency (p95)** | 12101.2 ms | — | — | Reported per G-R |
+| **Inference Latency (p95)** | 12,101.2 ms | — | — | Reported per G-R |
 | **Per-Token Latency** | 45.14 ms/tok | — | — | Reported per G-R |
+
+### B. Resolution of C1 Latency Contradiction (Token-Level vs Median End-to-End)
+In Step C1 sanity benchmarks, 4-bit NF4 exhibited a lower median latency (`221.4 ms` vs `386.7 ms`) but a higher per-token latency (`35.81 ms/tok` vs `22.30 ms/tok`) compared to FP16.
+- **Root Cause**:
+  1. **Token Generation Throughput**: NF4 weights require on-the-fly dequantization during GEMM matrix multiplication, adding computation overhead per token generated (35.81 vs 22.30 ms/token).
+  2. **Median (p50) End-to-End Latency**: The suite includes short multiple-choice items (science_mcq and knowledge_mcq) which terminate after 1–2 tokens via `eos_token_id`. For these items, memory bandwidth savings from 50% smaller weights speed up prompt pre-fill loading, yielding lower median end-to-end latency.
+  3. **Long Generation (p95)**: On extended math and code generations, the dequantization penalty accumulates, resulting in higher p95 latency (`10,879.6 ms` for NF4 vs `6,561.4 ms` for FP16).
 
 ---
 
 ## 5. Gate G-F: Frontier Reference Gap-Closing Metric
 
-Gate G-F provides an external benchmark of Prototype 1's progress toward frontier capabilities.
-
-### A. Formal Metric Definition
-$$\mathcal{C} = \frac{\text{Acc}(P1) - \text{Acc}(B\text{-LLM})}{\text{Acc}(F) - \text{Acc}(B\text{-LLM})} \times 100\%$$
-
-- **Evaluation Scope**: Checkable groups (800 items).
-- **Strong Result Definition**: If $\text{Acc}(F) - \text{Acc}(B\text{-LLM}) \ge 5.00\text{ pp}$, achieving $\mathcal{C} \ge \mathbf{25.00\%}$ is formally designated as a strong result.
-- **Reference Model**: gemini-2.5-pro (free tier reference).
-- **Execution Status**: *"F = gemini-2.5-pro free tier, not run yet"*. Execution is deferred to post-suite freeze at Step 10 under one-time-use exposure constraints (Decision D12).
+- **Formula**: $\mathcal{C} = \frac{\text{Acc}(P1) - \text{Acc}(B\text{-LLM})}{\text{Acc}(F) - \text{Acc}(B\text{-LLM})} \times 100\%$
+- **Scope**: Checkable groups (800 items).
+- **Strong Result Threshold**: $\ge 25.00\%$.
+- **Frontier Execution Status**: *"F = gemini-2.5-pro free tier, not run yet"*. External calls deferred until explicit owner instruction. Zero external calls made during this pass.
 
 ---
 
 ## 6. No-Regression Gate
 
 - **Margin**: 3.00 percentage points (confirmed by Owner Decision D4).
-- **Rule**: When adding any component to Prototype 1 (e.g., verifier head, memory cache, tool execution), accuracy on previously evaluated groups must not decrease by more than 3.00 pp relative to the immediate prior step.
+- **Rule**: Accuracy on previously evaluated groups must not drop by more than 3.00 pp across pipeline stages. Report bootstrap confidence intervals.
 
 ---
 
