@@ -1,0 +1,227 @@
+{
+  "candidate_id": "qwen2.5-1.5b-instruct-q4",
+  "model_name": "Qwen/Qwen2.5-1.5B-Instruct",
+  "quantization": "bitsandbytes 4-bit NF4",
+  "suite_manifest_root_hash": "15be5befee80bde2c624d06cd2b8826475e13bb3f45298be1ced584a884e6fa5",
+  "frontier_reference": "F = gemini-2.5-pro free tier, not run yet",
+  "energy_label": "Relative energy only; GPU NVML scope; same machine and session; not comparable across machines.",
+  "n_items": 1250,
+  "total_correct": 737,
+  "overall_accuracy_pct": 58.96,
+  "overall_ci_95": [
+    56.23,
+    61.69
+  ],
+  "overall_half_width_pct": 2.73,
+  "truncation_violation": false,
+  "total_wall_time_s": 3082.72,
+  "total_tokens_generated": 67920,
+  "overall_ms_per_token": 45.14,
+  "overall_latency_p50_ms": 622.9,
+  "overall_latency_p95_ms": 12101.2,
+  "vram_breakdown_mb": {
+    "nvml_process_used_mb": 1416.0,
+    "torch_allocated_mb": 1166.03369140625,
+    "torch_reserved_mb": 1312.0
+  },
+  "energy": {
+    "status": "measured_nvml",
+    "gross_joules": 107674.69,
+    "idle_baseline_power_w": 6.1444,
+    "idle_joules_subtracted": 18941.45,
+    "net_joules": 88733.24,
+    "gross_joules_per_correct": 146.1,
+    "net_joules_per_correct": 120.4,
+    "average_power_watts": 34.93
+  },
+  "groups": {
+    "math": {
+      "n": 200,
+      "correct": 129,
+      "accuracy_pct": 64.5,
+      "ci_95": [
+        57.87,
+        71.13
+      ],
+      "half_width_pct": 6.63,
+      "truncation_count": 0,
+      "truncation_rate_pct": 0.0,
+      "total_tokens": 51695,
+      "ms_per_token": 43.55,
+      "tokens_p50": 242,
+      "tokens_p95": 408,
+      "tokens_max": 538,
+      "latency_p50_ms": 10369.2,
+      "latency_p95_ms": 18119.4
+    },
+    "science_mcq": {
+      "n": 200,
+      "correct": 125,
+      "accuracy_pct": 62.5,
+      "ci_95": [
+        55.79,
+        69.21
+      ],
+      "half_width_pct": 6.71,
+      "truncation_count": 0,
+      "truncation_rate_pct": 0.0,
+      "total_tokens": 409,
+      "ms_per_token": 61.19,
+      "tokens_p50": 2,
+      "tokens_p95": 2,
+      "tokens_max": 9,
+      "latency_p50_ms": 117.8,
+      "latency_p95_ms": 147.2
+    },
+    "knowledge_mcq": {
+      "n": 300,
+      "correct": 146,
+      "accuracy_pct": 48.67,
+      "ci_95": [
+        43.01,
+        54.32
+      ],
+      "half_width_pct": 5.66,
+      "truncation_count": 1,
+      "truncation_rate_pct": 0.33,
+      "total_tokens": 674,
+      "ms_per_token": 67.1,
+      "tokens_p50": 2,
+      "tokens_p95": 2,
+      "tokens_max": 32,
+      "latency_p50_ms": 135.3,
+      "latency_p95_ms": 253.4
+    },
+    "code": {
+      "n": 100,
+      "correct": 18,
+      "accuracy_pct": 18.0,
+      "ci_95": [
+        10.47,
+        25.53
+      ],
+      "half_width_pct": 7.53,
+      "truncation_count": 0,
+      "truncation_rate_pct": 0.0,
+      "total_tokens": 8366,
+      "ms_per_token": 44.51,
+      "tokens_p50": 60,
+      "tokens_p95": 190,
+      "tokens_max": 227,
+      "latency_p50_ms": 2684.3,
+      "latency_p95_ms": 8320.8
+    },
+    "knowledge_qa": {
+      "n": 300,
+      "correct": 195,
+      "accuracy_pct": 65.0,
+      "ci_95": [
+        59.6,
+        70.4
+      ],
+      "half_width_pct": 5.4,
+      "truncation_count": 0,
+      "truncation_rate_pct": 0.0,
+      "total_tokens": 4772,
+      "ms_per_token": 57.67,
+      "tokens_p50": 16,
+      "tokens_p95": 27,
+      "tokens_max": 95,
+      "latency_p50_ms": 905.3,
+      "latency_p95_ms": 1472.9
+    },
+    "memory_probe": {
+      "n": 150,
+      "correct": 124,
+      "accuracy_pct": 82.67,
+      "ci_95": [
+        76.61,
+        88.72
+      ],
+      "half_width_pct": 6.06,
+      "truncation_count": 0,
+      "truncation_rate_pct": 0.0,
+      "total_tokens": 2004,
+      "ms_per_token": 48.34,
+      "tokens_p50": 13,
+      "tokens_p95": 22,
+      "tokens_max": 44,
+      "latency_p50_ms": 619.3,
+      "latency_p95_ms": 1035.5
+    }
+  },
+  "arms": {
+    "public": {
+      "n": 650,
+      "correct": 335,
+      "accuracy_pct": 51.54,
+      "ci_95": [
+        47.7,
+        55.38
+      ],
+      "half_width_pct": 3.84
+    },
+    "synthetic": {
+      "n": 300,
+      "correct": 207,
+      "accuracy_pct": 69.0,
+      "ci_95": [
+        63.77,
+        74.23
+      ],
+      "half_width_pct": 5.23
+    },
+    "real_wikipedia": {
+      "n": 200,
+      "correct": 130,
+      "accuracy_pct": 65.0,
+      "ci_95": [
+        58.39,
+        71.61
+      ],
+      "half_width_pct": 6.61
+    },
+    "fictional_entity": {
+      "n": 100,
+      "correct": 65,
+      "accuracy_pct": 65.0,
+      "ci_95": [
+        55.65,
+        74.35
+      ],
+      "half_width_pct": 9.35
+    }
+  },
+  "cluster_statistics": {
+    "fictional_qa": {
+      "mean_pct": 65.0,
+      "ci_95": [
+        60.0,
+        70.0
+      ],
+      "icc_analysis": {
+        "icc": 0.0,
+        "m_mean": 4.0,
+        "deff": 1.0,
+        "n_total": 100,
+        "k_clusters": 25,
+        "n_eff": 100.0
+      }
+    },
+    "memory_probe": {
+      "mean_pct": 82.67,
+      "ci_95": [
+        71.24,
+        92.57
+      ],
+      "icc_analysis": {
+        "icc": 0.5116,
+        "m_mean": 4.17,
+        "deff": 2.62,
+        "n_total": 150,
+        "k_clusters": 36,
+        "n_eff": 57.2
+      }
+    }
+  }
+}
