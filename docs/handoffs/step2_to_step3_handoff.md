@@ -98,15 +98,15 @@ Member A has evaluated `Qwen2.5-1.5B-Instruct` across all 1,250 validation items
 `reports/step2/run_qwen2.5-1.5b-instruct-q4_validation.jsonl`
 
 ### Gate G-Q Hurdle for Member B (Step 3 & Step 7):
-- **Evaluation Scope**: 800 checkable validation items (`math`, `science_mcq`, `code`, `knowledge_qa`).
-- **B-LLM Baseline Accuracy**: **58.38%** (467 / 800 correct, 95% Wilson CI: [54.93, 61.74]%).
-- **B-LLM Baseline Energy**: **120.40 Net Joules / correct task** (146.10 Gross Joules / correct task).
+- **Evaluation Scope**: 800 checkable validation items (`math`, `science_mcq`, `knowledge_mcq`, `code`).
+- **B-LLM Baseline Accuracy**: **56.88%** (455 / 800 correct, 95% Wilson CI: [53.42, 60.27]%).
+- **B-LLM Baseline Energy**: **171.55 Net Joules / correct task** (208.17 Gross Joules / correct task on checkable scope).
 - **Target Pass Condition (Clause 1 - Accuracy Superiority)**:
-  $$\text{Acc}(P1) \ge \mathbf{63.38\%} \quad (+5.00\text{ pp over B-LLM})$$
-  with paired bootstrap 95% CI strictly excluding zero ($\Delta_{\text{lo}} > 0$) at net energy $\le \mathbf{120.40\text{ J / correct}}$.
+  $$\text{Acc}(P1) \ge \mathbf{61.88\%} \quad (+5.00\text{ pp over B-LLM})$$
+  with paired bootstrap 95% CI strictly excluding zero ($\Delta_{\text{lo}} > 0$) at net energy $\le \mathbf{171.55\text{ J / correct}}$.
 - **Target Pass Condition (Clause 2 - Efficiency Dominance)**:
-  $$\text{Acc}(P1) \ge \mathbf{55.38\%} \quad (\text{within 3.00 pp non-inferiority margin})$$
-  at net energy $\le \mathbf{60.20\text{ J / correct}}$ ($\le 50.0\%$ of B-LLM energy).
+  $$\text{Acc}(P1) \ge \mathbf{53.88\%} \quad (\text{within 3.00 pp non-inferiority margin confirmed in D4})$$
+  at net energy $\le \mathbf{85.78\text{ J / correct}}$ ($\le 50.0\%$ of B-LLM energy).
 
 ### Gate G-R Hurdle (Hardware Residency):
 - Combined resident GPU VRAM for the base model plus verifier head must remain:

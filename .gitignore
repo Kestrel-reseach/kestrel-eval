@@ -11,3 +11,5 @@ data/
 runs/
 *.env
 .env*
+.agents/
+AGENTS.md
