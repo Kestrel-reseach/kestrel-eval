@@ -28,7 +28,7 @@ def test_partition_files_exist_and_counts():
         "knowledge_mcq": 300,
         "code": 100,
         "knowledge_qa": 300,
-        "memory_probe": 100,
+        "memory_probe": 150,
     }
 
     for split in ["validation", "train"]:
@@ -44,7 +44,7 @@ def test_partition_files_exist_and_counts():
                 len(lines) == exp_count
             ), f"{grp} in {split} has {len(lines)} items, expected {exp_count}"
             total_items += len(lines)
-        assert total_items == 1200, f"Total items in {split} is {total_items}, expected 1200"
+        assert total_items == 1250, f"Total items in {split} is {total_items}, expected 1250"
 
 
 def test_no_locked_test_data_in_repo():

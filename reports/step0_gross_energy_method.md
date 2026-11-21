@@ -55,12 +55,12 @@ $$\text{Noise Margin} = 3 \times \sigma_{\text{idle}} \times \Delta t_{\text{wor
 
 ## 4. Software Implementation & Unit Tests
 
-- **Code Path**: [`energy/harness.py`](file:///home/ash09/project_x/kestrel-eval/energy/harness.py)
+- **Code Path**: [`energy/harness.py`](energy/harness.py)
   - `read_gpu_energy_mj(handle=None) -> int | None`
   - `read_gpu_power_watts(handle=None) -> float | None`
   - `EnergyHarness.start()` records `token.start_gpu_mj`
   - `EnergyHarness.stop(token)` computes exact delta in Joules and sets `gpu_energy_method="nvml_total_energy_counter"`
-- **Test Suite**: [`tests/test_harness.py`](file:///home/ash09/project_x/kestrel-eval/tests/test_harness.py)
+- **Test Suite**: [`tests/test_harness.py`](tests/test_harness.py)
   - `test_read_gpu_energy_mj_returns_none_when_nvml_unavailable`
   - `test_start_stop_uses_nvml_total_energy_counter`
   - `test_start_stop_computes_gpu_energy_fallback`

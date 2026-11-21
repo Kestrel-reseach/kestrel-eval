@@ -1,0 +1,763 @@
+{
+  "total": 300,
+  "frozen_exact_match_acc": 67.33,
+  "old_exact_match_acc": 17.67,
+  "mean_token_f1": 52.09,
+  "containment_acc": 63.33,
+  "outputs_by_family": {
+    "profession": [
+      {
+        "item_id": "kqa_val_0001",
+        "target": "architect",
+        "raw_output": "painter",
+        "extracted_span": "painter",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0008",
+        "target": "philosopher",
+        "raw_output": "philosopher and mathematician",
+        "extracted_span": "philosopher and mathematician",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0011",
+        "target": "actor",
+        "raw_output": "actor and television director",
+        "extracted_span": "actor and television director",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0017",
+        "target": "composer",
+        "raw_output": "Composer",
+        "extracted_span": "Composer",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0018",
+        "target": "painter",
+        "raw_output": "Caspar David Friedrich was a German Romantic landscape painter.",
+        "extracted_span": "Caspar David Friedrich was a German Romantic landscape painter",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0023",
+        "target": "director",
+        "raw_output": "film director and producer",
+        "extracted_span": "film director and producer",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0025",
+        "target": "actress",
+        "raw_output": "actress and singer",
+        "extracted_span": "actress and singer",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0034",
+        "target": "mathematician",
+        "raw_output": "Mathematician",
+        "extracted_span": "Mathematician",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0036",
+        "target": "writer",
+        "raw_output": "comic book writer and illustrator",
+        "extracted_span": "comic book writer and illustrator",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0039",
+        "target": "physician",
+        "raw_output": "Physician and microbiologist",
+        "extracted_span": "Physician and microbiologist",
+        "frozen_em": false
+      }
+    ],
+    "death_date": [
+      {
+        "item_id": "kqa_val_0002",
+        "target": "11 May 1976",
+        "raw_output": "Alvar Aalto died on 11 May 1976.",
+        "extracted_span": "11 May 1976",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0003",
+        "target": "24 November 1072",
+        "raw_output": "Alp Arslan died in 1072.",
+        "extracted_span": "1072",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0006",
+        "target": "9 October 1988",
+        "raw_output": "Felix Wankel died on 9 October 1988.",
+        "extracted_span": "9 October 1988",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0016",
+        "target": "23 May 1945",
+        "raw_output": "Heinrich Himmler died on 23 May 1945.",
+        "extracted_span": "23 May 1945",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0020",
+        "target": "24 December 1850",
+        "raw_output": "Fr\u00e9d\u00e9ric Bastiat died on 24 December 1850.",
+        "extracted_span": "24 December 1850",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0026",
+        "target": "July 30, 2007",
+        "raw_output": "Bill Walsh died on July 30, 2007.",
+        "extracted_span": "July 30, 2007",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0031",
+        "target": "May 14, 1940",
+        "raw_output": "Emma Goldman died on May 14, 1940.",
+        "extracted_span": "May 14, 1940",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0033",
+        "target": "20 March 1568",
+        "raw_output": "Albert, Duke of Prussia died on 27 August 1618.",
+        "extracted_span": "27 August 1618",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0035",
+        "target": "5 December 1926",
+        "raw_output": "Claude Monet died on 5 December 1926.",
+        "extracted_span": "5 December 1926",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0040",
+        "target": "12 October 1924",
+        "raw_output": "Anatole France died on 12 October 1924.",
+        "extracted_span": "12 October 1924",
+        "frozen_em": true
+      }
+    ],
+    "city_location": [
+      {
+        "item_id": "kqa_val_0004",
+        "target": "Monroe Township",
+        "raw_output": "Monroe Township, Madison County, Indiana, United States",
+        "extracted_span": "Monroe Township, Madison County, Indiana, United States",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0024",
+        "target": "Sumter County",
+        "raw_output": "Georgia",
+        "extracted_span": "Georgia",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0201",
+        "target": "Boone County",
+        "raw_output": "Columbia, Missouri is located in Boone County, Missouri, United States.",
+        "extracted_span": "Columbia, Missouri is located in Boone County, Missouri, United States",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0236",
+        "target": "Calhoun County in the south central region of the Lower Peninsula of the U",
+        "raw_output": "Michigan",
+        "extracted_span": "Michigan",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0267",
+        "target": "Scott County",
+        "raw_output": "Davenport, Iowa is located in Scott County, Iowa, United States.",
+        "extracted_span": "Davenport, Iowa is located in Scott County, Iowa, United States",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0284",
+        "target": "Upper Egypt",
+        "raw_output": "Aswan is located in Upper Egypt, the capital of the Aswan Governorate.",
+        "extracted_span": "Aswan is located in Upper Egypt, the capital of the Aswan Governorate",
+        "frozen_em": false
+      }
+    ],
+    "born_date": [
+      {
+        "item_id": "kqa_val_0005",
+        "target": "March 22, 1943",
+        "raw_output": "George Benson was born on March 22, 1943.",
+        "extracted_span": "March 22, 1943",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0007",
+        "target": "April 9, 1865",
+        "raw_output": "Charles Proteus Steinmetz was born on April 9, 1865.",
+        "extracted_span": "April 9, 1865",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0009",
+        "target": "1953",
+        "raw_output": "Bob Young (businessman) was born in 1953/1954.",
+        "extracted_span": "1953/1954",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0010",
+        "target": "January 26, 1907",
+        "raw_output": "Hans Selye was born on January 26, 1907.",
+        "extracted_span": "January 26, 1907",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0012",
+        "target": "March 4, 1942",
+        "raw_output": "Charles C. Krulak was born on March 4, 1942.",
+        "extracted_span": "March 4, 1942",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0015",
+        "target": "10 December 1952",
+        "raw_output": "Clive Anderson was born on 10 December 1952.",
+        "extracted_span": "10 December 1952",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0021",
+        "target": "September 30, 1928",
+        "raw_output": "September 30, 1928",
+        "extracted_span": "September 30, 1928",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0022",
+        "target": "1945",
+        "raw_output": "Eric Clapton was born in 1945.",
+        "extracted_span": "1945",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0027",
+        "target": "June 27, 1869",
+        "raw_output": "June 27, 1869",
+        "extracted_span": "June 27, 1869",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0029",
+        "target": "11 October 1937",
+        "raw_output": "Bobby Charlton was born on 11 October 1937.",
+        "extracted_span": "11 October 1937",
+        "frozen_em": true
+      }
+    ],
+    "population": [
+      {
+        "item_id": "kqa_val_0013",
+        "target": "5,265,575",
+        "raw_output": "According to the context provided, the estimated population of Costa Rica as of 2024 was 5,265,575 people.",
+        "extracted_span": "provided, the estimated population of Costa Rica as of 2024 was 5,265,575 people",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0014",
+        "target": "535,932",
+        "raw_output": "535,932",
+        "extracted_span": "535,932",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0019",
+        "target": "14,086",
+        "raw_output": "14,086",
+        "extracted_span": "14,086",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0028",
+        "target": "372,624",
+        "raw_output": "According to the context provided, the reported population of Cleveland was 372,624 at the 2020 census.",
+        "extracted_span": "provided, the reported population of Cleveland was 372,624 at the 2020 census",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0050",
+        "target": "35,456",
+        "raw_output": "According to the 2011 census, the population of Accrington was 35,456.",
+        "extracted_span": "According to the 2011 census, the population of Accrington was 35,456",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0057",
+        "target": "11,000",
+        "raw_output": "11,000",
+        "extracted_span": "11,000",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0058",
+        "target": "17",
+        "raw_output": "The reported population of the Bosporus was 17 million inhabitants.",
+        "extracted_span": "17 million inhabitants",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0061",
+        "target": "15,800",
+        "raw_output": "56,693",
+        "extracted_span": "56,693",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0066",
+        "target": "126,254",
+        "raw_output": "126,254",
+        "extracted_span": "126,254",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0075",
+        "target": "278,349",
+        "raw_output": "278,349",
+        "extracted_span": "278,349",
+        "frozen_em": true
+      }
+    ],
+    "release_year": [
+      {
+        "item_id": "kqa_val_0065",
+        "target": "1980",
+        "raw_output": "1980",
+        "extracted_span": "1980",
+        "frozen_em": true
+      }
+    ],
+    "award_won": [
+      {
+        "item_id": "kqa_val_0068",
+        "target": "Academy Honorary Award",
+        "raw_output": "Eli Wallach received the BAFTA Award, the Tony Award, and the Primetime Emmy Award.",
+        "extracted_span": "Eli Wallach received the BAFTA Award, the Tony Award, and the Primetime Emmy Award",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0078",
+        "target": "Pulitzer Prize",
+        "raw_output": "Pulitzer Prize for Drama",
+        "extracted_span": "Pulitzer Prize for Drama",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0093",
+        "target": "Saturn Award",
+        "raw_output": "The Dressed to Kill (1980 film) received the Booker Prize.",
+        "extracted_span": "The Dressed to Kill (1980 film) received the Booker Prize",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0097",
+        "target": "BAFTA Award",
+        "raw_output": "Booker Prize",
+        "extracted_span": "Booker Prize",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0108",
+        "target": "Turing Award",
+        "raw_output": "Alan Kay received the Fields Medal.",
+        "extracted_span": "Alan Kay received the Fields Medal",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0130",
+        "target": "Nobel Prize",
+        "raw_output": "The Haber process received the Nobel Prize in Chemistry in 1918.",
+        "extracted_span": "The Haber process received the Nobel Prize in Chemistry in 1918",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0131",
+        "target": "Nobel Prize",
+        "raw_output": "The Nobel Prize for Literature",
+        "extracted_span": "The Nobel Prize for Literature",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0134",
+        "target": "Pulitzer Prize",
+        "raw_output": "The Pulitzer Prize for Fiction",
+        "extracted_span": "The Pulitzer Prize for Fiction",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0135",
+        "target": "Origins Award",
+        "raw_output": "The Generic Universal Role Playing System, or GURPS, received the Fields Medal in 2000.",
+        "extracted_span": "The Generic Universal Role Playing System, or GURPS, received the Fields Medal in 2000",
+        "frozen_em": false
+      },
+      {
+        "item_id": "kqa_val_0234",
+        "target": "Academy Award",
+        "raw_output": "Ennio Morricone received the Academy Award for Best Original Score nominations for Days of Heaven (1978), The Mission (1986),",
+        "extracted_span": "Ennio Morricone received the Academy Award for Best Original Score nominations for Days of Heaven (1978), The Mission (1986)",
+        "frozen_em": false
+      }
+    ],
+    "capital_city": [
+      {
+        "item_id": "kqa_val_0143",
+        "target": "Ireland",
+        "raw_output": "Ireland",
+        "extracted_span": "Ireland",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0170",
+        "target": "Azerbaijan",
+        "raw_output": "Azerbaijan",
+        "extracted_span": "Azerbaijan",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0254",
+        "target": "Belgium",
+        "raw_output": "Brussels is the capital of Belgium.",
+        "extracted_span": "Brussels is the capital of Belgium",
+        "frozen_em": false
+      }
+    ],
+    "founded_year": [
+      {
+        "item_id": "kqa_val_0229",
+        "target": "1975",
+        "raw_output": "1975",
+        "extracted_span": "1975",
+        "frozen_em": true
+      },
+      {
+        "item_id": "kqa_val_0258",
+        "target": "1982",
+        "raw_output": "Compaq Computer Corporation was founded in 1982.",
+        "extracted_span": "1982",
+        "frozen_em": true
+      }
+    ]
+  },
+  "disagreements": [
+    {
+      "item_id": "kqa_val_0002",
+      "rule_family": "death_date",
+      "question": "When did Alvar Aalto die?",
+      "target": "11 May 1976",
+      "raw_output": "Alvar Aalto died on 11 May 1976.",
+      "extracted_span": "11 May 1976",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.6,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0005",
+      "rule_family": "born_date",
+      "question": "When was George Benson born?",
+      "target": "March 22, 1943",
+      "raw_output": "George Benson was born on March 22, 1943.",
+      "extracted_span": "March 22, 1943",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.5455,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0006",
+      "rule_family": "death_date",
+      "question": "When did Felix Wankel die?",
+      "target": "9 October 1988",
+      "raw_output": "Felix Wankel died on 9 October 1988.",
+      "extracted_span": "9 October 1988",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.6,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0007",
+      "rule_family": "born_date",
+      "question": "When was Charles Proteus Steinmetz born?",
+      "target": "April 9, 1865",
+      "raw_output": "Charles Proteus Steinmetz was born on April 9, 1865.",
+      "extracted_span": "April 9, 1865",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.5,
+      "containment": false
+    },
+    {
+      "item_id": "kqa_val_0009",
+      "rule_family": "born_date",
+      "question": "When was Bob Young (businessman) born?",
+      "target": "1953",
+      "raw_output": "Bob Young (businessman) was born in 1953/1954.",
+      "extracted_span": "1953/1954",
+      "frozen_exact_match": false,
+      "old_exact_match": false,
+      "token_f1": 0.2222,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0010",
+      "rule_family": "born_date",
+      "question": "When was Hans Selye born?",
+      "target": "January 26, 1907",
+      "raw_output": "Hans Selye was born on January 26, 1907.",
+      "extracted_span": "January 26, 1907",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.5455,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0012",
+      "rule_family": "born_date",
+      "question": "When was Charles C. Krulak born?",
+      "target": "March 4, 1942",
+      "raw_output": "Charles C. Krulak was born on March 4, 1942.",
+      "extracted_span": "March 4, 1942",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.5,
+      "containment": false
+    },
+    {
+      "item_id": "kqa_val_0015",
+      "rule_family": "born_date",
+      "question": "When was Clive Anderson born?",
+      "target": "10 December 1952",
+      "raw_output": "Clive Anderson was born on 10 December 1952.",
+      "extracted_span": "10 December 1952",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.5455,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0016",
+      "rule_family": "death_date",
+      "question": "When did Heinrich Himmler die?",
+      "target": "23 May 1945",
+      "raw_output": "Heinrich Himmler died on 23 May 1945.",
+      "extracted_span": "23 May 1945",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.6,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0020",
+      "rule_family": "death_date",
+      "question": "When did Fr\u00e9d\u00e9ric Bastiat die?",
+      "target": "24 December 1850",
+      "raw_output": "Fr\u00e9d\u00e9ric Bastiat died on 24 December 1850.",
+      "extracted_span": "24 December 1850",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.6,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0022",
+      "rule_family": "born_date",
+      "question": "When was Eric Clapton born?",
+      "target": "1945",
+      "raw_output": "Eric Clapton was born in 1945.",
+      "extracted_span": "1945",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.2857,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0026",
+      "rule_family": "death_date",
+      "question": "When did Bill Walsh die?",
+      "target": "July 30, 2007",
+      "raw_output": "Bill Walsh died on July 30, 2007.",
+      "extracted_span": "July 30, 2007",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.6,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0029",
+      "rule_family": "born_date",
+      "question": "When was Bobby Charlton born?",
+      "target": "11 October 1937",
+      "raw_output": "Bobby Charlton was born on 11 October 1937.",
+      "extracted_span": "11 October 1937",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.5455,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0030",
+      "rule_family": "born_date",
+      "question": "When was Alois Alzheimer born?",
+      "target": "14 June 1864",
+      "raw_output": "Alois Alzheimer was born on 14 June 1864.",
+      "extracted_span": "14 June 1864",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.5455,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0031",
+      "rule_family": "death_date",
+      "question": "When did Emma Goldman die?",
+      "target": "May 14, 1940",
+      "raw_output": "Emma Goldman died on May 14, 1940.",
+      "extracted_span": "May 14, 1940",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.6,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0032",
+      "rule_family": "born_date",
+      "question": "When was Adam Carolla born?",
+      "target": "May 27, 1964",
+      "raw_output": "Adam Carolla was born on May 27, 1964.",
+      "extracted_span": "May 27, 1964",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.5455,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0035",
+      "rule_family": "death_date",
+      "question": "When did Claude Monet die?",
+      "target": "5 December 1926",
+      "raw_output": "Claude Monet died on 5 December 1926.",
+      "extracted_span": "5 December 1926",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.6,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0037",
+      "rule_family": "born_date",
+      "question": "When was Giosu\u00e8 Carducci born?",
+      "target": "27 July 1835",
+      "raw_output": "Giosu\u00e8 Carducci was born on 27 July 1835.",
+      "extracted_span": "27 July 1835",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.5455,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0038",
+      "rule_family": "born_date",
+      "question": "When was Dave Brubeck born?",
+      "target": "December 6, 1920",
+      "raw_output": "Dave Brubeck was born on December 6, 1920.",
+      "extracted_span": "December 6, 1920",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.5455,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0040",
+      "rule_family": "death_date",
+      "question": "When did Anatole France die?",
+      "target": "12 October 1924",
+      "raw_output": "Anatole France died on 12 October 1924.",
+      "extracted_span": "12 October 1924",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.6,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0041",
+      "rule_family": "born_date",
+      "question": "When was Elihu Yale born?",
+      "target": "5 April 1649",
+      "raw_output": "Elihu Yale was born on 5 April 1649.",
+      "extracted_span": "5 April 1649",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.5455,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0042",
+      "rule_family": "born_date",
+      "question": "When was Abdulaziz al-Omari born?",
+      "target": "May 28, 1979",
+      "raw_output": "Abdulaziz al-Omari was born on May 28, 1979.",
+      "extracted_span": "May 28, 1979",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.5,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0044",
+      "rule_family": "born_date",
+      "question": "When was Edward Bellamy born?",
+      "target": "March 26, 1850",
+      "raw_output": "Edward Bellamy was born on March 26, 1850.",
+      "extracted_span": "March 26, 1850",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.5455,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0045",
+      "rule_family": "death_date",
+      "question": "When did Hermann Hesse die?",
+      "target": "9 August 1962",
+      "raw_output": "Hermann Hesse died on 9 August 1962.",
+      "extracted_span": "9 August 1962",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.6,
+      "containment": true
+    },
+    {
+      "item_id": "kqa_val_0046",
+      "rule_family": "death_date",
+      "question": "When did Berthe Morisot die?",
+      "target": "2 March 1895",
+      "raw_output": "Berthe Morisot died on 2 March 1895.",
+      "extracted_span": "2 March 1895",
+      "frozen_exact_match": true,
+      "old_exact_match": false,
+      "token_f1": 0.6,
+      "containment": true
+    }
+  ]
+}

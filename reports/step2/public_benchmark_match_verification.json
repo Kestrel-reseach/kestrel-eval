@@ -1,0 +1,18 @@
+{
+  "science_mcq": {
+    "sample_size": 50,
+    "real_arc_total_stems": 2590,
+    "verbatim_exact_matches": 0,
+    "verbatim_exact_match_rate": "0.0%",
+    "five_gram_overlap_matches": 17,
+    "five_gram_overlap_match_rate": "34.0%"
+  },
+  "knowledge_mcq": {
+    "sample_size": 50,
+    "real_mmlu_total_questions": 15858,
+    "verbatim_exact_matches": 0,
+    "verbatim_exact_match_rate": "0.0%",
+    "five_gram_overlap_matches": 13,
+    "five_gram_overlap_match_rate": "26.0%"
+  }
+}

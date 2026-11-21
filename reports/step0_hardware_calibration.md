@@ -20,7 +20,7 @@
 
 > [!WARNING]
 > **Results obtained on the RTX 3050 Laptop GPU (4 GB) are NOT transferable to the RTX 3060 tier.**
-> As documented in [`docs/decisions/hardware_tier.md`](file:///home/ash09/project_x/kestrel-eval/docs/decisions/hardware_tier.md), the RTX 3050 tier acceptance was agent-drafted and merged by Member B without a written record authored by the owner. It remains `PENDING OWNER CONFIRMATION` in writing (Decision D8).
+> As documented in [`docs/decisions/hardware_tier.md`](docs/decisions/hardware_tier.md), the RTX 3050 tier acceptance was agent-drafted and merged by Member B without a written record authored by the owner. It remains `PENDING OWNER CONFIRMATION` in writing (Decision D8).
 > **Step 0 in `PLAN.md` remains strictly UNCHECKED** until owner confirmation is provided.
 
 ---
@@ -64,7 +64,7 @@ The preliminary pilot baseline was sampled across 3 repeated intervals of 60 sec
 - **Pilot Mean Idle Power**: 8.335 W | **Std Dev**: 1.122 W
 
 ### B. Formal 10-Minute x 3 Baseline (30.0 Minutes at 10.0 Hz)
-Executed via [`scripts/run_formal_idle_baseline.py`](file:///home/ash09/project_x/kestrel-eval/scripts/run_formal_idle_baseline.py) under AC power with the machine fully idle:
+Executed via [`scripts/run_formal_idle_baseline.py`](scripts/run_formal_idle_baseline.py) under AC power with the machine fully idle:
 - **Repeat 1**: 600.00 s | Samples: 5,985 (10.0 Hz) | Mean GPU power: 7.2849 W (std: 1.6317 W) | Counter energy: 4,362.72 J
 - **Repeat 2**: 600.00 s | Samples: 5,980 (10.0 Hz) | Mean GPU power: 5.5450 W (std: 0.1350 W) | Counter energy: 3,357.84 J
 - **Repeat 3**: 600.00 s | Samples: 5,978 (10.0 Hz) | Mean GPU power: 5.6033 W (std: 0.1040 W) | Counter energy: 3,383.00 J
@@ -75,7 +75,7 @@ Executed via [`scripts/run_formal_idle_baseline.py`](file:///home/ash09/project_
 - **Pooled Mean Idle Power ($P_{\text{idle}}$)**: **6.1444 W**
 - **Pooled Idle Standard Deviation ($\sigma_{\text{idle}}$)**: **0.9472 W**
 - **Counter-Derived Mean Power**: **6.1686 W** (Hardware cumulative counter: 11,103.56 J; delta vs sample mean: **0.0242 W** / 0.39%)
-- **Raw Artifact**: [`reports/step0/formal_idle_baseline.json`](file:///home/ash09/project_x/kestrel-eval/reports/step0/formal_idle_baseline.json)
+- **Raw Artifact**: [`reports/step0/formal_idle_baseline.json`](reports/step0/formal_idle_baseline.json)
 
 ---
 

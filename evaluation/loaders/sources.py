@@ -1,5 +1,10 @@
 """Official public source registry and license provenance for Project Kestrel.
 
+Note on Suite Provenance (Decision D14):
+In Suite v1, `math`, `code`, `science_mcq`, and `knowledge_mcq` were generated using procedural synthetic
+generators (`math_generator.py`, etc.). The entries in PUBLIC_SOURCES define the canonical public benchmark
+schemas and licensing terms for the genuine public arms ingested in Suite v2.0 from data/raw/.
+
 Every public source must record:
 - name: Official dataset name
 - version: Exact version or commit used

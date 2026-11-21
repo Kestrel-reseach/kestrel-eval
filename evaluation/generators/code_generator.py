@@ -588,9 +588,11 @@ def generate_code_suite(
                 target=data["canonical_solution"],
                 answer_check="unit_tests_pass",
                 choices=None,
+                arm="synthetic",
+                template_family=data["entry_point"],
                 metadata={
                     "source": "synthetic_procedural_code_generator",
-                    "version": "1.0",
+                    "version": "2.0",
                     "license": "Project-Internal (Synthetic)",
                     "license_url": "N/A",
                     "url": "local",
@@ -598,6 +600,8 @@ def generate_code_suite(
                     "contamination_risk": "ZERO (Fresh synthetic implementation with verified unit tests)",
                     "entry_point": data["entry_point"],
                     "test_code": data["test"],
+                    "template_family": data["entry_point"],
+                    "arm": "synthetic",
                 },
             )
         )

@@ -29,7 +29,7 @@ Per the project owner's decision relayed on 2026-11-18 (*"Vendam software laye p
    - Primary gross GPU energy measurement via hardware cumulative total-energy counter `nvmlDeviceGetTotalEnergyConsumption()` in millijoules (tested on RTX 3050 Laptop GPU).
    - High-frequency 10 Hz idle baseline sampling (`sample_interval_s=0.1`) with persistent NVML handle.
    - Default configuration aligned with manifest (`wall_meter_calibrated=False`, `relative_only=True`).
-   - Formal 10-minute x 3 repeats idle baseline (1800 s total, 17,943 samples at 10.0 Hz) completed: pooled mean $P_{\text{idle}} = 6.1444\text{ W}$, $\sigma_{\text{idle}} = 0.9472\text{ W}$, counter-derived power $6.1686\text{ W}$ ([`formal_idle_baseline.json`](file:///home/ash09/project_x/kestrel-eval/reports/step0/formal_idle_baseline.json)).
+   - Formal 10-minute x 3 repeats idle baseline (1800 s total, 17,943 samples at 10.0 Hz) completed: pooled mean $P_{\text{idle}} = 6.1444\text{ W}$, $\sigma_{\text{idle}} = 0.9472\text{ W}$, counter-derived power $6.1686\text{ W}$ ([`formal_idle_baseline.json`](reports/step0/formal_idle_baseline.json)).
    - Supports unclipped net energy calculation ($E_{\text{net}} = E_{\text{gross}} - P_{\text{idle}} \times \Delta t$) with $3\sigma$ noise margin verification.
 5. **Mandatory Energy Label Enforcement**:
    - Enforced by programmatic assertion in `evaluation/metrics.py` and unit tests in `tests/test_metrics.py`. The report generator strictly refuses to format energy tables without:  
@@ -81,7 +81,7 @@ To maintain absolute scientific integrity, the following claims are **prohibited
 
 ## 6. Actions Required from Co-Owners to Formally Close Step 0
 
-Decisions D1–D11 have been recorded in [`docs/decisions/owner_decisions.md`](file:///home/ash09/project_x/kestrel-eval/docs/decisions/owner_decisions.md).
+Decisions D1–D11 have been recorded in [`docs/decisions/owner_decisions.md`](docs/decisions/owner_decisions.md).
 Step 0 is closed with the following documented deviations:
 - **Formal idle baseline completed** (1,800.00 s total at 10.0 Hz, 17,943 samples; shortened baseline deviation resolved)
 - **Unmeasured CPU energy** (GPU NVML relative energy only, per D7)

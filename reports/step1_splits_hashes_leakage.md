@@ -1,6 +1,10 @@
 # Step 1: Locked Suite Partitioning, Hashing & Leakage Report (PR 4)
 
-**Date**: 2026-11-18  
+> [!NOTE]
+> **Suite v1 Superseded by Suite v2.0 (Decision D14 / Manifest v2.0)**:  
+> The Suite v1 hashes below are superseded by Suite v2.0. The official locked root hash for Suite v2.0 is `39cbe48e161f75a1bd4b57e8abf555012fe7b3b515092d96cf5e843bb3a97b68`. Superseded v1 locked files have been archived in `$KESTREL_PRIVATE_DIR/superseded_v1_locked_test/`. See `suite/README.md` and `evaluation/manifest.yaml`.
+
+**Date**: 2026-11-18 (Updated 2026-11-19)  
 **Branch**: `step-1-splits-hashes-leakage`  
 **Governing Decisions**: D1 (group & partition sizes), D2 (Wikipedia snapshot subset), D3 (synthetic memory probe), D4 (frozen gates), D8 (test hardware tier)
 
@@ -38,7 +42,7 @@ This satisfies the plan requirement of detecting a 5 pp margin (G-Q) on checkabl
 
 ## 3. Locked-Test Hashes & Root Hash
 
-In accordance with `rules.md` and `kestrel-core.md`, locked-test items are stored **strictly outside the git repository** at `KESTREL_PRIVATE_DIR` (`/home/ash09/project_x/kestrel_private/locked_test/`). Only their SHA-256 file hashes and the root hash are recorded in `evaluation/manifest.yaml`.
+In accordance with `rules.md` and `kestrel-core.md`, locked-test items are stored **strictly outside the git repository** at `KESTREL_PRIVATE_DIR` (`$KESTREL_PRIVATE_DIR/locked_test/`). Only their SHA-256 file hashes and the root hash are recorded in `evaluation/manifest.yaml`.
 
 | Group | Locked-Test SHA-256 Digest |
 |---|---|
@@ -70,6 +74,6 @@ Automated partition integrity checks executed via `evaluation/leakage.py`:
   - `suite/validation/`: 1,200 JSONL items (available for local model development, verifier training, and validation tuning).
   - `suite/train/`: 1,200 JSONL items (available for training heads / prompts).
 - **Out-of-Repository (`KESTREL_PRIVATE_DIR`)**:
-  - `/home/ash09/project_x/kestrel_private/locked_test/`: 1,200 JSONL items.
+  - `$KESTREL_PRIVATE_DIR/locked_test/`: 1,200 JSONL items.
   - Zero locked-test data files are tracked or present inside `kestrel-eval` repository (verified by `test_no_locked_test_data_in_repo()`).
   - No model evaluation or API call will touch this partition until Step 10.

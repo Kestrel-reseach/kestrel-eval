@@ -1,6 +1,10 @@
 # Step 1 — Public Group Loaders & Source Provenance Report
 
-**Date**: 2026-11-18  
+> [!CAUTION]
+> **CORRECTION (2026-11-19 / Decision D14)**:
+> In Suite v1, `math`, `code`, `science_mcq`, and `knowledge_mcq` partitions were constructed using 100% procedural synthetic generators (`math_generator.py`, `code_generator.py`, `science_mcq_generator.py`, `knowledge_mcq_generator.py`). The table and loaders below describe the reference schemas and loaders developed in Step 1. Under Decision D14, genuine public benchmark files (GSM8K, ARC-Challenge, MMLU, MBPP) have been downloaded to `data/raw/` (SHA-256 verified) and will form the dedicated public arms for Suite v2.0.
+
+**Date**: 2026-11-18 (Updated 2026-11-19)  
 **Repository**: `kestrel-eval` (Branch: `step-1-public-loaders`)  
 **Skill Reference**: `suite-split-hash`  
 **Manifest Target**: `manifest_version: "1.1"` (Decision D1: 200/200/300/100/300/100 locked-test partition sizes)
@@ -83,7 +87,7 @@ Per the prompt instruction (*"If public code sets are too small or contaminated,
   - `science_mcq_loader.py`: ARC JSONL parser and validator.
   - `knowledge_mcq_loader.py`: MMLU JSONL/CSV parser across 10 subjects.
   - `code_loader.py`: Code loader and safe unit test execution runner.
-- **Unit Test Suite**: [`tests/test_loaders.py`](file:///home/ash09/project_x/kestrel-eval/tests/test_loaders.py)
+- **Unit Test Suite**: [`tests/test_loaders.py`](tests/test_loaders.py)
   - 10 test functions covering source metadata, numeric extraction, MCQ extraction, unit test execution, and all 4 group loaders.
   - Test data fixtures added to `suite/public/math/`, `suite/public/science_mcq/`, `suite/public/knowledge_mcq/`, and `suite/public/code/`.
 

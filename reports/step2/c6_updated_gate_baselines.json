@@ -1,0 +1,274 @@
+{
+  "qwen2.5-0.5b-instruct-q4": {
+    "model": "qwen2.5-0.5b-instruct-q4",
+    "total_1250": {
+      "n": 1250,
+      "correct": 601,
+      "accuracy_pct": 48.08,
+      "ci_95": [
+        45.32,
+        50.85
+      ]
+    },
+    "checkable_800": {
+      "n": 800,
+      "correct": 296,
+      "accuracy_pct": 37.0,
+      "ci_95": [
+        33.72,
+        40.4
+      ],
+      "wall_time_s": 2180.48
+    },
+    "groups": {
+      "math": {
+        "n": 200,
+        "correct": 67,
+        "accuracy_pct": 33.5,
+        "ci_95": [
+          27.32,
+          40.3
+        ],
+        "wall_time_s": 1721.02
+      },
+      "science_mcq": {
+        "n": 200,
+        "correct": 95,
+        "accuracy_pct": 47.5,
+        "ci_95": [
+          40.69,
+          54.4
+        ],
+        "wall_time_s": 15.35
+      },
+      "knowledge_mcq": {
+        "n": 300,
+        "correct": 109,
+        "accuracy_pct": 36.33,
+        "ci_95": [
+          31.1,
+          41.92
+        ],
+        "wall_time_s": 23.54
+      },
+      "code": {
+        "n": 100,
+        "correct": 25,
+        "accuracy_pct": 25.0,
+        "ci_95": [
+          17.55,
+          34.3
+        ],
+        "wall_time_s": 420.57
+      },
+      "knowledge_qa": {
+        "n": 300,
+        "correct": 201,
+        "accuracy_pct": 67.0,
+        "ci_95": [
+          61.49,
+          72.08
+        ],
+        "wall_time_s": 120.96
+      },
+      "memory_probe": {
+        "n": 150,
+        "correct": 104,
+        "accuracy_pct": 69.33,
+        "ci_95": [
+          61.55,
+          76.15
+        ],
+        "wall_time_s": 62.86
+      }
+    },
+    "arms": {
+      "fictional_entity": {
+        "n": 100,
+        "correct": 71,
+        "accuracy_pct": 71.0,
+        "ci_95": [
+          61.46,
+          78.99
+        ]
+      },
+      "public": {
+        "n": 650,
+        "correct": 239,
+        "accuracy_pct": 36.77,
+        "ci_95": [
+          33.15,
+          40.54
+        ]
+      },
+      "real_wikipedia": {
+        "n": 200,
+        "correct": 130,
+        "accuracy_pct": 65.0,
+        "ci_95": [
+          58.16,
+          71.27
+        ]
+      },
+      "synthetic": {
+        "n": 300,
+        "correct": 161,
+        "accuracy_pct": 53.67,
+        "ci_95": [
+          48.01,
+          59.23
+        ]
+      }
+    },
+    "memory_probe_stale": {
+      "n_stale": 100,
+      "stale_errors": 41,
+      "stale_error_rate_pct": 41.0,
+      "wilson_ci_95": [
+        31.87,
+        50.8
+      ],
+      "cluster_ci_95": [
+        32.0,
+        50.0
+      ],
+      "clusters_count": 100
+    }
+  },
+  "qwen2.5-1.5b-instruct-q4": {
+    "model": "qwen2.5-1.5b-instruct-q4",
+    "total_1250": {
+      "n": 1250,
+      "correct": 784,
+      "accuracy_pct": 62.72,
+      "ci_95": [
+        60.0,
+        65.36
+      ]
+    },
+    "checkable_800": {
+      "n": 800,
+      "correct": 455,
+      "accuracy_pct": 56.88,
+      "ci_95": [
+        53.42,
+        60.27
+      ],
+      "wall_time_s": 2711.62
+    },
+    "groups": {
+      "math": {
+        "n": 200,
+        "correct": 136,
+        "accuracy_pct": 68.0,
+        "ci_95": [
+          61.25,
+          74.07
+        ],
+        "wall_time_s": 2251.28
+      },
+      "science_mcq": {
+        "n": 200,
+        "correct": 125,
+        "accuracy_pct": 62.5,
+        "ci_95": [
+          55.61,
+          68.91
+        ],
+        "wall_time_s": 25.03
+      },
+      "knowledge_mcq": {
+        "n": 300,
+        "correct": 146,
+        "accuracy_pct": 48.67,
+        "ci_95": [
+          43.06,
+          54.3
+        ],
+        "wall_time_s": 45.22
+      },
+      "code": {
+        "n": 100,
+        "correct": 48,
+        "accuracy_pct": 48.0,
+        "ci_95": [
+          38.46,
+          57.68
+        ],
+        "wall_time_s": 390.09
+      },
+      "knowledge_qa": {
+        "n": 300,
+        "correct": 205,
+        "accuracy_pct": 68.33,
+        "ci_95": [
+          62.87,
+          73.34
+        ],
+        "wall_time_s": 275.21
+      },
+      "memory_probe": {
+        "n": 150,
+        "correct": 124,
+        "accuracy_pct": 82.67,
+        "ci_95": [
+          75.81,
+          87.89
+        ],
+        "wall_time_s": 96.88
+      }
+    },
+    "arms": {
+      "fictional_entity": {
+        "n": 100,
+        "correct": 72,
+        "accuracy_pct": 72.0,
+        "ci_95": [
+          62.51,
+          79.86
+        ]
+      },
+      "public": {
+        "n": 650,
+        "correct": 352,
+        "accuracy_pct": 54.15,
+        "ci_95": [
+          50.31,
+          57.95
+        ]
+      },
+      "real_wikipedia": {
+        "n": 200,
+        "correct": 133,
+        "accuracy_pct": 66.5,
+        "ci_95": [
+          59.7,
+          72.68
+        ]
+      },
+      "synthetic": {
+        "n": 300,
+        "correct": 227,
+        "accuracy_pct": 75.67,
+        "ci_95": [
+          70.51,
+          80.18
+        ]
+      }
+    },
+    "memory_probe_stale": {
+      "n_stale": 100,
+      "stale_errors": 22,
+      "stale_error_rate_pct": 22.0,
+      "wilson_ci_95": [
+        15.0,
+        31.07
+      ],
+      "cluster_ci_95": [
+        14.0,
+        30.0
+      ],
+      "clusters_count": 100
+    }
+  }
+}

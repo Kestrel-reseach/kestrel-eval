@@ -1,0 +1,384 @@
+{
+  "science_mcq": {
+    "accuracy": 39.5,
+    "ci_95": [
+      32.98,
+      46.41
+    ],
+    "truncation_rate": 3.5,
+    "extractable_rate": 100.0,
+    "pred_dist": {
+      "A": 154,
+      "B": 9,
+      "C": 14,
+      "D": 23,
+      "None": 0
+    },
+    "val_key_dist": {
+      "A": 52,
+      "B": 44,
+      "C": 60,
+      "D": 44
+    },
+    "train_key_dist": {
+      "B": 58,
+      "C": 48,
+      "D": 52,
+      "A": 42
+    },
+    "always_a_acc": 26.0,
+    "most_common_acc": 30.0,
+    "shuffled_accs": [
+      29.5,
+      34.0,
+      31.0
+    ],
+    "shuffled_avg": 31.5
+  },
+  "knowledge_mcq": {
+    "accuracy": 49.33,
+    "ci_95": [
+      43.72,
+      54.96
+    ],
+    "truncation_rate": 7.33,
+    "extractable_rate": 100.0,
+    "pred_dist": {
+      "A": 183,
+      "B": 50,
+      "C": 34,
+      "D": 33,
+      "None": 0
+    },
+    "val_key_dist": {
+      "A": 79,
+      "B": 80,
+      "C": 59,
+      "D": 82
+    },
+    "train_key_dist": {
+      "B": 75,
+      "D": 91,
+      "A": 75,
+      "C": 59
+    },
+    "always_a_acc": 26.33,
+    "most_common_acc": 27.33,
+    "shuffled_accs": [
+      41.33,
+      39.67,
+      43.0
+    ],
+    "shuffled_avg": 41.33
+  },
+  "knowledge_qa": {
+    "total": 300,
+    "exact_match_acc": 51.33,
+    "avg_token_f1": 68.43,
+    "containment_acc": 70.0,
+    "truncation_rate": 0.33,
+    "disagreement_count": 66,
+    "sample_disagreements": [
+      {
+        "item_id": "kqa_val_0003",
+        "question": "When did Alp Arslan die?",
+        "target": "24 November 1072",
+        "prediction": "1072",
+        "raw_output": "1072",
+        "tokens": 6,
+        "exact_match": true,
+        "token_f1": 0.5,
+        "containment": false,
+        "rule_family": "death_date"
+      },
+      {
+        "item_id": "kqa_val_0005",
+        "question": "When was George Benson born?",
+        "target": "March 22, 1943",
+        "prediction": "George Benson was born on March 22, 1943.",
+        "raw_output": "George Benson was born on March 22, 1943.",
+        "tokens": 17,
+        "exact_match": false,
+        "token_f1": 0.5455,
+        "containment": true,
+        "rule_family": "born_date"
+      },
+      {
+        "item_id": "kqa_val_0006",
+        "question": "When did Felix Wankel die?",
+        "target": "9 October 1988",
+        "prediction": "1988",
+        "raw_output": "1988",
+        "tokens": 6,
+        "exact_match": true,
+        "token_f1": 0.5,
+        "containment": false,
+        "rule_family": "death_date"
+      },
+      {
+        "item_id": "kqa_val_0009",
+        "question": "When was Bob Young (businessman) born?",
+        "target": "1953",
+        "prediction": "1953/1954",
+        "raw_output": "1953/1954",
+        "tokens": 11,
+        "exact_match": false,
+        "token_f1": 0.6667,
+        "containment": true,
+        "rule_family": "born_date"
+      },
+      {
+        "item_id": "kqa_val_0012",
+        "question": "When was Charles C. Krulak born?",
+        "target": "March 4, 1942",
+        "prediction": "Charles Chandler Krulak was born March 4, 1942.",
+        "raw_output": "Charles Chandler Krulak was born March 4, 1942.",
+        "tokens": 18,
+        "exact_match": false,
+        "token_f1": 0.5455,
+        "containment": true,
+        "rule_family": "born_date"
+      },
+      {
+        "item_id": "kqa_val_0015",
+        "question": "When was Clive Anderson born?",
+        "target": "10 December 1952",
+        "prediction": "Clive Anderson was born on 10 December 1952.",
+        "raw_output": "Clive Anderson was born on 10 December 1952.",
+        "tokens": 17,
+        "exact_match": false,
+        "token_f1": 0.5455,
+        "containment": true,
+        "rule_family": "born_date"
+      },
+      {
+        "item_id": "kqa_val_0022",
+        "question": "When was Eric Clapton born?",
+        "target": "1945",
+        "prediction": "Eric Clapton was born in 1945.",
+        "raw_output": "Eric Clapton was born in 1945.",
+        "tokens": 14,
+        "exact_match": false,
+        "token_f1": 0.2857,
+        "containment": true,
+        "rule_family": "born_date"
+      },
+      {
+        "item_id": "kqa_val_0030",
+        "question": "When was Alois Alzheimer born?",
+        "target": "14 June 1864",
+        "prediction": "Alois Alzheimer was born on 14 June 1864.",
+        "raw_output": "Alois Alzheimer was born on 14 June 1864.",
+        "tokens": 17,
+        "exact_match": false,
+        "token_f1": 0.5455,
+        "containment": true,
+        "rule_family": "born_date"
+      },
+      {
+        "item_id": "kqa_val_0035",
+        "question": "When did Claude Monet die?",
+        "target": "5 December 1926",
+        "prediction": "1926",
+        "raw_output": "1926",
+        "tokens": 6,
+        "exact_match": true,
+        "token_f1": 0.5,
+        "containment": false,
+        "rule_family": "death_date"
+      },
+      {
+        "item_id": "kqa_val_0037",
+        "question": "When was Giosu\u00e8 Carducci born?",
+        "target": "27 July 1835",
+        "prediction": "Giosu\u00e8 Carducci was born on 27 July 1835.",
+        "raw_output": "Giosu\u00e8 Carducci was born on 27 July 1835.",
+        "tokens": 20,
+        "exact_match": false,
+        "token_f1": 0.5455,
+        "containment": true,
+        "rule_family": "born_date"
+      },
+      {
+        "item_id": "kqa_val_0041",
+        "question": "When was Elihu Yale born?",
+        "target": "5 April 1649",
+        "prediction": "Elihu Yale was born on 5 April 1649.",
+        "raw_output": "Elihu Yale was born on 5 April 1649.",
+        "tokens": 16,
+        "exact_match": false,
+        "token_f1": 0.5455,
+        "containment": true,
+        "rule_family": "born_date"
+      },
+      {
+        "item_id": "kqa_val_0044",
+        "question": "When was Edward Bellamy born?",
+        "target": "March 26, 1850",
+        "prediction": "Edward Bellamy was born on March 26, 1850.",
+        "raw_output": "Edward Bellamy was born on March 26, 1850.",
+        "tokens": 18,
+        "exact_match": false,
+        "token_f1": 0.5455,
+        "containment": true,
+        "rule_family": "born_date"
+      },
+      {
+        "item_id": "kqa_val_0055",
+        "question": "What was the profession or occupation of Davy Jones (musician)?",
+        "target": "actor",
+        "prediction": "musician",
+        "raw_output": "musician",
+        "tokens": 2,
+        "exact_match": true,
+        "token_f1": 0.0,
+        "containment": false,
+        "rule_family": "profession"
+      },
+      {
+        "item_id": "kqa_val_0056",
+        "question": "When was George Vancouver born?",
+        "target": "22 June 1757",
+        "prediction": "George Vancouver was born on 22 June 1757.",
+        "raw_output": "George Vancouver was born on 22 June 1757.",
+        "tokens": 16,
+        "exact_match": false,
+        "token_f1": 0.5455,
+        "containment": true,
+        "rule_family": "born_date"
+      },
+      {
+        "item_id": "kqa_val_0058",
+        "question": "What was the reported population of Bosporus?",
+        "target": "17",
+        "prediction": "17 million",
+        "raw_output": "17 million",
+        "tokens": 5,
+        "exact_match": false,
+        "token_f1": 0.6667,
+        "containment": true,
+        "rule_family": "population"
+      },
+      {
+        "item_id": "kqa_val_0067",
+        "question": "When did Desmond Morris die?",
+        "target": "19 April 2026",
+        "prediction": "Desmond Morris died on 19 April 2026.",
+        "raw_output": "Desmond Morris died on 19 April 2026.",
+        "tokens": 15,
+        "exact_match": false,
+        "token_f1": 0.6,
+        "containment": true,
+        "rule_family": "death_date"
+      },
+      {
+        "item_id": "kqa_val_0072",
+        "question": "When was Eric Cheney born?",
+        "target": "5 January 1924",
+        "prediction": "Eric Cheney was born on 5 January 1924.",
+        "raw_output": "Eric Cheney was born on 5 January 1924.",
+        "tokens": 15,
+        "exact_match": false,
+        "token_f1": 0.5455,
+        "containment": true,
+        "rule_family": "born_date"
+      },
+      {
+        "item_id": "kqa_val_0078",
+        "question": "What award or prize did George S. Kaufman receive?",
+        "target": "Pulitzer Prize",
+        "prediction": "Pulitzer Prize for Drama",
+        "raw_output": "Pulitzer Prize for Drama",
+        "tokens": 5,
+        "exact_match": false,
+        "token_f1": 0.6667,
+        "containment": true,
+        "rule_family": "award_won"
+      },
+      {
+        "item_id": "kqa_val_0081",
+        "question": "When did Gioachino Rossini die?",
+        "target": "13 November 1868",
+        "prediction": "Gioachino Rossini died on 13 November 1868.",
+        "raw_output": "Gioachino Rossini died on 13 November 1868.",
+        "tokens": 18,
+        "exact_match": false,
+        "token_f1": 0.6,
+        "containment": true,
+        "rule_family": "death_date"
+      },
+      {
+        "item_id": "kqa_val_0095",
+        "question": "When was Britney Spears born?",
+        "target": "December 2, 1981",
+        "prediction": "Britney Spears was born on December 2, 1981.",
+        "raw_output": "Britney Spears was born on December 2, 1981.",
+        "tokens": 17,
+        "exact_match": false,
+        "token_f1": 0.5455,
+        "containment": true,
+        "rule_family": "born_date"
+      },
+      {
+        "item_id": "kqa_val_0106",
+        "question": "When did Cecilia Beaux die?",
+        "target": "September 17, 1942",
+        "prediction": "Cecilia Beaux died on September 17, 1942.",
+        "raw_output": "Cecilia Beaux died on September 17, 1942.",
+        "tokens": 18,
+        "exact_match": false,
+        "token_f1": 0.6,
+        "containment": true,
+        "rule_family": "death_date"
+      },
+      {
+        "item_id": "kqa_val_0117",
+        "question": "When was Christine Lavin born?",
+        "target": "January 2, 1952",
+        "prediction": "Christine Lavin was born on January 2, 1952.",
+        "raw_output": "Christine Lavin was born on January 2, 1952.",
+        "tokens": 17,
+        "exact_match": false,
+        "token_f1": 0.5455,
+        "containment": true,
+        "rule_family": "born_date"
+      },
+      {
+        "item_id": "kqa_val_0119",
+        "question": "When was George P\u00f3lya born?",
+        "target": "December 13, 1887",
+        "prediction": "George P\u00f3lya was born on December 13, 1887.",
+        "raw_output": "George P\u00f3lya was born on December 13, 1887.",
+        "tokens": 19,
+        "exact_match": false,
+        "token_f1": 0.5455,
+        "containment": true,
+        "rule_family": "born_date"
+      },
+      {
+        "item_id": "kqa_val_0121",
+        "question": "When was Henry VIII born?",
+        "target": "28 June 1491",
+        "prediction": "Henry VIII was born on 28 June 1491.",
+        "raw_output": "Henry VIII was born on 28 June 1491.",
+        "tokens": 16,
+        "exact_match": false,
+        "token_f1": 0.5455,
+        "containment": true,
+        "rule_family": "born_date"
+      },
+      {
+        "item_id": "kqa_val_0125",
+        "question": "When was Danny Elfman born?",
+        "target": "May 29, 1953",
+        "prediction": "Danny Elfman was born on May 29, 1953.",
+        "raw_output": "Danny Elfman was born on May 29, 1953.",
+        "tokens": 18,
+        "exact_match": false,
+        "token_f1": 0.5455,
+        "containment": true,
+        "rule_family": "born_date"
+      }
+    ]
+  }
+}

@@ -9,15 +9,19 @@ import sys
 from typing import Any, TypedDict
 
 
-class SuiteItem(TypedDict):
+class SuiteItem(TypedDict, total=False):
     """Canonical representation of an evaluation suite task item."""
 
     item_id: str
+    id: str
     group: str
+    split: str
     prompt: str
     target: str
     answer_check: str
     choices: list[str] | None
+    arm: str
+    template_family: str
     metadata: dict[str, Any]
 
 
@@ -154,3 +158,69 @@ sys.exit(0)
         return res.returncode == 0
     except (subprocess.TimeoutExpired, Exception):
         return False
+
+
+def normalize_text(text: str) -> str:
+    """Normalize text by lowercasing and stripping punctuation and excess whitespace."""
+    clean = text.lower().strip()
+    clean = re.sub(r"[^\w\s]", " ", clean)
+    return " ".join(clean.split())
+
+
+def check_key_match(predicted: str, target: str) -> bool:
+    """Check if the predicted string contains the target key (case/punctuation normalized)."""
+    norm_pred = normalize_text(predicted)
+    norm_target = normalize_text(target)
+    if not norm_target:
+        return False
+    return norm_target in norm_pred
+
+
+def check_item_correctness(item: dict[str, Any], prediction: str) -> bool:
+    """Consolidated checker routing to group-specific answer checking rules.
+
+    Supported check types:
+        - exact_numeric: math problems (GSM8K, synthetic arithmetic)
+        - answer_key: multiple choice (ARC-Challenge, MMLU)
+        - unit_tests_pass: Python code execution against assertions
+        - key_match: Knowledge-QA entity span match
+        - key_from_source_history: Personal memory probe with stale-fact scoring
+    """
+    answer_check = item.get("answer_check", "")
+    target = item.get("target") or item.get("answer", "")
+
+    if answer_check == "exact_numeric":
+        return check_exact_numeric(prediction, target)
+
+    if answer_check == "answer_key":
+        return check_answer_key(prediction, str(target))
+
+    if answer_check == "unit_tests_pass":
+        test_code = (
+            item.get("test_code")
+            or item.get("metadata", {}).get("test_code", "")
+            or item.get("target", "")
+        )
+        prompt = item.get("prompt", "")
+        entry_point = item.get("metadata", {}).get("entry_point")
+        return check_unit_tests_pass(
+            prediction, test_code=test_code, prompt=prompt, entry_point=entry_point
+        )
+
+    if answer_check == "key_match":
+        return check_key_match(prediction, str(target))
+
+    if answer_check == "key_from_source_history":
+        from evaluation.generators.stale_fact_scorer import score_memory_probe_response
+
+        stale_values = item.get("stale_values") or item.get("metadata", {}).get("stale_values", [])
+        score_res = score_memory_probe_response(
+            prediction=prediction,
+            target=str(target),
+            stale_values=stale_values,
+            is_stale_fact_item=bool(stale_values),
+        )
+        return score_res["correct"]
+
+    # Default fallback: normalized target substring
+    return check_key_match(prediction, str(target))

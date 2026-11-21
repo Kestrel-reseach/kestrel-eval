@@ -27,12 +27,16 @@ __all__ = [
     "MANDATORY_ENERGY_LABEL",
     "accuracy",
     "accuracy_by_group",
+    "cluster_bootstrap_ci",
+    "compute_cluster_icc",
     "compute_half_width",
     "config_hash",
     "format_energy_table",
     "format_half_widths_table",
     "gate_q_accuracy",
     "gate_q_energy",
+    "get_nvml_process_memory_mb",
+    "get_vram_breakdown_mb",
     "joules_per_correct_task",
     "load_records",
     "paired_bootstrap_ci",
@@ -130,6 +134,159 @@ def paired_bootstrap_ci(
     return lo, hi
 
 
+def cluster_bootstrap_ci(
+    records: list[Record],
+    cluster_key: str = "entity",
+    *,
+    n_bootstrap: int = 10_000,
+    seed: int = 20260101,
+    ci_level: float = 0.95,
+) -> tuple[float, float, float]:
+    """Cluster-aware bootstrap confidence interval for accuracy.
+
+    Resamples entire clusters (e.g. entities for fictional QA, or histories/attributes
+    for memory probe) with replacement to account for intra-cluster correlation.
+
+    Returns:
+        (mean_acc_pct, ci_lo_pct, ci_hi_pct) in percentage units [0, 100].
+    """
+    if not records:
+        return 0.0, 0.0, 0.0
+
+    clusters: dict[str, list[Record]] = defaultdict(list)
+    for r in records:
+        ck = r.get(cluster_key)
+        if ck is None and "metadata" in r:
+            ck = r["metadata"].get(cluster_key)
+        if ck is None:
+            if cluster_key == "entity":
+                ck = (
+                    r.get("metadata", {}).get("passage_title")
+                    or r.get("template_family")
+                    or r.get("item_id")
+                )
+            elif cluster_key == "history":
+                ck = (
+                    r.get("metadata", {}).get("attribute")
+                    or r.get("template_family")
+                    or r.get("item_id")
+                )
+            else:
+                ck = r.get("item_id")
+        clusters[str(ck)].append(r)
+
+    cluster_list = list(clusters.values())
+    k = len(cluster_list)
+    n_total = len(records)
+    base_acc = sum(1 for r in records if r.get("correct")) / n_total
+
+    rng = random.Random(seed)
+    accs: list[float] = []
+    for _ in range(n_bootstrap):
+        sampled_c = [cluster_list[rng.randrange(k)] for _ in range(k)]
+        s_items = [it for c in sampled_c for it in c]
+        if s_items:
+            acc = sum(1 for it in s_items if it.get("correct")) / len(s_items)
+            accs.append(acc * 100.0)
+
+    accs.sort()
+    alpha = (1.0 - ci_level) / 2.0
+    lo = accs[int(math.floor(alpha * n_bootstrap))]
+    hi = accs[int(math.floor((1.0 - alpha) * n_bootstrap))]
+    return round(base_acc * 100.0, 2), round(lo, 2), round(hi, 2)
+
+
+def compute_cluster_icc(
+    records: list[Record],
+    cluster_key: str = "entity",
+) -> dict[str, Any]:
+    """Compute intra-cluster correlation (ICC) and design effect (DEFF).
+
+    Returns dict with 'icc', 'm_mean', 'deff', 'n_total', 'k_clusters', 'n_eff'.
+    """
+    if not records:
+        return {
+            "icc": 0.0,
+            "m_mean": 0.0,
+            "deff": 1.0,
+            "n_total": 0,
+            "k_clusters": 0,
+            "n_eff": 0.0,
+        }
+
+    clusters: dict[str, list[Record]] = defaultdict(list)
+    for r in records:
+        ck = r.get(cluster_key)
+        if ck is None and "metadata" in r:
+            ck = r["metadata"].get(cluster_key)
+        if ck is None:
+            if cluster_key == "entity":
+                ck = (
+                    r.get("metadata", {}).get("passage_title")
+                    or r.get("template_family")
+                    or r.get("item_id")
+                )
+            elif cluster_key == "history":
+                ck = (
+                    r.get("metadata", {}).get("attribute")
+                    or r.get("template_family")
+                    or r.get("item_id")
+                )
+            else:
+                ck = r.get("item_id")
+        clusters[str(ck)].append(r)
+
+    cluster_list = list(clusters.values())
+    k = len(cluster_list)
+    n_total = len(records)
+    m_mean = n_total / k if k > 0 else 0.0
+
+    y_overall = sum(1.0 if r.get("correct") else 0.0 for r in records) / n_total
+
+    # One-way ANOVA decomposition for binary/continuous outcomes
+    # MSB = Between-cluster mean square
+    # MSW = Within-cluster mean square
+    ssb = sum(
+        len(c) * ((sum(1.0 if r.get("correct") else 0.0 for r in c) / len(c)) - y_overall) ** 2
+        for c in cluster_list
+    )
+    ssw = sum(
+        sum(
+            (
+                (1.0 if r.get("correct") else 0.0)
+                - (sum(1.0 if x.get("correct") else 0.0 for x in c) / len(c))
+            )
+            ** 2
+            for r in c
+        )
+        for c in cluster_list
+    )
+
+    df_b = k - 1
+    df_w = n_total - k
+
+    msb = ssb / df_b if df_b > 0 else 0.0
+    msw = ssw / df_w if df_w > 0 else 0.0
+
+    # ANOVA ICC estimator
+    if msb + (m_mean - 1) * msw > 0:
+        icc = max(0.0, min(1.0, (msb - msw) / (msb + (m_mean - 1) * msw)))
+    else:
+        icc = 0.0
+
+    deff = 1.0 + (m_mean - 1.0) * icc
+    n_eff = n_total / deff if deff > 0 else float(n_total)
+
+    return {
+        "icc": round(icc, 4),
+        "m_mean": round(m_mean, 2),
+        "deff": round(deff, 3),
+        "n_total": n_total,
+        "k_clusters": k,
+        "n_eff": round(n_eff, 1),
+    }
+
+
 # ── Energy ────────────────────────────────────────────────────────────────────
 
 
@@ -181,6 +338,57 @@ def peak_vram_gb(records: list[Record]) -> float | None:
     return max(vrams) / 1024.0
 
 
+def get_nvml_process_memory_mb(pid: int | None = None) -> float | None:
+    """Query NVML for process-level GPU memory usage (resident VRAM) in MB.
+
+    Canonical metric for Gate G-R: process-level resident VRAM measured after warm-up
+    at 2048-token context length.
+    """
+    import os
+
+    if pid is None:
+        pid = os.getpid()
+    try:
+        import pynvml
+
+        pynvml.nvmlInit()
+        try:
+            device_count = pynvml.nvmlDeviceGetCount()
+            for i in range(device_count):
+                handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+                procs = pynvml.nvmlDeviceGetComputeRunningProcesses(handle)
+                for proc in procs:
+                    if proc.pid == pid:
+                        return proc.usedGpuMemory / (1024.0 * 1024.0)
+        finally:
+            pynvml.nvmlShutdown()
+    except Exception:  # noqa: BLE001
+        pass
+    return None
+
+
+def get_vram_breakdown_mb() -> dict[str, float | None]:
+    """Return canonical VRAM breakdown: NVML process memory, torch allocated, torch reserved."""
+    import os
+
+    nvml_mb = get_nvml_process_memory_mb(os.getpid())
+    torch_alloc = None
+    torch_res = None
+    try:
+        import torch
+
+        if torch.cuda.is_available():
+            torch_alloc = torch.cuda.memory_allocated() / (1024.0 * 1024.0)
+            torch_res = torch.cuda.memory_reserved() / (1024.0 * 1024.0)
+    except ImportError:
+        pass
+    return {
+        "nvml_process_used_mb": nvml_mb,
+        "torch_allocated_mb": torch_alloc,
+        "torch_reserved_mb": torch_res,
+    }
+
+
 # ── Gate helpers ──────────────────────────────────────────────────────────────
 
 
@@ -198,6 +406,11 @@ def gate_q_accuracy(
 
     Returns a dict with 'passes', 'difference_pp', 'ci_lo', 'ci_hi', 'detail'.
     """
+    for r in p1_records + bllm_records:
+        if r.get("simulated") or r.get("inference_mode") == "simulated":
+            raise ValueError(
+                "Provenance guard violated: Simulated records cannot enter pass gates per kestrel-core.md."
+            )
     p1_correct = [bool(r.get("correct")) for r in p1_records]
     bllm_correct = [bool(r.get("correct")) for r in bllm_records]
     diff_pp = (accuracy(p1_records) - accuracy(bllm_records)) * 100
@@ -227,6 +440,11 @@ def gate_q_energy(
     P1 energy per correct task must be at most ``energy_cap_ratio`` times B-LLM's.
     Returns a dict with 'passes', 'p1_j_per_correct', 'bllm_j_per_correct', 'ratio'.
     """
+    for r in p1_records + bllm_records:
+        if r.get("simulated") or r.get("inference_mode") == "simulated":
+            raise ValueError(
+                "Provenance guard violated: Simulated records cannot enter pass gates per kestrel-core.md."
+            )
     p1_j = joules_per_correct_task(p1_records)
     bllm_j = joules_per_correct_task(bllm_records)
     if p1_j is None or bllm_j is None or bllm_j == 0:
@@ -325,6 +543,13 @@ def format_energy_table(
             "Refusing to generate energy report without mandatory label: "
             f"'{MANDATORY_ENERGY_LABEL}'"
         )
+
+    for row in rows:
+        for cell in row:
+            if isinstance(cell, str) and "simulated" in cell.lower():
+                raise ValueError(
+                    "Provenance guard violated: Simulated data cannot enter energy tables per kestrel-core.md."
+                )
 
     header_line = "| " + " | ".join(headers) + " |"
     sep_line = "| " + " | ".join(["---"] * len(headers)) + " |"

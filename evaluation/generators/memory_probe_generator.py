@@ -202,6 +202,133 @@ STALE_FACT_TEMPLATES = [
             "The locked delivery target date is officially",
         ],
     },
+    {
+        "attribute": "emergency contact phone",
+        "question": "What is my listed emergency contact phone number?",
+        "values": [
+            "555-0142",
+            "555-0189",
+            "555-0193",
+            "555-0214",
+            "555-0278",
+            "555-0321",
+        ],
+        "sources": [
+            "hr_benefits_portal",
+            "emergency_card_wallet",
+            "apartment_tenant_profile",
+        ],
+        "verbs": [
+            "Updated my emergency contact phone number to",
+            "Recorded new emergency contact digits as",
+            "Changed my designated emergency phone to",
+        ],
+    },
+    {
+        "attribute": "primary health insurance provider",
+        "question": "What is my current primary health insurance provider?",
+        "values": [
+            "Blue Cross Blue Shield",
+            "Kaiser Permanente",
+            "Aetna Choice POS",
+            "UnitedHealthcare",
+            "Cigna Open Access",
+        ],
+        "sources": [
+            "open_enrollment_email",
+            "pharmacy_benefit_card",
+            "paystub_deductions_pdf",
+        ],
+        "verbs": [
+            "Selected during open enrollment as my insurer",
+            "Switched health coverage over to",
+            "Card issued for active coverage with",
+        ],
+    },
+    {
+        "attribute": "home office standing desk brand",
+        "question": "What brand of standing desk do I use in my home office?",
+        "values": [
+            "Uplift V2",
+            "Fully Jarvis",
+            "Secretlab Magnus Pro",
+            "Vari Electric Desk",
+            "FlexiSpot E7",
+        ],
+        "sources": [
+            "desk_order_confirmation",
+            "home_office_inventory",
+            "ergonomics_consult_slack",
+        ],
+        "verbs": [
+            "Replaced my old desk with the",
+            "Assembled and set up my new",
+            "Current workstation is built on the",
+        ],
+    },
+    {
+        "attribute": "preferred cloud storage provider",
+        "question": "What is my primary active cloud storage backup service?",
+        "values": [
+            "Proton Drive",
+            "Google One 2TB",
+            "iCloud+ Storage",
+            "Dropbox Professional",
+            "Backblaze B2",
+        ],
+        "sources": [
+            "backup_subscription_invoice",
+            "cloud_sync_preferences",
+            "nas_backup_log",
+        ],
+        "verbs": [
+            "Migrated my personal encrypted backups to",
+            "Renewed my primary cloud storage on",
+            "Configured my main automated backup sync with",
+        ],
+    },
+    {
+        "attribute": "primary dental clinic",
+        "question": "Which dental practice do I currently visit for my annual cleanings?",
+        "values": [
+            "Apex Dental Care",
+            "Beacon Hill Smiles",
+            "Metro Modern Dentistry",
+            "Summit Valley Dental",
+            "Pine Crest Family Dentistry",
+        ],
+        "sources": [
+            "dental_appointment_reminder",
+            "hsa_claim_receipt",
+            "annual_cleaning_calendar",
+        ],
+        "verbs": [
+            "Scheduled my six-month cleaning at",
+            "Transferred dental records to",
+            "Completed my routine dental exam at",
+        ],
+    },
+    {
+        "attribute": "passport expiration year",
+        "question": "In what year is my current passport set to expire?",
+        "values": [
+            "2028",
+            "2029",
+            "2031",
+            "2033",
+            "2034",
+        ],
+        "sources": [
+            "travel_document_scanner_note",
+            "airline_tsa_profile",
+            "passport_renewal_receipt",
+        ],
+        "verbs": [
+            "Renewed passport with new expiration in",
+            "TSA profile records passport valid until",
+            "State Department issued passport expiring in",
+        ],
+    },
 ]
 
 STATIC_FACT_TEMPLATES = [
@@ -399,9 +526,11 @@ def generate_memory_probe_suite(
                 target=latest_val,
                 answer_check="key_from_source_history",
                 choices=None,
+                arm="synthetic",
+                template_family=tmpl["attribute"],
                 metadata={
                     "source": "synthetic_personal_memory_generator",
-                    "version": "1.0",
+                    "version": "2.0",
                     "license": "Project-Internal (Synthetic Only per D3)",
                     "license_url": "N/A",
                     "url": "local",
@@ -410,6 +539,8 @@ def generate_memory_probe_suite(
                     "is_stale_fact": True,
                     "stale_values": [old_val_1, old_val_2],
                     "attribute": tmpl["attribute"],
+                    "template_family": tmpl["attribute"],
+                    "arm": "synthetic",
                     "events": events,
                 },
             )
@@ -455,9 +586,11 @@ def generate_memory_probe_suite(
                 target=ans,
                 answer_check="key_from_source_history",
                 choices=None,
+                arm="synthetic",
+                template_family=src,
                 metadata={
                     "source": "synthetic_personal_memory_generator",
-                    "version": "1.0",
+                    "version": "2.0",
                     "license": "Project-Internal (Synthetic Only per D3)",
                     "license_url": "N/A",
                     "url": "local",
@@ -465,6 +598,9 @@ def generate_memory_probe_suite(
                     "contamination_risk": "ZERO (Synthetic history; no real personal data committed per rules.md)",
                     "is_stale_fact": False,
                     "stale_values": [],
+                    "attribute": src,
+                    "template_family": src,
+                    "arm": "synthetic",
                     "events": [event],
                 },
             )

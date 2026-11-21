@@ -21,16 +21,19 @@
 # These decisions are frozen. Do not change a threshold after seeing results.
 
 schema_version: "1"
-manifest_version: "1.1"       # version bump after owner decisions D1-D11 confirmed
+manifest_version: "2.2"       # v2.2: Revert chosen B-LLM and gate baselines to PENDING_OWNER_CONFIRMATION; record D18-D20 verbatim; candidate evaluation underway per Owner Decisions
 git_commit: UNSET            # filled by run_matrix.py at run time
-created_at: "2026-11-18"
-frozen: true                 # confirmed by owner decision D4 on 2026-11-18; non-inferiority margin 3 pp
+created_at: "2026-11-20"
+changelog_v2_2: >
+  Reverted B_LLM.chosen and G-Q/G-M/G-R empirical baselines to PENDING_OWNER_CONFIRMATION pending full candidate evaluation under D18-D20.
+frozen: true                 # confirmed by owner decisions D4, D14, D15, D16; non-inferiority margin 3 pp
 
 # ── Reproducibility ────────────────────────────────────────────────────────────
 seeds:
   suite_split: 20260101      # used to split items into train / val / locked-test
   eval_run:    20260102      # used for any randomness inside evaluation (e.g. sampling)
   verifier_train: 20260103   # used when training the verifier head
+  locked_seed: "PRIVATE"     # CSPRNG seed stored strictly out-of-repo (kestrel_private/locked_seed.env, mode 0600) per D15
 
 context_length: 2048         # owner decision 2026-11-18; fits 4 GB / 1.5 GB test tier
 
@@ -58,11 +61,11 @@ context_length: 2048         # owner decision 2026-11-18; fits 4 GB / 1.5 GB tes
 #     - knowledge_mcq (n=300):±5.7 pp
 #     - code (n=100):         ±9.8 pp
 #     - knowledge_qa (n=300): ±5.7 pp
-#     - memory_probe (n=100): ±9.8 pp
+#     - memory_probe (n=150): ±8.0 pp
 #   Statistical note: Matches the plan's text ("about ±3 points of 95% interval
 #   on the largest groups" with paired testing). Detects 5 pp effects on checkable groups.
 # ──────────────────────────────────────────────────────────────────────────────
-sizes_are: per_partition     # owner decision 2026-11-17: 1200 items per partition (3600 total)
+sizes_are: per_partition     # owner decision 2026-11-17: 1250 items per partition (3750 total per D16)
 
 # Why per_partition: with `total`, the locked-test groups would be n=20–60 and
 # 95% CIs ±12.7–21.9 pp, so G-Q's 5 pp effect could not be confirmed. With
@@ -94,9 +97,9 @@ groups:
     corpus_dump_url: "https://dumps.wikimedia.org/enwiki/20261101/enwiki-20261101-pages-articles1.xml-p1p41242.bz2"
     corpus_sha256: "e3fd5a837f2a6b3a26c3596d0667600073a86c9fc29dc60ef0b2de605c754387"
   memory_probe:
-    description: "Personal-memory probe (30 stale-fact items)"
-    size: 100
-    stale_fact_count: 30
+    description: "Personal-memory probe (150 items: 100 stale-fact items + 50 static items across 16 categories)"
+    size: 150
+    stale_fact_count: 100
     answer_check: "key_from_source_history"
     personal_data: synthetic_only  # change to real_approved only if owner approves item by item
 
@@ -108,13 +111,15 @@ partition_fractions: null
 # Hashes of the locked-test partition files (filled by suite_hash.py at Step 1).
 # Never run or tune against the locked-test partition before Step 10.
 locked_test_hashes:
-  math: "25c052ee25cac22aa193d8386f425ec334bf89de9f0598064ae2f9dff1a52f1d"
-  science_mcq: "08e82a53794b6314d74aaefcd9bf58a21bef0ab2940579e2c2da7565bdd84172"
-  knowledge_mcq: "4fc1c7de12ea4f9da57b50733eb78f77369c856e46e1e23d4a4629a5871c10a6"
-  code: "3ea39eaea70d62d2cd77f533633a307a45e195e7d5a57a903ae8fcb471b9c7da"
-  knowledge_qa: "f994d4793291d59e4809a1e7588324fc1842a4d726900446e7394feffaa532b0"
-  memory_probe: "f0f819178d78523a8640161651816d8d50c50ce76974a6cc1ad39932cf019acd"
-root_hash: "22fff5e005245148f85e29c75029e85034ada793ee6b7e7c33b130e8fd9e99b7"
+  math: "2516fc845447352775e891845c2e1fcee4a6c02399aba3d4e69f737093fe9c51"
+  science_mcq: "aef023c27437e13fbe4af271aa589ac6f140ccbd72ea5c8177b7ee6e3313fcc6"
+  knowledge_mcq: "d83ce8a19a891dd159bff24d48b1bc5a9d250ddeb625387a5656859693c0799e"
+  code: "e807c55ff462535e80b81ee8cf640733c67abe2997ed86e44ec91511c066c20e"
+  knowledge_qa: "e1147853c87a5ac141dec5b77fd8373c926387c6ae087d93fd58cfd31d0c78ca"
+  memory_probe: "5468373aa172f81c9b4291e279cb74996a729911a48ff36341a10f84ba2dc0af"
+root_hash: "15be5befee80bde2c624d06cd2b8826475e13bb3f45298be1ced584a884e6fa5"
+superseded_v2_root_hash: "39cbe48e161f75a1bd4b57e8abf555012fe7b3b515092d96cf5e843bb3a97b68"
+superseded_v1_root_hash: "73a38ea8f35f606346903d6d6ec142ee85c184d00fa5ff7f6c382d55e9ef0fa5"
 # ── Hardware budget ────────────────────────────────────────────────────────────
 hardware:
   gpu_tier:
@@ -144,6 +149,13 @@ gates:
     energy_multiplier_cap: 1.0   # P1 energy <= B-LLM energy for the accuracy gate
     energy_savings_cap: 0.50     # P1 energy <= 50 % of B-LLM for the efficiency gate
     status: ACCEPTED
+    b_llm_model: "PENDING_OWNER_CONFIRMATION"
+    baseline_accuracy_pct: "PENDING_OWNER_CONFIRMATION"   # to be filled post-candidate evaluation under D18
+    baseline_ci_95: "PENDING_OWNER_CONFIRMATION"
+    target_accuracy_pct: "PENDING_OWNER_CONFIRMATION"
+    baseline_net_joules_per_correct: "PENDING_OWNER_CONFIRMATION"
+    target_efficiency_energy_cap: "PENDING_OWNER_CONFIRMATION"
+    alt_non_inferiority_floor_pct: "PENDING_OWNER_CONFIRMATION"
 
   G_F:
     description: >
@@ -152,15 +164,24 @@ gates:
       reported, not promised.
     strong_result_threshold_pct: 25   # accepted 2026-11-17
     status: ACCEPTED
+    formula: "C = (Acc_P1 - Acc_B) / (Acc_F - Acc_B)"
+    frontier_status: "F = gemini-2.5-pro free tier, not run yet"
 
   G_M:
     description: >
       On the memory probe, P1 is at least as good as F with no history and within
       5 points of F with the full history. Stale-fact errors at most half those of
-      plain external memory.
+      plain external memory. Evaluated on 100 stale-fact items per D16 (n_eff = 100,
+      paired McNemar 80% power at delta >= 8 pp).
     gap_to_f_full_history_pp: 5      # accepted 2026-11-17
     stale_fact_error_ratio_cap: 0.50 # accepted 2026-11-17
+    stale_items_count: 100           # updated per D16 (was 30)
     status: ACCEPTED
+    b_llm_model: "PENDING_OWNER_CONFIRMATION"
+    baseline_stale_errors: "PENDING_OWNER_CONFIRMATION"        # to be filled post-candidate evaluation under D18
+    baseline_stale_error_rate_pct: "PENDING_OWNER_CONFIRMATION"
+    target_max_stale_errors: "PENDING_OWNER_CONFIRMATION"
+    target_stale_error_rate_cap_pct: "PENDING_OWNER_CONFIRMATION"
 
   G_R:
     description: >
@@ -171,6 +192,13 @@ gates:
     ram_cap_gb: 4.0           # accepted 2026-11-17
     latency_percentiles: [50, 95]
     status: ACCEPTED
+    b_llm_model: "PENDING_OWNER_CONFIRMATION"
+    baseline_nvml_process_vram_mb: "PENDING_OWNER_CONFIRMATION" # at 2048 context (D18)
+    baseline_torch_allocated_mb: "PENDING_OWNER_CONFIRMATION"
+    vram_cap_mb: 1536.0
+    headroom_mb: "PENDING_OWNER_CONFIRMATION"
+    baseline_latency_p50_ms: "PENDING_OWNER_CONFIRMATION"
+    baseline_latency_p95_ms: "PENDING_OWNER_CONFIRMATION"
 
   no_regression:
     description: >
@@ -222,13 +250,15 @@ systems:
   B_LLM:
     description: "Best quantized small model from the shortlist, plain retrieval."
     candidates:
-      - "Qwen3.5-0.8B-Instruct 4-bit (example candidate; unverified after early 2026, confirm before download)"
-      - "Qwen3.5-2B-Instruct 4-bit (example candidate; unverified after early 2026, confirm before download)"
-      - "Granite-4.0-Nano-1.5B 4-bit (example candidate; unverified after early 2026, confirm before download)"
-      - "LFM2 (example candidate; unverified after early 2026, confirm version and size before download)"
-    candidates_note: "Model versions and sizes dated after early 2026 are unverified; confirm before downloading per rules.md."
-    chosen: UNMEASURED         # filled at Step 2 by measurement
-    selection_criterion: "accuracy-versus-energy-versus-memory trade-off, by measurement"
+      - "Qwen/Qwen2.5-0.5B-Instruct (bitsandbytes 4-bit NF4)"
+      - "Qwen/Qwen2.5-1.5B-Instruct (bitsandbytes 4-bit NF4)"
+      - "meta-llama/Llama-3.2-1B-Instruct (bitsandbytes 4-bit NF4)"
+      - "HuggingFaceTB/SmolLM2-1.7B-Instruct (bitsandbytes 4-bit NF4)"
+      - "ibm-granite/granite-4.0-1b-instruct (bitsandbytes 4-bit NF4)"
+      - "Qwen/Qwen3.5-0.8B-Instruct (bitsandbytes 4-bit NF4, time-boxed exploration per D19)"
+    candidates_note: "Five Option A candidates stand per Owner Decision D19; plus time-boxed exploration of Qwen3.5-0.8B."
+    chosen: "PENDING_OWNER_CONFIRMATION"
+    selection_criterion: "Under Owner Decision D18: most accurate candidate with NVML process VRAM at 2048 context <= 1,536 MB; ties broken by lower net energy per correct on 800-item scope; final only after all candidates are run and owners confirm."
   P1:
     description: "Kestrel-lite prototype from the kestrel repository."
-    base_model: UNMEASURED     # filled at Step 2 (same shortlist as B-LLM candidates)
+    base_model: "PENDING_REAL_RUN"

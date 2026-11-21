@@ -1,0 +1,163 @@
+{
+  "validation": {
+    "math": {
+      "count": 200,
+      "source_type": "synthetic",
+      "family_count": 1,
+      "families": {
+        "procedural_math": 200
+      },
+      "largest_family": "procedural_math",
+      "largest_share": 100.0
+    },
+    "science_mcq": {
+      "count": 200,
+      "source_type": "stand-in",
+      "family_count": 1,
+      "families": {
+        "science_topic": 200
+      },
+      "largest_family": "science_topic",
+      "largest_share": 100.0
+    },
+    "knowledge_mcq": {
+      "count": 300,
+      "source_type": "stand-in",
+      "family_count": 10,
+      "families": {
+        "college_computer_science": 30,
+        "college_physics": 30,
+        "college_biology": 30,
+        "college_chemistry": 30,
+        "elementary_mathematics": 30,
+        "high_school_world_history": 30,
+        "high_school_geography": 30,
+        "professional_law": 30,
+        "clinical_knowledge": 30,
+        "econometrics": 30
+      },
+      "largest_family": "college_computer_science",
+      "largest_share": 10.0
+    },
+    "code": {
+      "count": 100,
+      "source_type": "synthetic",
+      "family_count": 1,
+      "families": {
+        "procedural_code": 100
+      },
+      "largest_family": "procedural_code",
+      "largest_share": 100.0
+    },
+    "knowledge_qa": {
+      "count": 300,
+      "source_type": "verified real (Wikipedia)",
+      "family_count": 9,
+      "families": {
+        "profession": 67,
+        "death_date": 76,
+        "city_location": 6,
+        "born_date": 106,
+        "population": 26,
+        "release_year": 1,
+        "award_won": 13,
+        "capital_city": 3,
+        "founded_year": 2
+      },
+      "largest_family": "born_date",
+      "largest_share": 35.3
+    },
+    "memory_probe": {
+      "count": 100,
+      "source_type": "synthetic",
+      "family_count": 2,
+      "families": {
+        "stale_fact": 30,
+        "normal": 70
+      },
+      "largest_family": "normal",
+      "largest_share": 70.0
+    }
+  },
+  "train": {
+    "math": {
+      "count": 200,
+      "source_type": "synthetic",
+      "family_count": 1,
+      "families": {
+        "procedural_math": 200
+      },
+      "largest_family": "procedural_math",
+      "largest_share": 100.0
+    },
+    "science_mcq": {
+      "count": 200,
+      "source_type": "stand-in",
+      "family_count": 1,
+      "families": {
+        "science_topic": 200
+      },
+      "largest_family": "science_topic",
+      "largest_share": 100.0
+    },
+    "knowledge_mcq": {
+      "count": 300,
+      "source_type": "stand-in",
+      "family_count": 10,
+      "families": {
+        "college_computer_science": 30,
+        "college_physics": 30,
+        "college_biology": 30,
+        "college_chemistry": 30,
+        "elementary_mathematics": 30,
+        "high_school_world_history": 30,
+        "high_school_geography": 30,
+        "professional_law": 30,
+        "clinical_knowledge": 30,
+        "econometrics": 30
+      },
+      "largest_family": "college_computer_science",
+      "largest_share": 10.0
+    },
+    "code": {
+      "count": 100,
+      "source_type": "synthetic",
+      "family_count": 1,
+      "families": {
+        "procedural_code": 100
+      },
+      "largest_family": "procedural_code",
+      "largest_share": 100.0
+    },
+    "knowledge_qa": {
+      "count": 300,
+      "source_type": "verified real (Wikipedia)",
+      "family_count": 10,
+      "families": {
+        "born_date": 99,
+        "death_date": 80,
+        "award_won": 19,
+        "profession": 62,
+        "city_location": 5,
+        "population": 27,
+        "founded_year": 2,
+        "release_year": 1,
+        "work_creator": 2,
+        "capital_city": 3
+      },
+      "largest_family": "born_date",
+      "largest_share": 33.0
+    },
+    "memory_probe": {
+      "count": 100,
+      "source_type": "synthetic",
+      "family_count": 2,
+      "families": {
+        "stale_fact": 30,
+        "normal": 70
+      },
+      "largest_family": "normal",
+      "largest_share": 70.0
+    }
+  }
+}
