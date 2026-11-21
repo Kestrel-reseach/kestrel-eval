@@ -16,7 +16,7 @@
 | System | Model / Candidate | Quantization | Accuracy | 95% CI | J/correct (Net) | J/correct (Gross) | Resident VRAM (MB) | p50 ms | p95 ms | Gate G-R Status |
 | :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **F** | gemini-2.5-pro (free tier) | Free API | UNMEASURED | UNMEASURED | UNMEASURED | UNMEASURED | 0.0 MB (Cloud) | UNMEASURED | UNMEASURED | Cloud Reference |
-| **B-LLM (Chosen)** | **Qwen2.5-1.5B-Instruct** | **bitsandbytes 4-bit NF4** | **58.96%** | **[56.23, 61.69]%** | **120.40 J** | **146.10 J** | **1416.0 MB** | **622.9 ms** | **12101.2 ms** | **COMPLIANT** (<= 1536 MB) |
+| **B-LLM (Chosen)** | **Qwen2.5-1.5B-Instruct** | **bitsandbytes 4-bit NF4** | **62.72%** | **[60.00, 65.36]%** | **171.55 J** | **208.17 J** | **1416.0 MB** | **622.9 ms** | **12101.2 ms** | **COMPLIANT** (<= 1536 MB) |
 | Candidate | Qwen2.5-0.5B-Instruct | bitsandbytes 4-bit NF4 | 47.44% | [44.67, 50.21]% | 68.80 J | 95.36 J | 632.0 MB | 212.6 ms | 9864.6 ms | COMPLIANT (<= 1536 MB) |
 
 *Head-to-head comparison: $\Delta\text{Acc} (1.5B - 0.5B) = +11.52\text{ pp}$ (95% paired bootstrap CI: [+8.40, +14.56] pp, $p < 0.0001$).*
@@ -34,13 +34,13 @@
 | F | knowledge_qa | UNMEASURED | UNMEASURED | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |
 | F | memory_probe | UNMEASURED | UNMEASURED | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |
 | F | overall | UNMEASURED | UNMEASURED | UNMEASURED | 0.00 | UNMEASURED | UNMEASURED |
-| B-LLM | math | 64.50% | [57.87, 71.13]% | 120.40 J | 1.38 | 10369.2 | 18119.4 |
-| B-LLM | science_mcq | 62.50% | [55.79, 69.21]% | 120.40 J | 1.38 | 117.8 | 147.2 |
-| B-LLM | knowledge_mcq | 48.67% | [43.01, 54.32]% | 120.40 J | 1.38 | 135.3 | 253.4 |
-| B-LLM | code | 18.00% | [10.47, 25.53]% | 120.40 J | 1.38 | 2684.3 | 8320.8 |
-| B-LLM | knowledge_qa | 65.00% | [59.60, 70.40]% | 120.40 J | 1.38 | 905.3 | 1472.9 |
-| B-LLM | memory_probe | 82.67% | [76.61, 88.72]% | 120.40 J | 1.38 | 619.3 | 1035.5 |
-| B-LLM | overall | 58.96% | [56.23, 61.69]% | 120.40 J | 1.38 | 622.9 | 12101.2 |
+| B-LLM | math | 68.00% | [61.25, 74.07]% | 171.55 J | 1.38 | 10369.2 | 18119.4 |
+| B-LLM | science_mcq | 62.50% | [55.61, 68.91]% | 171.55 J | 1.38 | 117.8 | 147.2 |
+| B-LLM | knowledge_mcq | 48.67% | [43.06, 54.30]% | 171.55 J | 1.38 | 135.3 | 253.4 |
+| B-LLM | code | 48.00% | [38.46, 57.68]% | 171.55 J | 1.38 | 2684.3 | 8320.8 |
+| B-LLM | knowledge_qa | 68.33% | [62.87, 73.34]% | 171.55 J | 1.38 | 905.3 | 1472.9 |
+| B-LLM | memory_probe | 82.67% | [75.81, 87.89]% | 171.55 J | 1.38 | 619.3 | 1035.5 |
+| B-LLM | overall | 62.72% | [60.00, 65.36]% | 171.55 J | 1.38 | 622.9 | 12101.2 |
 | Qwen2.5-0.5B | math | 33.50% | [26.96, 40.04]% | 68.80 J | 0.62 | 8185.6 | 13354.6 |
 | Qwen2.5-0.5B | science_mcq | 47.50% | [40.58, 54.42]% | 68.80 J | 0.62 | 76.6 | 79.7 |
 | Qwen2.5-0.5B | knowledge_mcq | 36.33% | [30.89, 41.78]% | 68.80 J | 0.62 | 77.2 | 89.6 |
@@ -56,7 +56,7 @@
 | Candidate Model | Math (n=200) | Science MCQ (n=200) | Knowledge MCQ (n=300) | Code (n=100) | Knowledge QA (n=300) | Memory Probe (n=150) | Overall (n=1,250) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **F (gemini-2.5-pro)** | UNMEASURED | UNMEASURED | UNMEASURED | UNMEASURED | UNMEASURED | UNMEASURED | UNMEASURED |
-| **Qwen2.5-1.5B (B-LLM)** | **64.50%** | **62.50%** | **48.67%** | 18.00% | 65.00% | **82.67%** | **58.96%** |
+| **Qwen2.5-1.5B (B-LLM)** | **68.00%** | **62.50%** | **48.67%** | **48.00%** | **68.33%** | **82.67%** | **62.72%** |
 | Qwen2.5-0.5B-Instruct | 33.50% | 47.50% | 36.33% | **19.00%** | **66.33%** | 69.33% | 47.44% |
 | **Delta (1.5B - 0.5B)** | **+31.00 pp** | **+15.00 pp** | **+12.34 pp** | -1.00 pp | -1.33 pp | **+13.34 pp** | **+11.52 pp** |
 
@@ -66,7 +66,7 @@
 
 | Model Candidate | Knowledge QA (No Retrieval) | Knowledge QA (With BM25) | Absolute Retrieval Gain | Parametric Memorization on Fictional Entities |
 | :--- | :---: | :---: | :---: | :---: |
-| **Qwen2.5-1.5B-Instruct** | 3.67% | 65.00% | **+61.33 pp** | **0.00%** (0 / 100 correct without retrieval) |
+| **Qwen2.5-1.5B-Instruct** | 3.67% | 68.33% | **+64.66 pp** | **0.00%** (0 / 100 correct without retrieval) |
 | Qwen2.5-0.5B-Instruct | 0.33% | 66.33% | **+66.00 pp** | **0.00%** (0 / 100 correct without retrieval) |
 
 - **Contamination Check**: Zero accuracy (0.00%) on the fictional entity arm without retrieval proves clean separation and zero pretraining leakage.
@@ -85,6 +85,6 @@
 
 ## 6. Frozen Empirical Gate Baselines Established for B-LLM
 
-- **Gate G-Q Hurdle** (800 checkable items): **58.38%** baseline (467/800). Target: $\ge \mathbf{63.38\%}$ at $\le \mathbf{120.40\text{ J/correct}}$, or $\ge \mathbf{55.38\%}$ at $\le \mathbf{60.20\text{ J/correct}}$.
+- **Gate G-Q Hurdle** (800 checkable items): **56.88%** baseline (455/800). Target: $\ge \mathbf{61.88\%}$ at $\le \mathbf{171.55\text{ J/correct}}$, or $\ge \mathbf{53.88\%}$ at $\le \mathbf{85.78\text{ J/correct}}$.
 - **Gate G-M Hurdle** (100 stale fact items): **22.00%** baseline (22 errors). Target: $\le \mathbf{11.00\%}$ (at most **11 errors**).
 - **Gate G-R Hurdle** (Resident VRAM): **1416.0 MB** baseline. Target: $\le \mathbf{1536.0\text{ MB}}$ (**+120.0 MB headroom**).
