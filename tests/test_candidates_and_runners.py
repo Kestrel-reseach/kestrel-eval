@@ -37,7 +37,7 @@ def test_candidate_shortlist_budget_verification():
 def test_candidate_metadata_fields():
     """Verify all candidates have required license, context, and revision."""
     for c in CANDIDATE_SHORTLIST.values():
-        assert c.license == "Apache-2.0"
+        assert c.license in ("Apache-2.0", "Llama 3.2 Community")
         assert c.context_length == 2048
         assert c.revision_hash
 

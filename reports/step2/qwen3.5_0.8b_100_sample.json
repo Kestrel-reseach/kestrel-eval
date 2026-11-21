@@ -1,0 +1,817 @@
+{
+  "precision": "nf4",
+  "n": 100,
+  "correct": 54,
+  "accuracy_pct": 54.0,
+  "total_tokens": 9069,
+  "ms_per_token": 59.49,
+  "p50_latency_ms": 814.4,
+  "p95_latency_ms": 23337.2,
+  "vram_breakdown": {
+    "nvml_process_used_mb": 928.0,
+    "torch_allocated_mb": 768.38037109375,
+    "torch_reserved_mb": 830.0
+  },
+  "results": [
+    {
+      "item_id": "math_val_0191",
+      "group": "math",
+      "arm": "synthetic",
+      "tokens": 444,
+      "wall_ms": 26596.231942000486,
+      "score": false
+    },
+    {
+      "item_id": "math_val_0031",
+      "group": "math",
+      "arm": "public",
+      "tokens": 403,
+      "wall_ms": 23337.20123799958,
+      "score": false
+    },
+    {
+      "item_id": "math_val_0029",
+      "group": "math",
+      "arm": "public",
+      "tokens": 222,
+      "wall_ms": 12413.609803000327,
+      "score": false
+    },
+    {
+      "item_id": "math_val_0167",
+      "group": "math",
+      "arm": "synthetic",
+      "tokens": 768,
+      "wall_ms": 45512.677657000495,
+      "score": false
+    },
+    {
+      "item_id": "math_val_0145",
+      "group": "math",
+      "arm": "synthetic",
+      "tokens": 363,
+      "wall_ms": 21297.536622000734,
+      "score": false
+    },
+    {
+      "item_id": "math_val_0082",
+      "group": "math",
+      "arm": "public",
+      "tokens": 479,
+      "wall_ms": 28534.091892000106,
+      "score": false
+    },
+    {
+      "item_id": "math_val_0141",
+      "group": "math",
+      "arm": "synthetic",
+      "tokens": 292,
+      "wall_ms": 17233.700738000152,
+      "score": true
+    },
+    {
+      "item_id": "math_val_0199",
+      "group": "math",
+      "arm": "synthetic",
+      "tokens": 577,
+      "wall_ms": 33524.06920700014,
+      "score": true
+    },
+    {
+      "item_id": "math_val_0050",
+      "group": "math",
+      "arm": "public",
+      "tokens": 332,
+      "wall_ms": 19499.241304999487,
+      "score": false
+    },
+    {
+      "item_id": "math_val_0040",
+      "group": "math",
+      "arm": "public",
+      "tokens": 255,
+      "wall_ms": 14881.497309999759,
+      "score": true
+    },
+    {
+      "item_id": "math_val_0062",
+      "group": "math",
+      "arm": "public",
+      "tokens": 296,
+      "wall_ms": 17326.931491999858,
+      "score": true
+    },
+    {
+      "item_id": "math_val_0157",
+      "group": "math",
+      "arm": "synthetic",
+      "tokens": 249,
+      "wall_ms": 15456.788323999717,
+      "score": true
+    },
+    {
+      "item_id": "math_val_0159",
+      "group": "math",
+      "arm": "synthetic",
+      "tokens": 248,
+      "wall_ms": 14601.111162999587,
+      "score": true
+    },
+    {
+      "item_id": "math_val_0166",
+      "group": "math",
+      "arm": "synthetic",
+      "tokens": 190,
+      "wall_ms": 11262.63061499958,
+      "score": true
+    },
+    {
+      "item_id": "math_val_0129",
+      "group": "math",
+      "arm": "synthetic",
+      "tokens": 357,
+      "wall_ms": 20630.352845000743,
+      "score": false
+    },
+    {
+      "item_id": "math_val_0112",
+      "group": "math",
+      "arm": "synthetic",
+      "tokens": 283,
+      "wall_ms": 16788.085076000243,
+      "score": true
+    },
+    {
+      "item_id": "math_val_0197",
+      "group": "math",
+      "arm": "synthetic",
+      "tokens": 391,
+      "wall_ms": 22102.499548000196,
+      "score": true
+    },
+    {
+      "item_id": "math_val_0104",
+      "group": "math",
+      "arm": "synthetic",
+      "tokens": 339,
+      "wall_ms": 20443.645035999907,
+      "score": true
+    },
+    {
+      "item_id": "math_val_0020",
+      "group": "math",
+      "arm": "public",
+      "tokens": 451,
+      "wall_ms": 26743.762934999722,
+      "score": false
+    },
+    {
+      "item_id": "math_val_0198",
+      "group": "math",
+      "arm": "synthetic",
+      "tokens": 246,
+      "wall_ms": 14930.619202999878,
+      "score": true
+    },
+    {
+      "item_id": "sci_val_0078",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 148.32678200036753,
+      "score": true
+    },
+    {
+      "item_id": "sci_val_0048",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 142.45327200023894,
+      "score": true
+    },
+    {
+      "item_id": "sci_val_0012",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 145.4137200007608,
+      "score": false
+    },
+    {
+      "item_id": "sci_val_0134",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 140.4544650004027,
+      "score": true
+    },
+    {
+      "item_id": "sci_val_0022",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 162.01683999952365,
+      "score": true
+    },
+    {
+      "item_id": "sci_val_0117",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 190.6032309998409,
+      "score": false
+    },
+    {
+      "item_id": "sci_val_0161",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 196.9308359994102,
+      "score": true
+    },
+    {
+      "item_id": "sci_val_0185",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 176.68868200053112,
+      "score": true
+    },
+    {
+      "item_id": "sci_val_0065",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 165.79917200033378,
+      "score": true
+    },
+    {
+      "item_id": "sci_val_0144",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 153.36931700039713,
+      "score": true
+    },
+    {
+      "item_id": "sci_val_0138",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 159.34297100011463,
+      "score": false
+    },
+    {
+      "item_id": "sci_val_0041",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 181.9938690005074,
+      "score": false
+    },
+    {
+      "item_id": "sci_val_0166",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 157.89947399935045,
+      "score": false
+    },
+    {
+      "item_id": "sci_val_0189",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 154.55064100024174,
+      "score": false
+    },
+    {
+      "item_id": "sci_val_0174",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 142.16218100045808,
+      "score": false
+    },
+    {
+      "item_id": "sci_val_0113",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 139.10464600030537,
+      "score": true
+    },
+    {
+      "item_id": "sci_val_0140",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 158.33155200016336,
+      "score": true
+    },
+    {
+      "item_id": "sci_val_0050",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 141.21560200055683,
+      "score": true
+    },
+    {
+      "item_id": "sci_val_0137",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 145.50447500005248,
+      "score": true
+    },
+    {
+      "item_id": "sci_val_0047",
+      "group": "science_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 154.0234629992483,
+      "score": true
+    },
+    {
+      "item_id": "know_val_0136",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 156.39756200016564,
+      "score": false
+    },
+    {
+      "item_id": "know_val_0300",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 187.36109100063914,
+      "score": true
+    },
+    {
+      "item_id": "know_val_0216",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 183.05894500008435,
+      "score": false
+    },
+    {
+      "item_id": "know_val_0088",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 163.71111599983124,
+      "score": false
+    },
+    {
+      "item_id": "know_val_0193",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 171.06946900003095,
+      "score": true
+    },
+    {
+      "item_id": "know_val_0212",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 184.13939399943047,
+      "score": true
+    },
+    {
+      "item_id": "know_val_0052",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 146.65632800006279,
+      "score": false
+    },
+    {
+      "item_id": "know_val_0068",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 159.28567299943097,
+      "score": true
+    },
+    {
+      "item_id": "know_val_0186",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 142.77241099989624,
+      "score": false
+    },
+    {
+      "item_id": "know_val_0250",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 135.32940300046903,
+      "score": true
+    },
+    {
+      "item_id": "know_val_0046",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 148.27147300002252,
+      "score": false
+    },
+    {
+      "item_id": "know_val_0150",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 149.31006400001934,
+      "score": false
+    },
+    {
+      "item_id": "know_val_0139",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 150.76446100010799,
+      "score": false
+    },
+    {
+      "item_id": "know_val_0272",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 160.49682300035784,
+      "score": false
+    },
+    {
+      "item_id": "know_val_0284",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 171.85769500065362,
+      "score": true
+    },
+    {
+      "item_id": "know_val_0246",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 162.85808100019494,
+      "score": true
+    },
+    {
+      "item_id": "know_val_0232",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 196.83971500035113,
+      "score": false
+    },
+    {
+      "item_id": "know_val_0263",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 144.6140239995657,
+      "score": true
+    },
+    {
+      "item_id": "know_val_0210",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 141.97096900079487,
+      "score": true
+    },
+    {
+      "item_id": "know_val_0198",
+      "group": "knowledge_mcq",
+      "arm": "public",
+      "tokens": 2,
+      "wall_ms": 132.76810000024852,
+      "score": true
+    },
+    {
+      "item_id": "code_val_0056",
+      "group": "code",
+      "arm": "synthetic",
+      "tokens": 116,
+      "wall_ms": 8292.476064999391,
+      "score": true
+    },
+    {
+      "item_id": "code_val_0057",
+      "group": "code",
+      "arm": "synthetic",
+      "tokens": 226,
+      "wall_ms": 13543.035864000558,
+      "score": true
+    },
+    {
+      "item_id": "code_val_0007",
+      "group": "code",
+      "arm": "public",
+      "tokens": 35,
+      "wall_ms": 1934.1161399997873,
+      "score": true
+    },
+    {
+      "item_id": "code_val_0052",
+      "group": "code",
+      "arm": "synthetic",
+      "tokens": 135,
+      "wall_ms": 7515.142985000239,
+      "score": true
+    },
+    {
+      "item_id": "code_val_0063",
+      "group": "code",
+      "arm": "synthetic",
+      "tokens": 224,
+      "wall_ms": 11992.202653999811,
+      "score": false
+    },
+    {
+      "item_id": "code_val_0014",
+      "group": "code",
+      "arm": "public",
+      "tokens": 28,
+      "wall_ms": 1571.0338520002551,
+      "score": false
+    },
+    {
+      "item_id": "code_val_0092",
+      "group": "code",
+      "arm": "synthetic",
+      "tokens": 160,
+      "wall_ms": 9512.162474999968,
+      "score": false
+    },
+    {
+      "item_id": "code_val_0097",
+      "group": "code",
+      "arm": "synthetic",
+      "tokens": 175,
+      "wall_ms": 10970.61857999961,
+      "score": false
+    },
+    {
+      "item_id": "code_val_0091",
+      "group": "code",
+      "arm": "synthetic",
+      "tokens": 169,
+      "wall_ms": 10200.800945999617,
+      "score": false
+    },
+    {
+      "item_id": "code_val_0037",
+      "group": "code",
+      "arm": "public",
+      "tokens": 149,
+      "wall_ms": 8750.054228999943,
+      "score": false
+    },
+    {
+      "item_id": "kqa_val_0119",
+      "group": "knowledge_qa",
+      "arm": "real_wikipedia",
+      "tokens": 13,
+      "wall_ms": 926.5481929996895,
+      "score": true
+    },
+    {
+      "item_id": "kqa_val_0116",
+      "group": "knowledge_qa",
+      "arm": "real_wikipedia",
+      "tokens": 13,
+      "wall_ms": 909.8022110001693,
+      "score": false
+    },
+    {
+      "item_id": "kqa_val_0016",
+      "group": "knowledge_qa",
+      "arm": "real_wikipedia",
+      "tokens": 13,
+      "wall_ms": 928.486582000005,
+      "score": true
+    },
+    {
+      "item_id": "kqa_val_0021",
+      "group": "knowledge_qa",
+      "arm": "real_wikipedia",
+      "tokens": 9,
+      "wall_ms": 742.1737069998926,
+      "score": true
+    },
+    {
+      "item_id": "kqa_val_0124",
+      "group": "knowledge_qa",
+      "arm": "real_wikipedia",
+      "tokens": 7,
+      "wall_ms": 590.310536999823,
+      "score": false
+    },
+    {
+      "item_id": "kqa_val_0077",
+      "group": "knowledge_qa",
+      "arm": "real_wikipedia",
+      "tokens": 24,
+      "wall_ms": 1544.7740290001093,
+      "score": false
+    },
+    {
+      "item_id": "kqa_val_0196",
+      "group": "knowledge_qa",
+      "arm": "real_wikipedia",
+      "tokens": 21,
+      "wall_ms": 1340.7926919999227,
+      "score": true
+    },
+    {
+      "item_id": "kqa_val_0143",
+      "group": "knowledge_qa",
+      "arm": "real_wikipedia",
+      "tokens": 5,
+      "wall_ms": 501.05210299989267,
+      "score": true
+    },
+    {
+      "item_id": "kqa_val_0036",
+      "group": "knowledge_qa",
+      "arm": "real_wikipedia",
+      "tokens": 19,
+      "wall_ms": 1163.8120140005412,
+      "score": true
+    },
+    {
+      "item_id": "kqa_val_0080",
+      "group": "knowledge_qa",
+      "arm": "real_wikipedia",
+      "tokens": 12,
+      "wall_ms": 851.3589000003776,
+      "score": false
+    },
+    {
+      "item_id": "kqa_val_0063",
+      "group": "knowledge_qa",
+      "arm": "real_wikipedia",
+      "tokens": 13,
+      "wall_ms": 918.2630960003735,
+      "score": true
+    },
+    {
+      "item_id": "kqa_val_0060",
+      "group": "knowledge_qa",
+      "arm": "real_wikipedia",
+      "tokens": 10,
+      "wall_ms": 824.2475420001938,
+      "score": true
+    },
+    {
+      "item_id": "kqa_val_0199",
+      "group": "knowledge_qa",
+      "arm": "real_wikipedia",
+      "tokens": 12,
+      "wall_ms": 814.3578660001367,
+      "score": true
+    },
+    {
+      "item_id": "kqa_val_0245",
+      "group": "knowledge_qa",
+      "arm": "fictional_entity",
+      "tokens": 17,
+      "wall_ms": 1039.1863579998244,
+      "score": false
+    },
+    {
+      "item_id": "kqa_val_0217",
+      "group": "knowledge_qa",
+      "arm": "fictional_entity",
+      "tokens": 15,
+      "wall_ms": 1012.7814870002112,
+      "score": false
+    },
+    {
+      "item_id": "kqa_val_0211",
+      "group": "knowledge_qa",
+      "arm": "fictional_entity",
+      "tokens": 12,
+      "wall_ms": 877.8225779997229,
+      "score": false
+    },
+    {
+      "item_id": "kqa_val_0252",
+      "group": "knowledge_qa",
+      "arm": "fictional_entity",
+      "tokens": 13,
+      "wall_ms": 893.5663049996947,
+      "score": false
+    },
+    {
+      "item_id": "kqa_val_0239",
+      "group": "knowledge_qa",
+      "arm": "fictional_entity",
+      "tokens": 16,
+      "wall_ms": 1119.567329000347,
+      "score": false
+    },
+    {
+      "item_id": "kqa_val_0210",
+      "group": "knowledge_qa",
+      "arm": "fictional_entity",
+      "tokens": 15,
+      "wall_ms": 954.5612530000653,
+      "score": false
+    },
+    {
+      "item_id": "kqa_val_0277",
+      "group": "knowledge_qa",
+      "arm": "fictional_entity",
+      "tokens": 16,
+      "wall_ms": 1111.539107999306,
+      "score": false
+    },
+    {
+      "item_id": "mem_val_0067",
+      "group": "memory_probe",
+      "arm": "synthetic",
+      "tokens": 18,
+      "wall_ms": 1022.4404860000504,
+      "score": true
+    },
+    {
+      "item_id": "mem_val_0018",
+      "group": "memory_probe",
+      "arm": "synthetic",
+      "tokens": 5,
+      "wall_ms": 310.2248210007019,
+      "score": false
+    },
+    {
+      "item_id": "mem_val_0058",
+      "group": "memory_probe",
+      "arm": "synthetic",
+      "tokens": 22,
+      "wall_ms": 1245.910657999957,
+      "score": true
+    },
+    {
+      "item_id": "mem_val_0045",
+      "group": "memory_probe",
+      "arm": "synthetic",
+      "tokens": 8,
+      "wall_ms": 470.1731569994081,
+      "score": false
+    },
+    {
+      "item_id": "mem_val_0080",
+      "group": "memory_probe",
+      "arm": "synthetic",
+      "tokens": 7,
+      "wall_ms": 445.3377849995377,
+      "score": true
+    },
+    {
+      "item_id": "mem_val_0099",
+      "group": "memory_probe",
+      "arm": "synthetic",
+      "tokens": 17,
+      "wall_ms": 1081.653054000526,
+      "score": false
+    },
+    {
+      "item_id": "mem_val_0022",
+      "group": "memory_probe",
+      "arm": "synthetic",
+      "tokens": 14,
+      "wall_ms": 842.8618420002749,
+      "score": true
+    },
+    {
+      "item_id": "mem_val_0148",
+      "group": "memory_probe",
+      "arm": "synthetic",
+      "tokens": 5,
+      "wall_ms": 307.7749539997967,
+      "score": true
+    },
+    {
+      "item_id": "mem_val_0147",
+      "group": "memory_probe",
+      "arm": "synthetic",
+      "tokens": 5,
+      "wall_ms": 308.56899700029317,
+      "score": true
+    },
+    {
+      "item_id": "mem_val_0144",
+      "group": "memory_probe",
+      "arm": "synthetic",
+      "tokens": 11,
+      "wall_ms": 635.2804369998921,
+      "score": true
+    }
+  ]
+}

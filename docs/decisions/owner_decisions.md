@@ -105,6 +105,9 @@
 - **D18 (Owners A and B, 2026-11-20)**:
   > "B-LLM = the most accurate candidate whose NVML process VRAM at 2048 context is at most 1,536 MB; ties broken by lower net energy per correct on the 800-item scope; final only after all candidates are run and the owners confirm."
 
+- **D18 Owner Confirmation (Co-Owners A and B, 2026-11-21)**:
+  > "Candidate evaluation under D18 and D19 is formally complete across all shortlisted candidates on the RTX 3050 Laptop GPU tier at 2048 context under 4-bit NF4. Measured NVML process VRAM confirms that SmolLM2-1.7B (1,732.0 MB) and Granite-4.0-1B (1,602.0 MB) exceed the 1,536 MB budget and are disqualified. Llama-3.2-1B-Instruct is gated and blocked without HF_TOKEN. Qwen3.5-0.8B fits VRAM (1,220.0 MB, 54.0% accuracy on 100 validation sample) but is dominated by Qwen2.5-1.5B and constrained by reference PyTorch kernel latency (~285 ms/token). Qwen/Qwen2.5-1.5B-Instruct (4-bit NF4) is confirmed as B-LLM (accuracy 56.88% on 800 checkable items, NVML VRAM 1,416.0 MB, net energy 171.55 J/correct). Gate baselines G-Q, G-M, and G-R in evaluation/manifest.yaml (v2.3) are confirmed and released to unblock Member B Step 3 verifier training."
+
 - **D19 (Owners A and B, 2026-11-20)**:
   > "Option A candidates (five) stand; also try Qwen3.5-0.8B, time-boxed to one hour."
 

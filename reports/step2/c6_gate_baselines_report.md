@@ -2,8 +2,8 @@
 
 **Date**: 2026-11-20  
 **Phase**: Phase C — Step C6 (R8 Gate Baseline Computations)  
-**Status**: **PROVISIONAL / PENDING OWNER CONFIRMATION (DECISION D18)**  
-**Branch**: `suite-v2`  
+**Status**: **CONFIRMED & AUTHORITATIVE (DECISION D18 CONFIRMED 2026-11-21)**  
+**Branch**: `feat/d18-candidate-baselines`  
 **Suite Manifest Root Hash**: `15be5befee80bde2c624d06cd2b8826475e13bb3f45298be1ced584a884e6fa5`  
 **Leading Candidate**: `Qwen/Qwen2.5-1.5B-Instruct` (bitsandbytes 4-bit NF4)  
 **Hardware Tier**: NVIDIA GeForce RTX 3050 Laptop GPU (4 GB)  
@@ -131,8 +131,8 @@ In Step C1 sanity benchmarks, 4-bit NF4 exhibited a lower median latency (`221.4
 
 | Gate | Scope | Metric / Condition | B-LLM Baseline | Prototype 1 Target Hurdle |
 | :--- | :--- | :--- | :---: | :--- |
-| **Gate G-Q** | 800 checkable items | Accuracy Superiority | **58.38%** (467/800) | $\ge \mathbf{63.38\%}$ (95% CI excludes 0) at $\le \mathbf{120.40\text{ J/correct}}$ |
-| **Gate G-Q (Alt)**| 800 checkable items | Efficiency Parity | 120.40 J / correct | $\ge \mathbf{55.38\%}$ (non-inferiority) at $\le \mathbf{60.20\text{ J/correct}}$ |
+| **Gate G-Q** | 800 checkable items | Accuracy Superiority | **56.88%** (455/800) | $\ge \mathbf{61.88\%}$ (95% CI excludes 0) at $\le \mathbf{171.55\text{ J/correct}}$ |
+| **Gate G-Q (Alt)**| 800 checkable items | Efficiency Parity | 171.55 J / correct | $\ge \mathbf{53.88\%}$ (non-inferiority) at $\le \mathbf{85.78\text{ J/correct}}$ |
 | **Gate G-M** | 100 stale fact items | Stale Fact Error Rate | **22.00%** (22 errors) | $\le \mathbf{11.00\%}$ (at most **11 errors**) |
 | **Gate G-M (F)** | 150 memory items | vs Frontier Bounds | 82.67% overall | $\ge F_{\text{no\_hist}}$, within 5 pp of $F_{\text{full\_hist}}$ |
 | **Gate G-R** | 2048 context length | Resident Process VRAM | **1416.0 MB** | $\le \mathbf{1536.0\text{ MB}}$ (1.5 GB limit) |

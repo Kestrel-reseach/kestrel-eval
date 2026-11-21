@@ -47,17 +47,17 @@ Step 2 delivers the empirical baseline foundation for Project Kestrel Prototype 
 
 | Candidate | Math (n=200) | Science MCQ (n=200) | Knowledge MCQ (n=300) | Code (n=100) | Knowledge QA (n=300) | Memory Probe (n=150) | Overall (n=1,250) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Qwen2.5-1.5B (B-LLM)** | **64.50%** | **62.50%** | **48.67%** | 18.00% | 65.00% | **82.67%** | **58.96%** |
-| Qwen2.5-0.5B-Instruct | 33.50% | 47.50% | 36.33% | **19.00%** | **66.33%** | 69.33% | 47.44% |
-| **Delta (1.5B - 0.5B)** | **+31.00 pp** | **+15.00 pp** | **+12.34 pp** | -1.00 pp | -1.33 pp | **+13.34 pp** | **+11.52 pp** |
+| **Qwen2.5-1.5B (B-LLM)** | **68.00%** | **62.50%** | **48.67%** | **48.00%** | **68.33%** | **82.67%** | **62.72%** |
+| Qwen2.5-0.5B-Instruct | 33.50% | 47.50% | 36.33% | 25.00% | 67.00% | 69.33% | 48.08% |
+| **Delta (1.5B - 0.5B)** | **+34.50 pp** | **+15.00 pp** | **+12.34 pp** | **+23.00 pp** | +1.33 pp | **+13.34 pp** | **+14.64 pp** |
 
 ---
 
 ## 5. Pass Gates Summary (G-Q, G-M, G-R)
 
 1. **Gate G-Q (Quality Hurdle on 800 Checkable Items)**:
-   - Baseline: **58.38%** (467/800) at **120.40 J/correct**.
-   - Target: $\ge \mathbf{63.38\%}$ (paired bootstrap excludes 0) at $\le \mathbf{120.40\text{ J/correct}}$, or match at $\le \mathbf{60.20\text{ J/correct}}$.
+   - Baseline: **56.88%** (455/800) at **171.55 J/correct**.
+   - Target: $\ge \mathbf{61.88\%}$ (paired bootstrap excludes 0) at $\le \mathbf{171.55\text{ J/correct}}$, or match at $\le \mathbf{85.78\text{ J/correct}}$.
 2. **Gate G-M (Personal Memory & Stale Fact Hurdle)**:
    - Baseline: **22.00%** stale error rate (22/100 errors).
    - Target: Cut errors in half $\to \le \mathbf{11.00\%}$ (at most **11 errors**).
