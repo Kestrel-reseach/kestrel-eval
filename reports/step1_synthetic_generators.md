@@ -87,7 +87,7 @@ This directly measures the **G-M pass gate**: ensuring stale-fact errors under w
 
 ## 5. Test Suite Verification
 
-- **Test Suite**: [`tests/test_generators.py`](file:///home/ash09/project_x/kestrel-eval/tests/test_generators.py)
+- **Test Suite**: [`tests/test_generators.py`](tests/test_generators.py)
   - Math determinism and item verification (`verify_math_item`).
   - Memory probe proportions (30 stale-fact, 70 static) and chronological order ($T_1 < T_2 < T_3$).
   - Rejection scorer: verified detection of latest value, rejection of stale value, and recognition of temporal change explanations.

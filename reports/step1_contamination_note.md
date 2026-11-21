@@ -1,8 +1,8 @@
 # Step 1 — Contamination Note and Suite v2.0 Handoff
 
 Please see the comprehensive benchmark contamination analysis and evaluation reporting protocol in:
-- [`reports/CONTAMINATION.md`](file:///home/ash09/project_x/kestrel-eval/reports/CONTAMINATION.md)
-- [`suite/README.md`](file:///home/ash09/project_x/kestrel-eval/suite/README.md)
+- [`reports/CONTAMINATION.md`](reports/CONTAMINATION.md)
+- [`suite/README.md`](suite/README.md)
 
 ### Key Points for Suite v2.0 (Decision D14 / Option B):
 1. **Public Sources & Verified Licenses**: GSM8K (MIT), ARC-Challenge (CC BY-SA 4.0), MMLU 10 subjects (MIT), MBPP (CC BY 4.0), Wikimedia (CC BY-SA 4.0).

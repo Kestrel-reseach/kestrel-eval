@@ -119,7 +119,7 @@ Member A has evaluated `Qwen2.5-1.5B-Instruct` across all 1,250 validation items
 
 Member B must score all model predictions using the frozen evaluation extractors:
 - **Scoring Engine**: `evaluation/extractors.py` and `evaluation/evaluator.py`.
-- **Authoritative Spec**: [`docs/decisions/scoring_spec.md`](file:///home/ash09/project_x/kestrel-eval/docs/decisions/scoring_spec.md).
+- **Authoritative Spec**: [`docs/decisions/scoring_spec.md`](docs/decisions/scoring_spec.md).
 - **Golden Test Fixture**: All 115 tests in `tests/test_scoring_golden.py` must pass at 100%.
 
 ---

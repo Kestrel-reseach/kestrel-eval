@@ -292,7 +292,7 @@ def run_hardware_calibration(
 
 > [!WARNING]
 > **Results obtained on the RTX 3050 Laptop GPU (4 GB) are NOT transferable to the RTX 3060 tier.**
-> As documented in [`docs/decisions/hardware_tier.md`](file:///home/ash09/project_x/kestrel-eval/docs/decisions/hardware_tier.md), the RTX 3050 tier acceptance was agent-drafted and merged by Member B without a written record authored by the owner. It remains `PENDING OWNER CONFIRMATION` in writing (Decision D8).
+> As documented in [`docs/decisions/hardware_tier.md`](docs/decisions/hardware_tier.md), the RTX 3050 tier acceptance was agent-drafted and merged by Member B without a written record authored by the owner. It remains `PENDING OWNER CONFIRMATION` in writing (Decision D8).
 > **Step 0 in `PLAN.md` remains strictly UNCHECKED** until owner confirmation is provided.
 
 ---

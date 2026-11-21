@@ -97,6 +97,6 @@ All 50 exposed items belonged to the `knowledge_qa` locked-test partition of Sui
 
 1. **Immediate Deletion**: The file was removed from tracking in commit `cd1ba21`.
 2. **Automated Leak Guard**: `tests/test_leak_guard.py` and `tests/test_suite_and_leakage.py` were added to CI to ensure `git ls-files` never tracks any file matching `*locked*` or containing locked test content.
-3. **Formal Invalidation**: In Decision D14, Suite v1 was formally declared superseded. The entire locked-test directory of Suite v1 was moved to `/home/ash09/project_x/kestrel_private/superseded_v1_locked_test/`.
+3. **Formal Invalidation**: In Decision D14, Suite v1 was formally declared superseded. The entire locked-test directory of Suite v1 was moved to `$KESTREL_PRIVATE_DIR/superseded_v1_locked_test/`.
 4. **Entity Blacklisting in Suite v2.0**: The 50 exposed entity titles were codified into `get_50_exposed_v1_titles()` in `scripts/build_suite_v2.py`. When building Suite v2.0, every Wikipedia article matching any of the 50 titles was excluded from candidate selection.
 5. **Zero Reuse Verification**: An automated check in `tests/test_suite_and_leakage.py` verifies that zero items in Suite v2.0 overlap with the 50 exposed v1 entities.

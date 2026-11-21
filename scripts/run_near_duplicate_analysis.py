@@ -35,7 +35,7 @@ def load_partition_file(path: Path) -> list[dict[str, Any]]:
 def main():
     repo_root = Path(__file__).resolve().parent.parent
     private_dir = Path(
-        os.environ.get("KESTREL_PRIVATE_DIR", "/home/ash09/project_x/kestrel_private")
+        os.environ.get("KESTREL_PRIVATE_DIR", str(repo_root.parent / "kestrel_private"))
     ).resolve()
     locked_dir = private_dir / "locked_test"
 

@@ -87,7 +87,7 @@ Per the prompt instruction (*"If public code sets are too small or contaminated,
   - `science_mcq_loader.py`: ARC JSONL parser and validator.
   - `knowledge_mcq_loader.py`: MMLU JSONL/CSV parser across 10 subjects.
   - `code_loader.py`: Code loader and safe unit test execution runner.
-- **Unit Test Suite**: [`tests/test_loaders.py`](file:///home/ash09/project_x/kestrel-eval/tests/test_loaders.py)
+- **Unit Test Suite**: [`tests/test_loaders.py`](tests/test_loaders.py)
   - 10 test functions covering source metadata, numeric extraction, MCQ extraction, unit test execution, and all 4 group loaders.
   - Test data fixtures added to `suite/public/math/`, `suite/public/science_mcq/`, `suite/public/knowledge_mcq/`, and `suite/public/code/`.
 

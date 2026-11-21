@@ -10,8 +10,8 @@
 
 The Project Kestrel Prototype 1 locked test partition (1,200 items across 6 groups) is physically quarantined outside the `kestrel-eval` git repository:
 
-- **Directory Path**: `/home/ash09/project_x/kestrel_private/locked_test/`
-- **Environment Variable**: `KESTREL_PRIVATE_DIR` (defaults to `/home/ash09/project_x/kestrel_private`)
+- **Directory Path**: `$KESTREL_PRIVATE_DIR/locked_test/`
+- **Environment Variable**: `KESTREL_PRIVATE_DIR` (defaults to `/path/to/kestrel_private`)
 - **Contained Files**:
   - `math.jsonl` (200 items)
   - `science_mcq.jsonl` (200 items)
@@ -28,7 +28,7 @@ The Project Kestrel Prototype 1 locked test partition (1,200 items across 6 grou
 Any AI agent, IDE extension, language model assistant, or background file watcher operating on the local workstation is subject to the following non-negotiable security rules:
 
 1. **Strict Prohibition on Reading Locked Files**:
-   No agent tool (`read_file`, `cat`, `grep`, `head`, `run_command` displaying file text) may open, read, or print contents from `/home/ash09/project_x/kestrel_private/`.
+   No agent tool (`read_file`, `cat`, `grep`, `head`, `run_command` displaying file text) may open, read, or print contents from `$KESTREL_PRIVATE_DIR/`.
 2. **Prevention of Cloud Exposure**:
    Reading locked files within an AI assistant transmits prompt and ground-truth text into external cloud inference endpoints, burning the test partition and destroying experimental validity.
 3. **Count-Only / Hash-Only Automation**:
@@ -42,11 +42,11 @@ Any AI agent, IDE extension, language model assistant, or background file watche
 
 Current filesystem permissions reported on the host:
 ```bash
-$ ls -ld /home/ash09/project_x/kestrel_private
-drwxrwxrwx 3 ash09 ash09 4096 Nov 18 17:17 /home/ash09/project_x/kestrel_private
+$ ls -ld $KESTREL_PRIVATE_DIR
+drwxrwxrwx 3 user user 4096 Nov 18 17:17 /path/to/kestrel_private
 
-$ ls -ld /home/ash09/project_x/kestrel_private/locked_test
-drwxrwxrwx 2 ash09 ash09 4096 Nov 18 17:17 /home/ash09/project_x/kestrel_private/locked_test
+$ ls -ld $KESTREL_PRIVATE_DIR/locked_test
+drwxrwxrwx 2 user user 4096 Nov 18 17:17 /path/to/kestrel_private/locked_test
 ```
 
 ---
@@ -56,11 +56,11 @@ drwxrwxrwx 2 ash09 ash09 4096 Nov 18 17:17 /home/ash09/project_x/kestrel_private
 Per instructions, permissions have **not** been modified by the agent. The following hardening steps are strongly recommended for the owners:
 
 1. **Restrict POSIX Directory Permissions (`chmod 700`)**:
-   Remove world-readable and world-writable permissions so only the owner user (`ash09`) can traverse or read the folder:
+   Remove world-readable and world-writable permissions so only the owner user can traverse or read the folder:
    ```bash
-   chmod 700 /home/ash09/project_x/kestrel_private
-   chmod 700 /home/ash09/project_x/kestrel_private/locked_test
-   chmod 600 /home/ash09/project_x/kestrel_private/locked_test/*.jsonl
+   chmod 700 $KESTREL_PRIVATE_DIR
+   chmod 700 $KESTREL_PRIVATE_DIR/locked_test
+   chmod 600 $KESTREL_PRIVATE_DIR/locked_test/*.jsonl
    ```
 2. **Exclude from IDE Indexing & File Watchers**:
    Add `kestrel_private` to `.vscode/settings.json` under `files.watcherExclude` and `search.exclude` to prevent language servers and AI extensions from auto-scanning file buffers:

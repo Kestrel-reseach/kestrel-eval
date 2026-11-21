@@ -24,7 +24,7 @@ Both `docs/decisions/owner_decisions.md` and `evaluation/manifest.yaml` have bee
 
 ## 2. Abstract Extraction Pipeline
 
-Implemented in [`evaluation/generators/wiki_extractor.py`](file:///home/ash09/project_x/kestrel-eval/evaluation/generators/wiki_extractor.py):
+Implemented in [`evaluation/generators/wiki_extractor.py`](evaluation/generators/wiki_extractor.py):
 
 1. **Streaming XML Processing**:
    - Uses `xml.etree.ElementTree.iterparse` over the bzip2 stream with `elem.clear()` for constant $O(1)$ memory overhead.
@@ -45,7 +45,7 @@ Implemented in [`evaluation/generators/wiki_extractor.py`](file:///home/ash09/pr
 
 ## 3. Rule-Based QA Generation with 100% Span Verification
 
-Implemented in [`evaluation/generators/knowledge_qa_generator.py`](file:///home/ash09/project_x/kestrel-eval/evaluation/generators/knowledge_qa_generator.py):
+Implemented in [`evaluation/generators/knowledge_qa_generator.py`](evaluation/generators/knowledge_qa_generator.py):
 
 ### Rule Families & Semantic Entity Alignment
 To guarantee factual accuracy and avoid absurd questions (e.g. asking when a concept or country was born), rules enforce strict semantic entity alignment:

@@ -71,6 +71,6 @@ Step 2 delivers the empirical baseline foundation for Project Kestrel Prototype 
 Step 2 provides Member B with a verified base model, training representations, and baseline predictions:
 - **Base Model**: `Qwen/Qwen2.5-1.5B-Instruct` in `bitsandbytes` 4-bit NF4.
 - **Internal Representation Dimension**: $d = 1,536$ across 28 decoder layers.
-- **Validation Predictions File**: [`reports/step2/run_qwen2.5-1.5b-instruct-q4_validation.jsonl`](file:///home/ash09/project_x/kestrel-eval/reports/step2/run_qwen2.5-1.5b-instruct-q4_validation.jsonl) (1,250 items).
-- **Scoring Spec**: [`docs/decisions/scoring_spec.md`](file:///home/ash09/project_x/kestrel-eval/docs/decisions/scoring_spec.md) verified by 115 golden tests.
+- **Validation Predictions File**: [`reports/step2/run_qwen2.5-1.5b-instruct-q4_validation.jsonl`](reports/step2/run_qwen2.5-1.5b-instruct-q4_validation.jsonl) (1,250 items).
+- **Scoring Spec**: [`docs/decisions/scoring_spec.md`](docs/decisions/scoring_spec.md) verified by 115 golden tests.
 - **Training Split**: `suite/train/` (3,750 items) for verifier head supervision.

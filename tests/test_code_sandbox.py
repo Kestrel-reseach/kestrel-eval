@@ -53,7 +53,7 @@ def test_sandbox_network_disabled() -> None:
 
 def try_connect():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect(("8.8.8.8", 80))
+    s.connect(("192.0.2.1", 80))
 """
     test_code = "try_connect()"
     # socket.socket was neutralized or connect will fail
