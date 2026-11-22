@@ -147,7 +147,7 @@ Step C2 establishes the empirical baselines against which Member B's verifier an
 
 | Gate | Description | Candidate Baseline Value (`Qwen2.5-0.5B`) | Candidate Baseline Value (`Qwen2.5-1.5B`) | Gate Target / Threshold |
 | :--- | :--- | :---: | :---: | :--- |
-| **G-Q** | Quality Gate (800 items: math, science, code, QA) | **47.50%** (380 / 800) | **58.38%** (467 / 800) | P1 must exceed B-LLM with lower 95% CI bound $> 0$ |
+| **G-Q** | Quality Gate (800 items: math, science, knowledge MCQ, code) | **37.00%** (296 / 800) | **56.88%** (455 / 800) | P1 must exceed B-LLM with lower 95% CI bound $> 0$ |
 | **G-M** | Memory Stale Fact Error Rate ($n=100$ stale items) | **41.00%** (41 / 100 errors) | **22.00%** (22 / 100 errors) | P1 must cut stale error rate in half ($\le 11.0\%$ for 1.5B) |
 | **G-R** | Assistant Resident VRAM | **632.0 MB** | **1416.0 MB** | Must remain $\le 1536.0\text{ MB}$ ($1.5\text{ GB}$) |
 

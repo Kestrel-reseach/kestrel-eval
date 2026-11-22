@@ -30,27 +30,27 @@ The checkable subset comprises 4 task groups with objective, automated verifiers
 
 | Group | Sub-arm Breakdown | $n$ | Baseline Correct | Baseline Accuracy | 95% Wilson CI |
 | :--- | :--- | :---: | :---: | :---: | :---: |
-| **`math`** | GSM8K (100) + Procedural (100) | 200 | 129 | 64.50% | [57.65, 70.80]% |
+| **`math`** | GSM8K (100) + Procedural (100) | 200 | 136 | 68.00% | [61.25, 74.07]% |
 | **`science_mcq`** | ARC-Challenge (200) | 200 | 125 | 62.50% | [55.61, 68.91]% |
-| **`code`** | MBPP (50) + Synthetic (50) | 100 | 18 | 18.00% | [11.70, 26.67]% |
-| **`knowledge_qa`** | Wikipedia Real (200) + Fictional (100) | 300 | 195 | 65.00% | [59.44, 70.18]% |
-| **Pooled Checkable** | **All 4 Groups Combined** | **800** | **467** | **58.38%** | **[54.93, 61.74]%** |
+| **`knowledge_mcq`** | MMLU (10 subjects, 300) | 300 | 146 | 48.67% | [43.06, 54.30]% |
+| **`code`** | MBPP (50) + Synthetic (50) | 100 | 48 | 48.00% | [38.46, 57.68]% |
+| **Pooled Checkable** | **All 4 Groups Combined** | **800** | **455** | **56.88%** | **[53.42, 60.27]%** |
 
-- **Baseline Checkable Accuracy**: **58.38%** (467 / 800)
-- **Baseline Net Energy per Correct Task**: **120.40 J**
+- **Baseline Checkable Accuracy**: **56.88%** (455 / 800)
+- **Baseline Net Energy per Correct Task**: **171.55 J**
 
 ### B. Target Criteria for Prototype 1 (P1)
 To pass Gate G-Q, Prototype 1 must satisfy either Clause 1 or Clause 2:
 
 1. **Clause 1 (Accuracy Superiority)**:
-   - Checkable Accuracy: $\text{Acc}(P1) \ge \mathbf{63.38\%}$ (+5.00 pp over B-LLM).
+   - Checkable Accuracy: $\text{Acc}(P1) \ge \mathbf{61.88\%}$ (+5.00 pp over B-LLM).
    - Statistical Significance: Paired bootstrap 95% confidence interval on $\Delta = \text{Acc}(P1) - \text{Acc}(B)$ strictly excludes zero ($\Delta_{\text{lo}} > 0$).
-   - Energy Constraint: Net energy $\le \mathbf{120.40\text{ J / correct}}$ ($E(P1) \le E(B)$).
+   - Energy Constraint: Net energy $\le \mathbf{171.55\text{ J / correct}}$ ($E(P1) \le E(B)$).
    - *Statistical Power*: At $n = 800$, empirical power to detect a +5.00 pp shift with paired bootstrap is **100.0%**.
 
 2. **Clause 2 (Efficiency Dominance / Non-Inferiority Parity)**:
-   - Accuracy Non-Inferiority: $\text{Acc}(P1) \ge \mathbf{55.38\%}$ (within 3.00 pp margin confirmed in D4).
-   - Energy Constraint: Net energy $\le \mathbf{60.20\text{ J / correct}}$ (<= 50.0% of B-LLM energy per correct task).
+   - Accuracy Non-Inferiority: $\text{Acc}(P1) \ge \mathbf{53.88\%}$ (within 3.00 pp margin confirmed in D4).
+   - Energy Constraint: Net energy $\le \mathbf{85.78\text{ J / correct}}$ (<= 50.0% of B-LLM energy per correct task).
 
 ---
 
@@ -125,8 +125,8 @@ $$\mathcal{C} = \frac{\text{Acc}(P1) - \text{Acc}(B\text{-LLM})}{\text{Acc}(F) -
 
 | Gate | Scope | Metric / Condition | B-LLM Baseline | Prototype 1 Target Hurdle |
 | :--- | :--- | :--- | :---: | :--- |
-| **Gate G-Q** | 800 checkable items | Accuracy Superiority | **58.38%** (467/800) | $\ge \mathbf{63.38\%}$ (95% CI excludes 0) at $\le \mathbf{120.40\text{ J/correct}}$ |
-| **Gate G-Q (Alt)**| 800 checkable items | Efficiency Parity | 120.40 J / correct | $\ge \mathbf{55.38\%}$ (non-inferiority) at $\le \mathbf{60.20\text{ J/correct}}$ |
+| **Gate G-Q** | 800 checkable items | Accuracy Superiority | **56.88%** (455/800) | $\ge \mathbf{61.88\%}$ (95% CI excludes 0) at $\le \mathbf{171.55\text{ J/correct}}$ |
+| **Gate G-Q (Alt)**| 800 checkable items | Efficiency Parity | 171.55 J / correct | $\ge \mathbf{53.88\%}$ (non-inferiority) at $\le \mathbf{85.78\text{ J/correct}}$ |
 | **Gate G-M** | 100 stale fact items | Stale Fact Error Rate | **22.00%** (22 errors) | $\le \mathbf{11.00\%}$ (at most **11 errors**) |
 | **Gate G-M (F)** | 150 memory items | vs Frontier Bounds | 82.67% overall | $\ge F_{\text{no\_hist}}$, within 5 pp of $F_{\text{full\_hist}}$ |
 | **Gate G-R** | 2048 context length | Resident Process VRAM | **1416.0 MB** | $\le \mathbf{1536.0\text{ MB}}$ (1.5 GB limit) |

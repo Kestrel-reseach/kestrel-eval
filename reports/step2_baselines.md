@@ -85,6 +85,6 @@ Autoregressive generation was executed with native CUDA `eos_token_id` stopping 
 
 ## 6. Pass Gates Readiness (G-Q, G-M, G-R)
 
-- **Gate G-Q Hurdle** (800 checkable items): Baseline = **58.38%** (467/800). Target: $\ge \mathbf{63.38\%}$ at $\le \mathbf{120.40\text{ J/correct}}$, or match at $\le \mathbf{60.20\text{ J/correct}}$.
+- **Gate G-Q Hurdle** (800 checkable items): Baseline = **56.88%** (455/800). Target: $\ge \mathbf{61.88\%}$ at $\le \mathbf{171.55\text{ J/correct}}$, or match at $\le \mathbf{85.78\text{ J/correct}}$.
 - **Gate G-M Hurdle** (100 stale fact items): Baseline = **22.00%** (22 errors). Target: $\le \mathbf{11.00\%}$ (at most **11 errors**).
 - **Gate G-R Hurdle** (Resident VRAM): Baseline = **1416.0 MB** process VRAM $\le 1,536.0\text{ MB}$ (**+120.0 MB headroom**).
