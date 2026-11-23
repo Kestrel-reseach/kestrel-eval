@@ -1,0 +1,48 @@
+{
+  "step": 2,
+  "system": "F",
+  "model": "gemini-2.5-pro",
+  "provider": "Google AI Studio",
+  "tier": "free_tier",
+  "cost_cap_usd": 0.0,
+  "reference_label": "F = gemini-2.5-pro (free tier), exact version and date recorded; a free-tier reference, not the current frontier.",
+  "timestamp_utc": "2026-11-23T11:04:14.260406+00:00",
+  "total_validation_items": 3,
+  "total_records_written": 0,
+  "execution_mode": "real",
+  "api_key_status": "READY",
+  "metrics": {
+    "overall": {
+      "correct": 0,
+      "total": 0,
+      "accuracy_pct": 0.0
+    },
+    "arms": {
+      "public": {
+        "correct": 0,
+        "total": 0,
+        "accuracy_pct": 0.0
+      },
+      "synthetic": {
+        "correct": 0,
+        "total": 0,
+        "accuracy_pct": 0.0
+      }
+    },
+    "groups": {},
+    "memory_probe_dual": {
+      "full_history": {
+        "correct": 0,
+        "total": 0,
+        "accuracy_pct": 0.0
+      },
+      "no_history": {
+        "correct": 0,
+        "total": 0,
+        "accuracy_pct": 0.0
+      }
+    }
+  },
+  "response_ids_logged": 0,
+  "response_id_log_sample": []
+}

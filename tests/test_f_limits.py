@@ -60,6 +60,9 @@ def test_frontier_mock_mode_execution():
     assert res["energy_joules"] == 0.0
     assert res["peak_vram_mb"] == 0.0
     assert res["retrieval_hits"] == 0
+    assert "response_id" in res
+    assert "model_version" in res
+    assert "execution_date" in res
 
 
 def test_frontier_history_modes():

@@ -1,15 +1,11 @@
-"""Frontier Reference Model F runner (Gemini 2.5 Pro via Google AI Studio).
+"""Frontier Reference Model F runner (Gemini via Google AI Studio).
 
 Protocol: Step 2 Part 4c (Preconditions & Frontier Reference F runner).
 Complies with ModelRunner protocol for RunMatrix.
-
-Features:
-    - Reads config/f_limits.yaml
-    - Reads GEMINI_API_KEY from environment ONLY
-    - Automatic detection of missing key -> status PENDING_KEY
-    - Rate limit pacing and exponential backoff on 429
-    - Handles memory_probe dual evaluation (no_history vs full_history)
-    - Zero cost cap ($0 free tier) enforcement
+Enforces owner decisions:
+    - D6: Gemini via Google AI Studio free tier, $0 cost cap.
+    - D11: Record model version, execution date and response IDs with every record.
+    - D20: Paced across days to respect unpublished free-tier quotas.
 """
 
 from __future__ import annotations
@@ -20,9 +16,11 @@ import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from evaluation.f_templates import format_f_prompt
 from evaluation.loaders.common import check_item_correctness
 
 try:
@@ -70,7 +68,6 @@ class FrontierConfig:
             with config_path.open(encoding="utf-8") as f:
                 data = yaml.safe_load(f) or {}
         else:
-            # Fallback simple parser for bare test environments without pyyaml
             current_section = None
             with config_path.open(encoding="utf-8") as f:
                 for line in f:
@@ -132,7 +129,7 @@ class FrontierConfig:
 
 
 class FrontierRunner:
-    """Runner for Frontier Reference Model F with rate limiting and mock support."""
+    """Runner for Frontier Reference Model F with rate limiting and D11 provenance logging."""
 
     def __init__(
         self,
@@ -146,7 +143,6 @@ class FrontierRunner:
         self.mock_mode = mock_mode
         self._last_request_time: float = 0.0
 
-        # Check API key from environment
         env_key = os.environ.get(self.config.api_key_env_var)
         if env_key and env_key.strip():
             self.api_key_status = "READY"
@@ -162,16 +158,27 @@ class FrontierRunner:
             return float("inf")
         return total_items / rpd
 
-    def _format_item_prompt(self, item: dict[str, Any]) -> str:
-        """Extract prompt respecting memory_probe history mode."""
+    def _prepare_item_for_prompt(self, item: dict[str, Any]) -> dict[str, Any]:
+        """Prepare item prompt dictionary respecting history mode for memory_probe."""
         group = item.get("group", "")
-        if group == "memory_probe":
-            if self.history_mode == "no_history":
-                # Only use the final query without the interaction history
-                return item.get("question") or item.get("prompt", "")
-            else:
-                return item.get("prompt", "")
-        return item.get("prompt", "")
+        if group == "memory_probe" and self.history_mode == "no_history":
+            clean_item = dict(item)
+            q_part = item.get("question")
+            if not q_part and "Question:" in item.get("prompt", ""):
+                q_part = item["prompt"].split("Question:")[-1].strip()
+            clean_item["prompt"] = q_part if q_part else item.get("prompt", "")
+            return clean_item
+        return item
+
+    def _format_item_messages(self, item: dict[str, Any]) -> list[dict[str, str]]:
+        """Format OpenAI-compatible messages using evaluation/f_templates.py."""
+        clean_item = self._prepare_item_for_prompt(item)
+        return format_f_prompt(clean_item)
+
+    def _format_item_prompt(self, item: dict[str, Any]) -> str:
+        """Legacy helper returning raw user prompt text."""
+        clean_item = self._prepare_item_for_prompt(item)
+        return clean_item.get("prompt", "")
 
     def _pace_request(self) -> None:
         """Pace requests to stay strictly within requests_per_minute limit."""
@@ -187,13 +194,14 @@ class FrontierRunner:
         self._last_request_time = time.time()
 
     def run_item(self, item: dict[str, Any]) -> dict[str, Any]:
-        """Execute one item and return a partial JSONL record."""
+        """Execute one item and return a partial JSONL record with D11 metadata."""
         t0 = time.perf_counter()
+        now_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        arm = item.get("arm") or item.get("metadata", {}).get("arm", "unknown")
 
         if self.mock_mode or self.api_key_status != "READY":
             # Deterministic mock/stub return for CI or when key is pending
             target = item.get("target") or item.get("answer", "")
-            # Simulate a standard response
             prediction = str(target)
             correct = check_item_correctness(item, prediction)
             elapsed_ms = (time.perf_counter() - t0) * 1000.0
@@ -209,12 +217,16 @@ class FrontierRunner:
                 "tokens_generated": len(prediction.split()),
                 "verifier_score": None,
                 "wall_time_ms": round(elapsed_ms, 2),
+                "response_id": f"mock-{item.get('item_id', 'unknown')}",
+                "model_version": self.config.model,
+                "execution_date": now_date,
+                "arm": arm,
             }
 
-        # Real inference with pacing and backoff
+        # Real inference with pacing, exponential backoff, and D11 metadata logging
         self._pace_request()
-        prompt = self._format_item_prompt(item)
-        prediction = self._call_gemini_api_with_retry(prompt)
+        messages = self._format_item_messages(item)
+        prediction, resp_id, model_ver = self._call_gemini_api_with_retry(messages)
         correct = check_item_correctness(item, prediction)
         elapsed_ms = (time.perf_counter() - t0) * 1000.0
 
@@ -229,10 +241,17 @@ class FrontierRunner:
             "tokens_generated": len(prediction.split()),
             "verifier_score": None,
             "wall_time_ms": round(elapsed_ms, 2),
+            "response_id": resp_id,
+            "model_version": model_ver or self.config.model,
+            "execution_date": now_date,
+            "arm": arm,
         }
 
-    def _call_gemini_api_with_retry(self, prompt: str) -> str:
-        """Call the API with exponential backoff on 429."""
+    def _call_gemini_api_with_retry(self, messages: list[dict[str, str]]) -> tuple[str, str, str]:
+        """Call Google AI Studio OpenAI-compatible endpoint with exponential backoff.
+
+        Returns (content, response_id, model_version).
+        """
         url = f"{self.config.base_url.rstrip('/')}/chat/completions"
         headers = {
             "Content-Type": "application/json",
@@ -240,7 +259,7 @@ class FrontierRunner:
         }
         payload = {
             "model": self.config.model,
-            "messages": [{"role": "user", "content": prompt}],
+            "messages": messages,
             "max_tokens": self.config.max_output_tokens,
             "temperature": 0.0,
         }
@@ -256,7 +275,10 @@ class FrontierRunner:
                 )
                 with urllib.request.urlopen(req, timeout=30.0) as resp:
                     res_data = json.loads(resp.read().decode("utf-8"))
-                    return res_data["choices"][0]["message"]["content"].strip()
+                    content = res_data["choices"][0]["message"]["content"].strip()
+                    resp_id = str(res_data.get("id", f"gen-{int(time.time()*1000)}"))
+                    model_ver = str(res_data.get("model", self.config.model))
+                    return content, resp_id, model_ver
             except urllib.error.HTTPError as e:
                 if e.code == 429 or e.code >= 500:
                     time.sleep(delay)
@@ -271,4 +293,4 @@ class FrontierRunner:
                 time.sleep(delay)
                 delay = min(delay * self.config.backoff_multiplier, self.config.max_delay_seconds)
 
-        return ""
+        return "", "", self.config.model
