@@ -24,6 +24,13 @@ from evaluation.f_templates import format_f_prompt
 from evaluation.loaders.common import check_item_correctness
 
 try:
+    from google import genai
+    from google.genai import types
+except ImportError:
+    genai = None  # type: ignore[assignment]
+    types = None  # type: ignore[assignment]
+
+try:
     import yaml  # type: ignore[import-untyped]
 except ImportError:
     yaml = None  # type: ignore[assignment]
@@ -33,10 +40,10 @@ except ImportError:
 class FrontierConfig:
     """Parsed rate limits and execution settings for Frontier F."""
 
-    model: str = "gemini-2.5-pro"
+    model: str = "gemini-4-hydrogen"
     provider: str = "Google AI Studio"
-    endpoint_type: str = "openai_compatible"
-    base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai/"
+    endpoint_type: str = "genai_sdk"
+    base_url: str = "https://generativelanguage.googleapis.com/v1beta/models/"
     cost_cap_usd: float = 0.0
     tier: str = "free_tier"
     api_key_env_var: str = "GEMINI_API_KEY"
@@ -51,7 +58,7 @@ class FrontierConfig:
     backoff_multiplier: float = 2.0
     max_delay_seconds: float = 60.0
     reference_label: str = (
-        "F = gemini-2.5-pro (free tier), exact version and date recorded; "
+        "F = gemini-4-hydrogen (free tier), exact version and date recorded; "
         "a free-tier reference, not the current frontier."
     )
     raw: dict[str, Any] = field(default_factory=dict)
@@ -151,6 +158,13 @@ class FrontierRunner:
             self.api_key_status = "PENDING_KEY"
             self._api_key = None
 
+        self._client: Any = None
+        if self._api_key and genai is not None:
+            try:
+                self._client = genai.Client(api_key=self._api_key)
+            except (ValueError, TypeError, RuntimeError):
+                self._client = None
+
     def estimate_run_duration_days(self, total_items: int = 1200) -> float:
         """Estimate the run duration in days based on requests per day limit."""
         rpd = self.config.requests_per_day
@@ -226,7 +240,7 @@ class FrontierRunner:
         # Real inference with pacing, exponential backoff, and D11 metadata logging
         self._pace_request()
         messages = self._format_item_messages(item)
-        prediction, resp_id, model_ver = self._call_gemini_api_with_retry(messages)
+        prediction, resp_id, model_ver, tokens = self._call_gemini_api_with_retry(messages)
         correct = check_item_correctness(item, prediction)
         elapsed_ms = (time.perf_counter() - t0) * 1000.0
 
@@ -238,7 +252,7 @@ class FrontierRunner:
             "passes": 1,
             "peak_vram_mb": 0.0,
             "retrieval_hits": 0,
-            "tokens_generated": len(prediction.split()),
+            "tokens_generated": tokens if tokens > 0 else len(prediction.split()),
             "verifier_score": None,
             "wall_time_ms": round(elapsed_ms, 2),
             "response_id": resp_id,
@@ -247,50 +261,100 @@ class FrontierRunner:
             "arm": arm,
         }
 
-    def _call_gemini_api_with_retry(self, messages: list[dict[str, str]]) -> tuple[str, str, str]:
-        """Call Google AI Studio OpenAI-compatible endpoint with exponential backoff.
+    def _call_gemini_api_with_retry(
+        self, messages: list[dict[str, str]]
+    ) -> tuple[str, str, str, int]:
+        """Call Google AI Studio using google.genai SDK with retry & exponential backoff.
 
-        Returns (content, response_id, model_version).
+        Returns (content, response_id, model_version, tokens_generated).
         """
-        url = f"{self.config.base_url.rstrip('/')}/chat/completions"
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self._api_key}",
-        }
-        payload = {
-            "model": self.config.model,
-            "messages": messages,
-            "max_tokens": self.config.max_output_tokens,
-            "temperature": 0.0,
-        }
+        system_instr = (
+            messages[0]["content"] if messages and messages[0].get("role") == "system" else None
+        )
+        user_content = (
+            messages[1]["content"]
+            if len(messages) > 1
+            else (messages[0]["content"] if messages else "")
+        )
 
         delay = self.config.initial_delay_seconds
         for attempt in range(self.config.max_retries):
             try:
-                req = urllib.request.Request(
-                    url,
-                    data=json.dumps(payload).encode("utf-8"),
-                    headers=headers,
-                    method="POST",
+                if self._client is not None:
+                    # Google GenAI SDK call
+                    cfg_args: dict[str, Any] = {
+                        "temperature": 0.0,
+                        "max_output_tokens": self.config.max_output_tokens,
+                    }
+                    if system_instr and types is not None:
+                        cfg_args["system_instruction"] = system_instr
+                    gen_cfg = types.GenerateContentConfig(**cfg_args) if types is not None else None
+
+                    resp = self._client.models.generate_content(
+                        model=self.config.model,
+                        contents=user_content,
+                        config=gen_cfg,
+                    )
+                    content = (resp.text or "").strip()
+                    resp_id = str(getattr(resp, "response_id", f"gen-{int(time.time()*1000)}"))
+                    model_ver = str(getattr(resp, "model_version", self.config.model))
+                    tokens = 0
+                    if hasattr(resp, "usage_metadata") and resp.usage_metadata is not None:
+                        tokens = getattr(resp.usage_metadata, "candidates_token_count", 0) or 0
+                    return content, resp_id, model_ver, tokens
+                else:
+                    # Fallback REST endpoint (urllib)
+                    url = (
+                        f"{self.config.base_url.rstrip('/')}/"
+                        f"{self.config.model}:generateContent?key={self._api_key}"
+                    )
+                    payload: dict[str, Any] = {
+                        "contents": [{"parts": [{"text": user_content}]}],
+                        "generationConfig": {
+                            "temperature": 0.0,
+                            "maxOutputTokens": self.config.max_output_tokens,
+                        },
+                    }
+                    if system_instr:
+                        payload["systemInstruction"] = {"parts": [{"text": system_instr}]}
+
+                    req = urllib.request.Request(
+                        url,
+                        data=json.dumps(payload).encode("utf-8"),
+                        headers={"Content-Type": "application/json"},
+                        method="POST",
+                    )
+                    with urllib.request.urlopen(req, timeout=30.0) as resp:
+                        res_data = json.loads(resp.read().decode("utf-8"))
+                        cand = res_data.get("candidates", [{}])[0]
+                        parts = cand.get("content", {}).get("parts", [{}])
+                        content = parts[0].get("text", "").strip() if parts else ""
+                        resp_id = str(res_data.get("responseId", f"gen-{int(time.time()*1000)}"))
+                        model_ver = str(res_data.get("modelVersion", self.config.model))
+                        usage = res_data.get("usageMetadata", {})
+                        tokens = int(usage.get("candidatesTokenCount", 0))
+                        return content, resp_id, model_ver, tokens
+
+            except Exception as e:
+                # Retry on 503 (high demand) or 429 (quota limit)
+                status_code = getattr(e, "code", None) or getattr(e, "status_code", None)
+                err_str = str(e)
+                is_transient = (
+                    status_code in (429, 500, 502, 503, 504)
+                    or "503" in err_str
+                    or "429" in err_str
+                    or "high demand" in err_str.lower()
+                    or "resource_exhausted" in err_str.lower()
                 )
-                with urllib.request.urlopen(req, timeout=30.0) as resp:
-                    res_data = json.loads(resp.read().decode("utf-8"))
-                    content = res_data["choices"][0]["message"]["content"].strip()
-                    resp_id = str(res_data.get("id", f"gen-{int(time.time()*1000)}"))
-                    model_ver = str(res_data.get("model", self.config.model))
-                    return content, resp_id, model_ver
-            except urllib.error.HTTPError as e:
-                if e.code == 429 or e.code >= 500:
+                if attempt < self.config.max_retries - 1 and is_transient:
                     time.sleep(delay)
                     delay = min(
                         delay * self.config.backoff_multiplier, self.config.max_delay_seconds
                     )
                     continue
-                raise
-            except Exception:
                 if attempt == self.config.max_retries - 1:
                     raise
                 time.sleep(delay)
                 delay = min(delay * self.config.backoff_multiplier, self.config.max_delay_seconds)
 
-        return "", "", self.config.model
+        return "", "", self.config.model, 0

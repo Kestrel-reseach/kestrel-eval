@@ -2,10 +2,10 @@
 # Protocol: Step 2 Part 4 (Preconditions & Rate Limits)
 # Reference: evaluation/manifest.yaml systems.F
 
-model: "gemini-2.5-pro"
+model: "gemini-4-hydrogen"
 provider: "Google AI Studio"
-endpoint_type: "openai_compatible"
-base_url: "https://generativelanguage.googleapis.com/v1beta/openai/"
+endpoint_type: "genai_sdk"
+base_url: "https://generativelanguage.googleapis.com/v1beta/models/"
 
 # Cost & Quota Controls (Frozen Owner Decisions D6 & D12)
 cost_cap_usd: 0               # Free tier only; $0 cap (no paid calls)
@@ -36,5 +36,5 @@ scope:
   allow_locked_test: false     # Locked-test runs strictly at Step 10
 
 # Mandatory Reference Label
-reference_label: "F = gemini-2.5-pro (free tier), exact version and date recorded; a free-tier reference, not the current frontier."
+reference_label: "F = gemini-4-hydrogen (free tier), exact version and date recorded; a free-tier reference, not the current frontier."
 

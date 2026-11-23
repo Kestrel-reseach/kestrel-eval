@@ -143,10 +143,11 @@ def main() -> None:
     reports_dir.mkdir(parents=True, exist_ok=True)
 
     # 1. Main Validation Run (full_history for memory_probe)
-    output_path = runs_dir / "run_frontier_gemini_2.5_pro_validation.jsonl"
+    model_slug = cfg.model.replace("/", "_").replace(".", "_")
+    output_path = runs_dir / f"run_frontier_{model_slug}_validation.jsonl"
     run_cfg = RunConfig(
-        run_id="run-frontier-gemini-2.5-pro-validation",
-        git_commit="c52c622",
+        run_id=f"run-frontier-{model_slug}-validation",
+        git_commit="2b4cca4",
         seed=20260102,
         split="validation",
         system="F",
@@ -169,21 +170,27 @@ def main() -> None:
     print("\n--> Executing Frontier F validation run...")
     try:
         records = matrix.run(items)
-    except (urllib.error.HTTPError, urllib.error.URLError, ValueError) as exc:
+    except (
+        urllib.error.HTTPError,
+        urllib.error.URLError,
+        ValueError,
+        RuntimeError,
+        TimeoutError,
+    ) as exc:
         print(f"\n[API NOTICE / EXCEPTION]: {exc}")
         records = []
 
-    run_cfg.save(runs_dir / "run_frontier_gemini_2.5_pro_validation_config.json")
+    run_cfg.save(runs_dir / f"run_frontier_{model_slug}_validation_config.json")
     print(f"    Wrote {len(records)} records to {output_path}")
 
     # 2. Dual Memory-Probe Run (no_history mode)
     mem_items = [item for item in items if item.get("group") == "memory_probe"]
     mem_records: list[dict[str, Any]] = []
     if mem_items:
-        mem_output_path = runs_dir / "run_frontier_memory_probe_no_history.jsonl"
+        mem_output_path = runs_dir / f"run_frontier_{model_slug}_memory_probe_no_history.jsonl"
         mem_run_cfg = RunConfig(
-            run_id="run-frontier-memory-probe-no-history",
-            git_commit="c52c622",
+            run_id=f"run-frontier-{model_slug}-memory-probe-no-history",
+            git_commit="2b4cca4",
             seed=20260102,
             split="validation",
             system="F",
@@ -202,10 +209,18 @@ def main() -> None:
         print("\n--> Executing Frontier F memory probe (no_history mode)...")
         try:
             mem_records = mem_matrix.run(mem_items)
-        except (urllib.error.HTTPError, urllib.error.URLError, ValueError) as exc:
+        except (
+            urllib.error.HTTPError,
+            urllib.error.URLError,
+            ValueError,
+            RuntimeError,
+            TimeoutError,
+        ) as exc:
             print(f"\n[API NOTICE / EXCEPTION on memory probe]: {exc}")
             mem_records = []
-        mem_run_cfg.save(runs_dir / "run_frontier_memory_probe_no_history_config.json")
+        mem_run_cfg.save(
+            runs_dir / f"run_frontier_{model_slug}_memory_probe_no_history_config.json"
+        )
         print(
             f"    Wrote {len(mem_records)} memory probe (no_history) records to {mem_output_path}"
         )

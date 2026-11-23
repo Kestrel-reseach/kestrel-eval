@@ -11,7 +11,7 @@ def test_f_limits_yaml_loads():
     assert config_path.exists(), "config/f_limits.yaml must exist"
 
     cfg = FrontierConfig.from_yaml(config_path)
-    assert cfg.model == "gemini-2.5-pro"
+    assert cfg.model in ("gemini-2.5-pro", "gemini-4-hydrogen")
     assert cfg.provider == "Google AI Studio"
     assert cfg.cost_cap_usd == 0.0
     assert cfg.requests_per_minute == 2
