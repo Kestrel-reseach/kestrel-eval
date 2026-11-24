@@ -19,7 +19,6 @@ import argparse
 import json
 import os
 import sys
-import urllib.error
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -188,7 +187,7 @@ def main() -> None:
     api_quota_exhausted = False
     try:
         records = matrix.run(items, max_workers=args.workers)
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001
         print(f"\n[API NOTICE / EXCEPTION]: {exc}")
         if "per day" in str(exc).lower() or "free_tier_requests" in str(exc).lower():
             api_quota_exhausted = True
@@ -201,7 +200,9 @@ def main() -> None:
     mem_items = [item for item in items if item.get("group") == "memory_probe"]
     mem_records: list[dict[str, Any]] = []
     if mem_items and not api_quota_exhausted:
-        mem_output_path = runs_dir / f"run_frontier_{model_slug}_memory_probe_no_history{suffix}.jsonl"
+        mem_output_path = (
+            runs_dir / f"run_frontier_{model_slug}_memory_probe_no_history{suffix}.jsonl"
+        )
         mem_run_cfg = RunConfig(
             run_id=f"run-frontier-{model_slug}-memory-probe-no-history{suffix}",
             git_commit="2b4cca4",
@@ -223,7 +224,7 @@ def main() -> None:
         print("\n--> Executing Frontier F memory probe (no_history mode)...")
         try:
             mem_records = mem_matrix.run(mem_items, max_workers=args.workers)
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             print(f"\n[API NOTICE / EXCEPTION on memory probe]: {exc}")
             mem_records = []
         mem_run_cfg.save(
@@ -280,7 +281,9 @@ def main() -> None:
         "total_validation_items": len(items),
         "total_records_written": len(all_eval_records),
         "execution_mode": "mock" if effective_mock else "real",
-        "api_key_status": "QUOTA_DAILY_CAP_REACHED" if api_quota_exhausted else runner.api_key_status,
+        "api_key_status": "QUOTA_DAILY_CAP_REACHED"
+        if api_quota_exhausted
+        else runner.api_key_status,
         "quota_info": {
             "daily_requests_completed": len(all_eval_records),
             "status": "DAILY_LIMIT_EXCEEDED" if api_quota_exhausted else "ACTIVE",

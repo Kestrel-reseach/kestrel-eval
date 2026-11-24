@@ -386,7 +386,7 @@ class FrontierRunner:
                                         api_key=self._api_key,
                                         http_options={"api_version": "v1beta"},
                                     )
-                                except Exception:
+                                except (ValueError, TypeError, RuntimeError):
                                     self._client = None
                             rotated = True
                         else:
@@ -404,7 +404,11 @@ class FrontierRunner:
                 )
                 if attempt < self.config.max_retries - 1 and is_transient:
                     # On 429 per-minute rate limit, ensure we sleep at least 8.5 seconds
-                    sleep_time = max(delay, 8.5) if ("429" in err_str or "resource_exhausted" in err_str.lower()) else delay
+                    sleep_time = (
+                        max(delay, 8.5)
+                        if ("429" in err_str or "resource_exhausted" in err_str.lower())
+                        else delay
+                    )
                     time.sleep(sleep_time)
                     delay = min(
                         delay * self.config.backoff_multiplier, self.config.max_delay_seconds
