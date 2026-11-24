@@ -93,6 +93,12 @@ def main() -> None:
         default=None,
         help="Optional maximum number of items to evaluate",
     )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=5,
+        help="Number of concurrent workers for evaluation (default: 5)",
+    )
     args = parser.parse_args()
 
     print("=== Step 2: Frontier Reference Model F Runner ===")
@@ -105,6 +111,16 @@ def main() -> None:
     print(f"Context Window: {cfg.max_context_tokens} tokens")
 
     env_key = os.environ.get(cfg.api_key_env_var)
+    if not env_key:
+        dotenv_path = REPO_ROOT / ".env"
+        if dotenv_path.exists():
+            with dotenv_path.open(encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line.startswith(f"{cfg.api_key_env_var}="):
+                        env_key = line.split("=", 1)[1].strip().strip("\"'")
+                        os.environ[cfg.api_key_env_var] = env_key
+                        break
     is_key_set = bool(env_key and env_key.strip())
 
     if args.mode == "real" and not is_key_set:
@@ -144,9 +160,10 @@ def main() -> None:
 
     # 1. Main Validation Run (full_history for memory_probe)
     model_slug = cfg.model.replace("/", "_").replace(".", "_")
-    output_path = runs_dir / f"run_frontier_{model_slug}_validation.jsonl"
+    suffix = "_mock" if effective_mock else ""
+    output_path = runs_dir / f"run_frontier_{model_slug}_validation{suffix}.jsonl"
     run_cfg = RunConfig(
-        run_id=f"run-frontier-{model_slug}-validation",
+        run_id=f"run-frontier-{model_slug}-validation{suffix}",
         git_commit="2b4cca4",
         seed=20260102,
         split="validation",
@@ -168,16 +185,13 @@ def main() -> None:
     matrix = RunMatrix(run_cfg, runner=runner)
 
     print("\n--> Executing Frontier F validation run...")
+    api_quota_exhausted = False
     try:
-        records = matrix.run(items)
-    except (
-        urllib.error.HTTPError,
-        urllib.error.URLError,
-        ValueError,
-        RuntimeError,
-        TimeoutError,
-    ) as exc:
+        records = matrix.run(items, max_workers=args.workers)
+    except Exception as exc:
         print(f"\n[API NOTICE / EXCEPTION]: {exc}")
+        if "per day" in str(exc).lower() or "free_tier_requests" in str(exc).lower():
+            api_quota_exhausted = True
         records = []
 
     run_cfg.save(runs_dir / f"run_frontier_{model_slug}_validation_config.json")
@@ -186,10 +200,10 @@ def main() -> None:
     # 2. Dual Memory-Probe Run (no_history mode)
     mem_items = [item for item in items if item.get("group") == "memory_probe"]
     mem_records: list[dict[str, Any]] = []
-    if mem_items:
-        mem_output_path = runs_dir / f"run_frontier_{model_slug}_memory_probe_no_history.jsonl"
+    if mem_items and not api_quota_exhausted:
+        mem_output_path = runs_dir / f"run_frontier_{model_slug}_memory_probe_no_history{suffix}.jsonl"
         mem_run_cfg = RunConfig(
-            run_id=f"run-frontier-{model_slug}-memory-probe-no-history",
+            run_id=f"run-frontier-{model_slug}-memory-probe-no-history{suffix}",
             git_commit="2b4cca4",
             seed=20260102,
             split="validation",
@@ -208,14 +222,8 @@ def main() -> None:
         mem_matrix = RunMatrix(mem_run_cfg, runner=mem_runner)
         print("\n--> Executing Frontier F memory probe (no_history mode)...")
         try:
-            mem_records = mem_matrix.run(mem_items)
-        except (
-            urllib.error.HTTPError,
-            urllib.error.URLError,
-            ValueError,
-            RuntimeError,
-            TimeoutError,
-        ) as exc:
+            mem_records = mem_matrix.run(mem_items, max_workers=args.workers)
+        except Exception as exc:
             print(f"\n[API NOTICE / EXCEPTION on memory probe]: {exc}")
             mem_records = []
         mem_run_cfg.save(
@@ -226,8 +234,27 @@ def main() -> None:
         )
 
     # 3. Generate Step 2 Frontier Reference Report
-    all_eval_records = records if records else []
-    metrics = compute_arm_and_group_metrics(all_eval_records, mem_records)
+    all_eval_records: list[dict[str, Any]] = []
+    if output_path.exists():
+        with output_path.open(encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    all_eval_records.append(json.loads(line))
+    if not all_eval_records and records:
+        all_eval_records = records
+
+    mem_eval_records: list[dict[str, Any]] = []
+    if mem_items and mem_output_path.exists():
+        with mem_output_path.open(encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    mem_eval_records.append(json.loads(line))
+    if not mem_eval_records and mem_records:
+        mem_eval_records = mem_records
+
+    metrics = compute_arm_and_group_metrics(all_eval_records, mem_eval_records)
 
     # Response ID log mapping
     response_id_log = [
@@ -253,13 +280,17 @@ def main() -> None:
         "total_validation_items": len(items),
         "total_records_written": len(all_eval_records),
         "execution_mode": "mock" if effective_mock else "real",
-        "api_key_status": runner.api_key_status,
+        "api_key_status": "QUOTA_DAILY_CAP_REACHED" if api_quota_exhausted else runner.api_key_status,
+        "quota_info": {
+            "daily_requests_completed": len(all_eval_records),
+            "status": "DAILY_LIMIT_EXCEEDED" if api_quota_exhausted else "ACTIVE",
+        },
         "metrics": metrics,
         "response_ids_logged": len(response_id_log),
         "response_id_log_sample": response_id_log[:10],
     }
 
-    report_path = reports_dir / "frontier_f_evaluation_report.json"
+    report_path = reports_dir / f"frontier_f_evaluation_report{suffix}.json"
     with report_path.open("w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
 

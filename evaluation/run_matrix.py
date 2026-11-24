@@ -172,12 +172,15 @@ class RunMatrix:
         self.config = config
         self.runner = runner
 
-    def run(self, items: list[dict[str, Any]]) -> list[Record]:
+    def run(self, items: list[dict[str, Any]], max_workers: int = 1) -> list[Record]:
         """Run all items, skipping those already in the checkpoint file.
 
         Returns the list of newly written records (not including previously
         checkpointed items).
         """
+        import threading
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
         config = self.config
         output_path = config.output_path
         output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -188,23 +191,36 @@ class RunMatrix:
         ]
 
         new_records: list[Record] = []
-        with output_path.open("a", encoding="utf-8") as fh:
-            for item in remaining:
-                record = self._run_one(item)
-                errors = validate_record(
-                    record,
-                    allow_locked_test=config.allow_locked_test,
-                    manifest_frozen=config.manifest_frozen,
-                    expected_config_hash=config.config_hash,
-                )
-                if errors:
-                    item_key = item.get("item_id") or item.get("id")
-                    raise ValueError(f"Invalid record for {item_key!r}: {errors}")
-                line = json.dumps(record) + "\n"
+        lock = threading.Lock()
+
+        def process_item(item: dict[str, Any], fh: Any) -> Record:
+            record = self._run_one(item)
+            errors = validate_record(
+                record,
+                allow_locked_test=config.allow_locked_test,
+                manifest_frozen=config.manifest_frozen,
+                expected_config_hash=config.config_hash,
+            )
+            if errors:
+                item_key = item.get("item_id") or item.get("id")
+                raise ValueError(f"Invalid record for {item_key!r}: {errors}")
+            line = json.dumps(record) + "\n"
+            with lock:
                 fh.write(line)
                 fh.flush()
                 os.fsync(fh.fileno())
                 new_records.append(record)
+            return record
+
+        with output_path.open("a", encoding="utf-8") as fh:
+            if max_workers > 1 and len(remaining) > 1:
+                with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                    futures = [executor.submit(process_item, item, fh) for item in remaining]
+                    for future in as_completed(futures):
+                        future.result()
+            else:
+                for item in remaining:
+                    process_item(item, fh)
 
         return new_records
 

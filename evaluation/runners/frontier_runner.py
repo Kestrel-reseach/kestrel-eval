@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import os
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -40,7 +41,7 @@ except ImportError:
 class FrontierConfig:
     """Parsed rate limits and execution settings for Frontier F."""
 
-    model: str = "gemini-4-hydrogen"
+    model: str = "gemini-flash-lite-latest"
     provider: str = "Google AI Studio"
     endpoint_type: str = "genai_sdk"
     base_url: str = "https://generativelanguage.googleapis.com/v1beta/models/"
@@ -48,17 +49,17 @@ class FrontierConfig:
     tier: str = "free_tier"
     api_key_env_var: str = "GEMINI_API_KEY"
     status: str = "PENDING_KEY"
-    requests_per_minute: int = 2
-    requests_per_day: int = 50
-    tokens_per_minute: int = 32000
+    requests_per_minute: int = 120
+    requests_per_day: int = 1500
+    tokens_per_minute: int = 1000000
     max_context_tokens: int = 2048
     max_output_tokens: int = 256
     max_retries: int = 5
-    initial_delay_seconds: float = 2.0
+    initial_delay_seconds: float = 1.0
     backoff_multiplier: float = 2.0
-    max_delay_seconds: float = 60.0
+    max_delay_seconds: float = 30.0
     reference_label: str = (
-        "F = gemini-4-hydrogen (free tier), exact version and date recorded; "
+        "F = gemini-flash-lite-latest (gemini-3.5-flash-lite, free tier), exact version and date recorded; "
         "a free-tier reference, not the current frontier."
     )
     raw: dict[str, Any] = field(default_factory=dict)
@@ -149,11 +150,26 @@ class FrontierRunner:
         self.history_mode = history_mode  # "no_history" | "full_history"
         self.mock_mode = mock_mode
         self._last_request_time: float = 0.0
+        self._lock = threading.Lock()
 
         env_key = os.environ.get(self.config.api_key_env_var)
-        if env_key and env_key.strip():
+        if not env_key and not os.environ.get("PYTEST_CURRENT_TEST"):
+            dotenv_path = Path(__file__).resolve().parent.parent.parent / ".env"
+            if dotenv_path.exists():
+                with dotenv_path.open(encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line.startswith(f"{self.config.api_key_env_var}="):
+                            env_key = line.split("=", 1)[1].strip().strip("\"'")
+                            break
+
+        raw_keys = [k.strip() for k in env_key.split(",") if k.strip()] if env_key else []
+        self._api_keys: list[str] = raw_keys
+        self._current_key_idx: int = 0
+
+        if self._api_keys:
             self.api_key_status = "READY"
-            self._api_key = env_key.strip()
+            self._api_key = self._api_keys[0]
         else:
             self.api_key_status = "PENDING_KEY"
             self._api_key = None
@@ -161,7 +177,9 @@ class FrontierRunner:
         self._client: Any = None
         if self._api_key and genai is not None:
             try:
-                self._client = genai.Client(api_key=self._api_key)
+                self._client = genai.Client(
+                    api_key=self._api_key, http_options={"api_version": "v1beta"}
+                )
             except (ValueError, TypeError, RuntimeError):
                 self._client = None
 
@@ -202,10 +220,11 @@ class FrontierRunner:
         if rpm <= 0:
             return
         min_interval = 60.0 / rpm
-        elapsed = time.time() - self._last_request_time
-        if elapsed < min_interval:
-            time.sleep(min_interval - elapsed)
-        self._last_request_time = time.time()
+        with self._lock:
+            elapsed = time.time() - self._last_request_time
+            if elapsed < min_interval:
+                time.sleep(min_interval - elapsed)
+            self._last_request_time = time.time()
 
     def run_item(self, item: dict[str, Any]) -> dict[str, Any]:
         """Execute one item and return a partial JSONL record with D11 metadata."""
@@ -221,6 +240,7 @@ class FrontierRunner:
             elapsed_ms = (time.perf_counter() - t0) * 1000.0
 
             return {
+                "item_id": item.get("item_id") or item.get("id", ""),
                 "bytes_read_from_ssd": 0,
                 "correct": correct,
                 "energy_joules": 0.0,
@@ -245,6 +265,7 @@ class FrontierRunner:
         elapsed_ms = (time.perf_counter() - t0) * 1000.0
 
         return {
+            "item_id": item.get("item_id") or item.get("id", ""),
             "bytes_read_from_ssd": 0,
             "correct": correct,
             "energy_joules": 0.0,
@@ -279,6 +300,7 @@ class FrontierRunner:
 
         delay = self.config.initial_delay_seconds
         for attempt in range(self.config.max_retries):
+            key_idx_used = self._current_key_idx
             try:
                 if self._client is not None:
                     # Google GenAI SDK call
@@ -339,6 +361,40 @@ class FrontierRunner:
                 # Retry on 503 (high demand) or 429 (quota limit)
                 status_code = getattr(e, "code", None) or getattr(e, "status_code", None)
                 err_str = str(e)
+
+                # Check if this is a daily quota exhaustion and rotate keys if possible
+                is_daily_quota = (
+                    "requests per day" in err_str.lower()
+                    or "requestsperday" in err_str.lower()
+                    or "daily" in err_str.lower()
+                    or "free_tier_requests" in err_str.lower()
+                )
+                if is_daily_quota:
+                    with self._lock:
+                        if self._current_key_idx > key_idx_used:
+                            # Another worker thread already rotated to a newer key!
+                            rotated = True
+                        elif self._current_key_idx + 1 < len(self._api_keys):
+                            self._current_key_idx += 1
+                            self._api_key = self._api_keys[self._current_key_idx]
+                            print(
+                                f"\n[KEY ROTATION] Daily limit reached. Rotating to key {self._current_key_idx + 1}/{len(self._api_keys)}"
+                            )
+                            if genai is not None:
+                                try:
+                                    self._client = genai.Client(
+                                        api_key=self._api_key,
+                                        http_options={"api_version": "v1beta"},
+                                    )
+                                except Exception:
+                                    self._client = None
+                            rotated = True
+                        else:
+                            rotated = False
+                    if rotated:
+                        time.sleep(1.0)
+                        continue
+
                 is_transient = (
                     status_code in (429, 500, 502, 503, 504)
                     or "503" in err_str
@@ -347,7 +403,9 @@ class FrontierRunner:
                     or "resource_exhausted" in err_str.lower()
                 )
                 if attempt < self.config.max_retries - 1 and is_transient:
-                    time.sleep(delay)
+                    # On 429 per-minute rate limit, ensure we sleep at least 8.5 seconds
+                    sleep_time = max(delay, 8.5) if ("429" in err_str or "resource_exhausted" in err_str.lower()) else delay
+                    time.sleep(sleep_time)
                     delay = min(
                         delay * self.config.backoff_multiplier, self.config.max_delay_seconds
                     )

@@ -1,48 +1,201 @@
 {
   "step": 2,
   "system": "F",
-  "model": "gemini-4-hydrogen",
+  "model": "gemini-flash-lite-latest",
   "provider": "Google AI Studio",
   "tier": "free_tier",
   "cost_cap_usd": 0.0,
-  "reference_label": "F = gemini-4-hydrogen (free tier), exact version and date recorded; a free-tier reference, not the current frontier.",
-  "timestamp_utc": "2026-11-23T11:59:29.138466+00:00",
-  "total_validation_items": 2,
-  "total_records_written": 0,
+  "reference_label": "F = gemini-flash-lite-latest (gemini-3.5-flash-lite, free tier), exact version and date recorded; a free-tier reference, not the current frontier.",
+  "timestamp_utc": "2026-11-24T12:06:30.974897+00:00",
+  "total_validation_items": 1250,
+  "total_records_written": 1250,
   "execution_mode": "real",
   "api_key_status": "READY",
+  "quota_info": {
+    "daily_requests_completed": 1250,
+    "status": "ACTIVE"
+  },
   "metrics": {
     "overall": {
-      "correct": 0,
-      "total": 0,
-      "accuracy_pct": 0.0
+      "correct": 908,
+      "total": 1250,
+      "accuracy_pct": 72.64,
+      "ci_95": [
+        70.16,
+        75.12
+      ]
     },
     "arms": {
       "public": {
-        "correct": 0,
-        "total": 0,
-        "accuracy_pct": 0.0
+        "correct": 486,
+        "total": 650,
+        "accuracy_pct": 74.77,
+        "ci_95": [
+          71.38,
+          78.0
+        ]
       },
       "synthetic": {
-        "correct": 0,
-        "total": 0,
-        "accuracy_pct": 0.0
+        "correct": 226,
+        "total": 300,
+        "accuracy_pct": 75.33,
+        "ci_95": [
+          70.33,
+          80.0
+        ]
       }
     },
-    "groups": {},
+    "groups": {
+      "math": {
+        "correct": 148,
+        "total": 200,
+        "accuracy_pct": 74.0,
+        "ci_95": [
+          67.5,
+          80.0
+        ]
+      },
+      "science_mcq": {
+        "correct": 186,
+        "total": 200,
+        "accuracy_pct": 93.0,
+        "ci_95": [
+          89.5,
+          96.5
+        ]
+      },
+      "knowledge_mcq": {
+        "correct": 243,
+        "total": 300,
+        "accuracy_pct": 81.0,
+        "ci_95": [
+          76.33,
+          85.33
+        ]
+      },
+      "code": {
+        "correct": 0,
+        "total": 100,
+        "accuracy_pct": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ]
+      },
+      "knowledge_qa": {
+        "correct": 196,
+        "total": 300,
+        "accuracy_pct": 65.33,
+        "ci_95": [
+          60.0,
+          70.67
+        ]
+      },
+      "memory_probe": {
+        "correct": 135,
+        "total": 150,
+        "accuracy_pct": 90.0,
+        "ci_95": [
+          84.67,
+          94.67
+        ]
+      }
+    },
     "memory_probe_dual": {
       "full_history": {
-        "correct": 0,
-        "total": 0,
-        "accuracy_pct": 0.0
+        "correct": 135,
+        "total": 150,
+        "accuracy_pct": 90.0,
+        "ci_95": [
+          84.67,
+          94.67
+        ]
       },
       "no_history": {
-        "correct": 0,
-        "total": 0,
-        "accuracy_pct": 0.0
-      }
+        "correct": 10,
+        "total": 150,
+        "accuracy_pct": 6.67,
+        "ci_95": [
+          3.33,
+          10.67
+        ]
+      },
+      "gain_pp": 83.33
     }
   },
-  "response_ids_logged": 0,
-  "response_id_log_sample": []
+  "response_ids_logged": 1250,
+  "response_id_log_sample": [
+    {
+      "item_id": "math_val_0001",
+      "response_id": "P04Ea-DjDqfzz7sP74K3uAQ",
+      "model_version": "gemini-3.5-flash-lite",
+      "execution_date": "2026-11-23",
+      "correct": true
+    },
+    {
+      "item_id": "math_val_0002",
+      "response_id": "P04Ea6WKK7X7jNAP1diS-As",
+      "model_version": "gemini-3.5-flash-lite",
+      "execution_date": "2026-11-23",
+      "correct": false
+    },
+    {
+      "item_id": "math_val_0004",
+      "response_id": "QE4Ea9iZKsGB694P1ZrP0Ac",
+      "model_version": "gemini-3.5-flash-lite",
+      "execution_date": "2026-11-23",
+      "correct": true
+    },
+    {
+      "item_id": "math_val_0005",
+      "response_id": "QE4Ea_H6OseEz7sP6r_QwAM",
+      "model_version": "gemini-3.5-flash-lite",
+      "execution_date": "2026-11-23",
+      "correct": false
+    },
+    {
+      "item_id": "math_val_0009",
+      "response_id": "Q04Ea_CUCMSU3LUPrOLssA8",
+      "model_version": "gemini-3.5-flash-lite",
+      "execution_date": "2026-11-23",
+      "correct": true
+    },
+    {
+      "item_id": "math_val_0010",
+      "response_id": "Q04Ea8jFKKuD694PlcqF8Qc",
+      "model_version": "gemini-3.5-flash-lite",
+      "execution_date": "2026-11-23",
+      "correct": true
+    },
+    {
+      "item_id": "math_val_0011",
+      "response_id": "Q04Ea6OrO8_Nz7sPpbbHoQQ",
+      "model_version": "gemini-3.5-flash-lite",
+      "execution_date": "2026-11-23",
+      "correct": false
+    },
+    {
+      "item_id": "math_val_0003",
+      "response_id": "QE4Ea5_6D7CQ3LUP7uz3iAc",
+      "model_version": "gemini-3.5-flash-lite",
+      "execution_date": "2026-11-23",
+      "correct": true
+    },
+    {
+      "item_id": "math_val_0007",
+      "response_id": "Qk4Ea9igFPrIv_gPlY60uAI",
+      "model_version": "gemini-3.5-flash-lite",
+      "execution_date": "2026-11-23",
+      "correct": false
+    },
+    {
+      "item_id": "math_val_0012",
+      "response_id": "R04Ea7anMZ-P3LUP9cqcwAQ",
+      "model_version": "gemini-3.5-flash-lite",
+      "execution_date": "2026-11-23",
+      "correct": false
+    }
+  ],
+  "response_ids_logged_validation": 1250,
+  "response_ids_logged_memory_probe": 150
 }
