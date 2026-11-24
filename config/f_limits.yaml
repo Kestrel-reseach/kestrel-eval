@@ -2,10 +2,10 @@
 # Protocol: Step 2 Part 4 (Preconditions & Rate Limits)
 # Reference: evaluation/manifest.yaml systems.F
 
-model: "gemini-2.5-pro"
+model: "gemini-flash-lite-latest"
 provider: "Google AI Studio"
-endpoint_type: "openai_compatible"
-base_url: "https://generativelanguage.googleapis.com/v1beta/openai/"
+endpoint_type: "genai_sdk"
+base_url: "https://generativelanguage.googleapis.com/v1beta/models/"
 
 # Cost & Quota Controls (Frozen Owner Decisions D6 & D12)
 cost_cap_usd: 0               # Free tier only; $0 cap (no paid calls)
@@ -15,26 +15,26 @@ status: "PENDING_KEY"         # PENDING if GEMINI_API_KEY unset in environment
 
 # Pacing & Rate Limits (Google AI Studio Free Tier)
 limits:
-  requests_per_minute: 2       # Conservative RPM pacing to prevent 429
-  requests_per_day: 50         # Conservative daily request cap for free tier
-  tokens_per_minute: 32000     # Free tier token limit
+  requests_per_minute: 14      # Strictly within Google AI Studio 15 RPM free tier limit
+  requests_per_day: 1500       # Free tier daily request cap
+  tokens_per_minute: 1000000   # Free tier token limit
   max_context_tokens: 2048     # Frozen context length (Owner Decision D5)
   max_output_tokens: 256       # Bounded answer generation
 
 # Exponential Backoff & Retry Policy
 retry:
-  max_retries: 5
-  initial_delay_seconds: 2.0
-  backoff_multiplier: 2.0
-  max_delay_seconds: 60.0
+  max_retries: 10
+  initial_delay_seconds: 8.0
+  backoff_multiplier: 1.5
+  max_delay_seconds: 30.0
   retry_on_status_codes: [429, 500, 503, 504]
 
 # Step 2 Run Scope
 scope:
-  partitions: ["validation"]   # Step 2 evaluates validation only (1200 items)
+  partitions: ["validation"]   # Step 2 evaluates validation only (1250 items)
   memory_probe_runs: ["no_history", "full_history"]
   allow_locked_test: false     # Locked-test runs strictly at Step 10
 
 # Mandatory Reference Label
-reference_label: "F = gemini-2.5-pro (free tier), exact version and date recorded; a free-tier reference, not the current frontier."
+reference_label: "F = gemini-flash-lite-latest (gemini-3.5-flash-lite, free tier), exact version and date recorded; a free-tier reference, not the current frontier."
 

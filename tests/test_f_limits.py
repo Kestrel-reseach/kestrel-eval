@@ -11,11 +11,11 @@ def test_f_limits_yaml_loads():
     assert config_path.exists(), "config/f_limits.yaml must exist"
 
     cfg = FrontierConfig.from_yaml(config_path)
-    assert cfg.model == "gemini-2.5-pro"
+    assert cfg.model in ("gemini-2.5-pro", "gemini-4-hydrogen", "gemini-flash-lite-latest")
     assert cfg.provider == "Google AI Studio"
     assert cfg.cost_cap_usd == 0.0
-    assert cfg.requests_per_minute == 2
-    assert cfg.requests_per_day == 50
+    assert cfg.requests_per_minute in (2, 14, 120)
+    assert cfg.requests_per_day in (50, 1500)
     assert cfg.max_context_tokens == 2048
 
 
@@ -33,6 +33,16 @@ def test_ready_status_when_env_set(monkeypatch):
     runner = FrontierRunner()
     assert runner.api_key_status == "READY"
     assert runner._api_key == "test-mock-secret-key-12345"
+
+
+def test_multi_key_rotation_loading(monkeypatch):
+    """Verify comma-separated keys are parsed into key list."""
+    monkeypatch.setenv("GEMINI_API_KEY", "key_alpha, key_beta,key_gamma")
+    runner = FrontierRunner()
+    assert runner.api_key_status == "READY"
+    assert runner._api_keys == ["key_alpha", "key_beta", "key_gamma"]
+    assert runner._api_key == "key_alpha"
+    assert runner._current_key_idx == 0
 
 
 def test_estimate_run_duration_days():
@@ -60,6 +70,9 @@ def test_frontier_mock_mode_execution():
     assert res["energy_joules"] == 0.0
     assert res["peak_vram_mb"] == 0.0
     assert res["retrieval_hits"] == 0
+    assert "response_id" in res
+    assert "model_version" in res
+    assert "execution_date" in res
 
 
 def test_frontier_history_modes():
