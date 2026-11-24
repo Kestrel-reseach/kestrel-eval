@@ -179,6 +179,10 @@ def extract_code_solution(text: str, entry_point: str | None = None) -> str:
 
     # 1. Fenced code block ```python ... ```
     blocks = re.findall(r"```(?:python)?\s*\n(.*?)\n```", text, re.DOTALL)
+    if not blocks:
+        blocks = re.findall(r"```(?:python)?\s*(.*?)(?:```|$)", text, re.DOTALL)
+        blocks = [b.strip() for b in blocks if b.strip()]
+
     if blocks:
         if entry_point:
             for b in reversed(blocks):
@@ -196,7 +200,13 @@ def extract_code_solution(text: str, entry_point: str | None = None) -> str:
     if def_idx != -1:
         return clean[def_idx:].strip()
 
-    return clean
+    # 4. Fallback: preserve relative indentation for solution body
+    lines = text.splitlines()
+    while lines and not lines[0].strip():
+        lines.pop(0)
+    while lines and not lines[-1].strip():
+        lines.pop()
+    return "\n".join(lines)
 
 
 def normalize_text(text: str) -> str:

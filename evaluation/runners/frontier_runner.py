@@ -366,8 +366,8 @@ class FrontierRunner:
                 is_daily_quota = (
                     "requests per day" in err_str.lower()
                     or "requestsperday" in err_str.lower()
-                    or "daily" in err_str.lower()
-                    or "free_tier_requests" in err_str.lower()
+                    or "daily request" in err_str.lower()
+                    or "daily limit" in err_str.lower()
                 )
                 if is_daily_quota:
                     with self._lock:
