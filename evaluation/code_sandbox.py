@@ -61,7 +61,8 @@ def run_code_in_sandbox(
         return False
 
     # Check if code requires prompt prefix (e.g. function signature)
-    if prompt and not code.strip().startswith("def ") and "def " in prompt:
+    has_def = (f"def {entry_point}" in code) if entry_point else ("def " in code)
+    if prompt and not has_def and "def " in prompt:
         lines = code.splitlines()
         first_non_empty = next((line for line in lines if line.strip()), "")
         if first_non_empty and not first_non_empty.startswith((" ", "\t")):

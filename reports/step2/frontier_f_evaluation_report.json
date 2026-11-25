@@ -228,6 +228,7 @@
   "audit_notes": {
     "issue": 19,
     "code_extraction_finding": "Initial 0/100 code score was caused by check_unit_tests_pass failing to strip markdown code fences (```python...```) returned by Gemini, resulting in SyntaxError during ast.parse. Resolved by integrating extract_code_solution and run_code_in_sandbox, which safely unpacks markdown fences, handles prompt function signatures, and executes in an isolated subprocess.",
-    "gf_scope_alignment": "Full validation suite comprises 1,250 items (overall accuracy: 78.4%). Matched checkable scope aligns with B-LLM's Gate G-Q item set across 800 items (math, science_mcq, code, knowledge_qa), yielding Acc_F = 75.25%. With B-LLM baseline at 56.88%, the G-F gap denominator is Acc_F - Acc_B-LLM = 18.37 pp."
+    "gf_scope_alignment": "Full validation suite comprises 1,250 items (overall accuracy: 78.4%). Matched checkable scope covers 800 checkable validation items (math: 148/200, science_mcq: 186/200, code: 72/100, knowledge_qa: 196/300), yielding Acc_F = 75.25%. With B-LLM baseline confirmed at 56.88% (455/800), the G-F gap denominator is Acc_F - Acc_B-LLM = 75.25% - 56.88% = 18.37 pp.",
+    "bllm_baseline_verification": "B-LLM's saved 800 checkable validation records (math: 200, science_mcq: 200, knowledge_mcq: 300, code: 100) were rescored using the corrected extract_code_solution and run_code_in_sandbox. Code accuracy is confirmed unchanged at 48/100 (48.00%), and pooled checkable accuracy is confirmed unchanged at 455/800 (56.88%, 95% Wilson CI [53.42, 60.27]%). The G-F gap denominator remains Acc_F - Acc_B-LLM = 75.25% - 56.88% = 18.37 pp, with both systems evaluated on 800 checkable items under the same shared extractor and sandbox code."
   }
 }
