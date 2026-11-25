@@ -232,8 +232,8 @@ def update_validation_jsonl_and_report(rescored_results: list[dict[str, Any]]) -
     acc_full = round(c_full / n_full * 100.0, 2)
     ci_full = bootstrap_ci([r.get("correct", False) for r in updated_records])
 
-    # Checkable scope (800 items: math, science_mcq, code, knowledge_qa)
-    checkable_groups = ("math", "science_mcq", "code", "knowledge_qa")
+    # Checkable scope (800 items: math, science_mcq, knowledge_mcq, code per Gate G-Q)
+    checkable_groups = ("math", "science_mcq", "knowledge_mcq", "code")
     checkable_records = [r for r in updated_records if r.get("group") in checkable_groups]
     c_check = sum(1 for r in checkable_records if r.get("correct"))
     n_check = len(checkable_records)
@@ -341,10 +341,11 @@ def update_validation_jsonl_and_report(rescored_results: list[dict[str, Any]]) -
             ),
             "gf_scope_alignment": (
                 f"Full validation suite comprises 1,250 items (overall accuracy: {acc_full}%). "
-                f"Matched checkable scope aligns with B-LLM's Gate G-Q item set across 800 items "
-                f"(math, science_mcq, code, knowledge_qa), yielding Acc_F = {acc_check}%. "
+                f"Matched checkable scope aligns strictly with Gate G-Q item set across 800 items "
+                f"(math, science_mcq, knowledge_mcq, code), yielding Acc_F = {acc_check}%. "
                 f"With B-LLM baseline at {b_llm_checkable_acc}%, the G-F gap denominator is "
-                f"Acc_F - Acc_B-LLM = {gap_closure_denominator} pp."
+                f"Acc_F - Acc_B-LLM = {gap_closure_denominator} pp. knowledge_qa is a store group "
+                f"and is explicitly excluded from G-Q / G-F checkable scope."
             ),
         },
     }

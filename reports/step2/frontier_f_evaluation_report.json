@@ -36,21 +36,21 @@
       ]
     },
     "matched_checkable_scope": {
-      "correct": 602,
+      "correct": 649,
       "total": 800,
-      "accuracy_pct": 75.25,
+      "accuracy_pct": 81.12,
       "ci_95": [
-        72.25,
-        78.12
+        78.38,
+        83.75
       ],
       "groups": [
         "math",
         "science_mcq",
-        "code",
-        "knowledge_qa"
+        "knowledge_mcq",
+        "code"
       ],
       "b_llm_baseline_accuracy_pct": 56.88,
-      "gap_to_frontier_denominator_pp": 18.37
+      "gap_to_frontier_denominator_pp": 24.24
     },
     "arms": {
       "public": {
@@ -228,7 +228,7 @@
   "audit_notes": {
     "issue": 19,
     "code_extraction_finding": "Initial 0/100 code score was caused by check_unit_tests_pass failing to strip markdown code fences (```python...```) returned by Gemini, resulting in SyntaxError during ast.parse. Resolved by integrating extract_code_solution and run_code_in_sandbox, which safely unpacks markdown fences, handles prompt function signatures, and executes in an isolated subprocess.",
-    "gf_scope_alignment": "Full validation suite comprises 1,250 items (overall accuracy: 78.4%). Matched checkable scope covers 800 checkable validation items (math: 148/200, science_mcq: 186/200, code: 72/100, knowledge_qa: 196/300), yielding Acc_F = 75.25%. With B-LLM baseline confirmed at 56.88% (455/800), the G-F gap denominator is Acc_F - Acc_B-LLM = 75.25% - 56.88% = 18.37 pp.",
-    "bllm_baseline_verification": "B-LLM's saved 800 checkable validation records (math: 200, science_mcq: 200, knowledge_mcq: 300, code: 100) were rescored using the corrected extract_code_solution and run_code_in_sandbox. Code accuracy is confirmed unchanged at 48/100 (48.00%), and pooled checkable accuracy is confirmed unchanged at 455/800 (56.88%, 95% Wilson CI [53.42, 60.27]%). The G-F gap denominator remains Acc_F - Acc_B-LLM = 75.25% - 56.88% = 18.37 pp, with both systems evaluated on 800 checkable items under the same shared extractor and sandbox code."
+    "gf_scope_alignment": "Full validation suite comprises 1,250 items (overall accuracy: 78.4%). Matched checkable scope aligns strictly with Gate G-Q item set across 800 items (math: 148/200, science_mcq: 186/200, knowledge_mcq: 243/300, code: 72/100), yielding Acc_F = 81.12% (649/800, 95% bootstrap CI [78.38, 83.75]%). With B-LLM baseline confirmed at 56.88% (455/800), the G-F gap denominator is Acc_F - Acc_B-LLM = 81.12% - 56.88% = 24.24 pp. knowledge_qa is a store group (196/300, 65.33%) and is explicitly excluded from the G-Q / G-F checkable scope.",
+    "bllm_baseline_verification": "B-LLM's saved 800 checkable validation records (math: 200, science_mcq: 200, knowledge_mcq: 300, code: 100) were rescored using the corrected extract_code_solution and run_code_in_sandbox. Code accuracy is confirmed unchanged at 48/100 (48.00%), and pooled checkable accuracy is confirmed unchanged at 455/800 (56.88%, 95% Wilson CI [53.42, 60.27]%). The G-F gap denominator is confirmed at Acc_F - Acc_B-LLM = 81.12% - 56.88% = 24.24 pp, with both systems evaluated on the identical 800 checkable items under the same shared extractor and sandbox code."
   }
 }
