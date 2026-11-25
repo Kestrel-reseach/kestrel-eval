@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-import ast
 import re
-import subprocess
-import sys
 from typing import Any, TypedDict
 
 
@@ -128,36 +125,17 @@ def check_unit_tests_pass(
 
     Returns True if execution exits 0 with no AssertionError or exceptions.
     """
-    if prompt and not generated_code.strip().startswith("def "):
-        code_to_run = f"{prompt}\n{generated_code}"
-    else:
-        code_to_run = generated_code
+    from evaluation.code_sandbox import run_code_in_sandbox
+    from evaluation.extractors import extract_code_solution
 
-    # Quick syntax validation
-    try:
-        ast.parse(code_to_run)
-        ast.parse(test_code)
-    except SyntaxError:
-        return False
-
-    full_script = f"""import sys
-
-{code_to_run}
-
-{test_code}
-
-sys.exit(0)
-"""
-    try:
-        res = subprocess.run(
-            [sys.executable, "-c", full_script],
-            capture_output=True,
-            timeout=timeout_s,
-            text=True,
-        )
-        return res.returncode == 0
-    except (subprocess.TimeoutExpired, Exception):
-        return False
+    clean_code = extract_code_solution(generated_code, entry_point=entry_point)
+    return run_code_in_sandbox(
+        code=clean_code,
+        test_code=test_code,
+        prompt=prompt,
+        entry_point=entry_point,
+        timeout_s=timeout_s,
+    )
 
 
 def normalize_text(text: str) -> str:

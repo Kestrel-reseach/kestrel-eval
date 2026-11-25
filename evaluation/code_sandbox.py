@@ -61,8 +61,15 @@ def run_code_in_sandbox(
         return False
 
     # Check if code requires prompt prefix (e.g. function signature)
-    if prompt and not code.strip().startswith("def ") and "def " in prompt:
-        code_to_run = f"{prompt.rstrip()}\n{code.lstrip()}"
+    has_def = (f"def {entry_point}" in code) if entry_point else ("def " in code)
+    if prompt and not has_def and "def " in prompt:
+        lines = code.splitlines()
+        first_non_empty = next((line for line in lines if line.strip()), "")
+        if first_non_empty and not first_non_empty.startswith((" ", "\t")):
+            indented = "\n".join(("    " + line if line.strip() else line) for line in lines)
+            code_to_run = f"{prompt.rstrip()}\n{indented}"
+        else:
+            code_to_run = f"{prompt.rstrip()}\n{code}"
     else:
         code_to_run = code
 
