@@ -167,7 +167,7 @@ gates:
     strong_result_threshold_pct: 25   # accepted 2026-11-17
     status: ACCEPTED
     formula: "C = (Acc_P1 - Acc_B) / (Acc_F - Acc_B)"
-    frontier_status: "F = gemini-2.5-pro free tier, not run yet"
+    frontier_status: "F = gemini-flash-lite-latest (gemini-3.5-flash-lite) free tier, run 2026-11-24 under D21; free-tier reference, not current frontier"
 
   G_M:
     description: >
