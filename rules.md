@@ -29,11 +29,11 @@ changes, update every copy in the same round of PRs so the two do not drift.
 
 ## Project rules
 
-- `PLAN.md` in the `kestrel` repo is the single source of truth for the goal,
-  steps, gates, rules and status. The full background is in the owner's Notion
-  workspace. Work one step at a time, in order, and update the status list in
-  `PLAN.md` when a step passes, fails or is killed, with numbers and commit.
-- Do not decide the open owner decisions in `PLAN.md`; ask. They cover the
+- The owner's private Notion workspace is the single source of truth for the
+  goal, steps, gates, rules and status; these details are not kept in this public
+  repo. Work one step at a time, in order, and record status with numbers and
+  commit in that workspace when a step passes, fails or is killed.
+- Do not decide the open owner decisions recorded there; ask. They cover the
   frontier model F and its cost cap, the wall power meter, gate acceptance,
   cloud escalation and real personal data.
 - Develop from the validation partition. Run the locked test partition **once**,
@@ -64,13 +64,13 @@ changes, update every copy in the same round of PRs so the two do not drift.
 
 - One topic or step per branch and PR. Name branches `step-<n>-<short-topic>`
   for implementation work and `docs-<short-topic>` for documentation.
-- A PR description states the step, the deliverables and the gate result. Link
-  the relevant `PLAN.md` status line when a step finishes.
+- A PR description states the step, the deliverables and the gate result. Point
+  to the relevant status entry in the private workspace when a step finishes.
 - Commits are small, build on a passing CI run, and contain no trailers.
 - Do not commit generated run output, credentials, dataset snapshots containing
   real data, or large model binaries. Report paths and hashes instead.
-- Keep `rules.md`, `PLAN.md` and the Notion execution page consistent. If they
-  disagree, `PLAN.md` wins and the other two get corrected.
+- Keep this `rules.md` and the Notion execution page consistent. If they
+  disagree, the private Notion plan wins and this file gets corrected.
 
 ## Enforcement
 
