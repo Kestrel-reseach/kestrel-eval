@@ -208,7 +208,8 @@ def run_f_locked(
             "response_id": res["response_id"],
             "model_version": res["model_version"],
             "execution_date": res["execution_date"],
-            "stale_fact_error": False,
+            # FrontierRunner does not return/score stale_fact_error; keep None rather than False.
+            "stale_fact_error": None,
             "metadata": {
                 "entity": item.get("metadata", {}).get("entity"),
                 "attribute": item.get("metadata", {}).get("attribute"),
@@ -806,6 +807,7 @@ def summarize_system(
     ssd_disk_mb: float | None = None,
     ssd_resident_mb: float | None = None,
     no_history_records: list[dict[str, Any]] | None = None,
+    stale_fact_errors_measured: bool = True,
     seed: int = SEED_SUMMARY,
 ) -> dict[str, Any]:
     """Compute privacy-clean accuracy, CI, energy, latency, and group breakdown."""
@@ -847,7 +849,16 @@ def summarize_system(
 
     mem_stale_recs = [r for r in mem_recs if r.get("metadata", {}).get("is_stale_fact")]
     mem_static_recs = [r for r in mem_recs if not r.get("metadata", {}).get("is_stale_fact")]
-    stale_errors = sum(1 for r in mem_stale_recs if r.get("stale_fact_error"))
+    stale_errors: int | str = (
+        sum(1 for r in mem_stale_recs if r.get("stale_fact_error"))
+        if stale_fact_errors_measured
+        else "unmeasured"
+    )
+    stale_error_rate: float | str = (
+        (round(stale_errors / len(mem_stale_recs) * 100.0, 2) if mem_stale_recs else 0.0)
+        if isinstance(stale_errors, int)
+        else "unmeasured"
+    )
 
     latencies = [float(r.get("wall_time_ms", 0.0)) for r in records]
     p50_ms = (
@@ -883,9 +894,7 @@ def summarize_system(
             "stale": _scope_stats(mem_stale_recs),
             "static": _scope_stats(mem_static_recs),
             "stale_fact_errors": stale_errors,
-            "stale_fact_error_rate_pct": round(stale_errors / len(mem_stale_recs) * 100.0, 2)
-            if mem_stale_recs
-            else 0.0,
+            "stale_fact_error_rate_pct": stale_error_rate,
         },
         "resources": {
             "resident_gb": resident_gb,
@@ -968,7 +977,14 @@ def assemble_locked_summary(
     bllm_res_gb = round(bllm_vram_mb / 1024.0, 3)
     p1_res_gb = round((p1_vram_mb / 1024.0) + (ssd_res_mb / 1024.0 if ssd_res_mb else 0.0), 3)
 
-    sys_f = summarize_system(f_records, no_history_records=f_no_hist_records)
+    f_stale_scored = bool(
+        f_records and all(r.get("stale_fact_errors_scored") is True for r in f_records)
+    )
+    sys_f = summarize_system(
+        f_records,
+        no_history_records=f_no_hist_records,
+        stale_fact_errors_measured=f_stale_scored,
+    )
     sys_b = summarize_system(bllm_records, resident_gb=bllm_res_gb)
     sys_p1 = summarize_system(
         p1_records,
@@ -1067,6 +1083,28 @@ def assemble_locked_summary(
     f_models = sorted(set(f_model_values))
     f_dates = sorted(set(f_date_values))
 
+    f_model_counts = _count_by(f_model_values)
+    f_date_counts = _count_by(f_date_values)
+    f_date_summary = ", ".join(f"{d}: {cnt}" for d, cnt in f_date_counts.items())
+    caveats = [
+        (
+            "P1 Step 10 memory_probe used system prompt 'You are an assistant with personal memory. "
+            "Answer using the verified active personal memory provided. Give only the direct factual "
+            "value (name, place, item, or preference).' with 'Question:' + text instead of Step 6/7's "
+            "'You are a helpful personal assistant...' and 'Question: {text}'. Recorded as evaluated "
+            "Step 10 config caveat (Option a, issue #25; no locked re-exposure, decision driven by G-Q FAIL)."
+        ),
+        (
+            "F private D11 logs retain response_id, model_version, execution_date, and boolean correctness "
+            "without raw prediction text; F stale_fact_errors is unmeasured (not zero)."
+        ),
+        (
+            f"F executed once via checkpoint pacing across {len(f_date_counts)} date(s) "
+            f"({f_date_summary}; {len(f_records)} unique main + {len(f_no_hist_records)} no_history), "
+            "covering all 1,250 locked items once without reuse."
+        ),
+    ]
+
     return {
         "status": "RUN",
         "note": (
@@ -1101,10 +1139,11 @@ def assemble_locked_summary(
             "policy": "Locked-test partition used strictly once; minimal prompts sent to F free tier.",
             "f_model_versions_observed": f_models,
             "f_execution_dates": f_dates,
-            "f_counts_by_model_version": _count_by(f_model_values),
-            "f_counts_by_execution_date": _count_by(f_date_values),
+            "f_counts_by_model_version": f_model_counts,
+            "f_counts_by_execution_date": f_date_counts,
             "f_response_ids_logged": len(f_records) + len(f_no_hist_records),
         },
+        "caveats": caveats,
         "systems": {
             "F": sys_f,
             "B_LLM": sys_b,

@@ -52,6 +52,12 @@ Validation-only for comparison: gap 23.49 pp (3.09% closed), 297.02 J/correct vs
 - **G_M**: PASS
 - **G_R**: PASS
 
+## Caveats
+
+- P1 Step 10 memory_probe used system prompt 'You are an assistant with personal memory. Answer using the verified active personal memory provided. Give only the direct factual value (name, place, item, or preference).' with 'Question:' + text instead of Step 6/7's 'You are a helpful personal assistant...' and 'Question: {text}'. Recorded as evaluated Step 10 config caveat (Option a, issue #25; no locked re-exposure, decision driven by G-Q FAIL).
+- F private D11 logs retain response_id, model_version, execution_date, and boolean correctness without raw prediction text; F stale_fact_errors is unmeasured (not zero).
+- F executed once via checkpoint pacing across 2 date(s) (2026-11-25: 405, 2026-11-27: 845; 1250 unique main + 150 no_history), covering all 1,250 locked items once without reuse.
+
 ## Decision
 
 **publish_negative_result** — G-Q and G-R must both pass for prototype 2 (evaluated on locked_test: G-Q=FAIL, G-R=PASS).

@@ -154,6 +154,13 @@ def test_assemble_locked_summary_and_final_report(tmp_path: Path) -> None:
     assert summary["gates"]["G_R"]["status"] == "PASS"
     assert summary["decision"] == "publish_negative_result"
     assert "matched_checkable_800" in summary["paired_comparisons"]
+    assert summary["systems"]["F"]["memory_probe_detail"]["stale_fact_errors"] == "unmeasured"
+    assert (
+        summary["systems"]["F"]["memory_probe_detail"]["stale_fact_error_rate_pct"] == "unmeasured"
+    )
+    assert summary["systems"]["P1"]["memory_probe_detail"]["stale_fact_errors"] == 0
+    assert sum(summary["exposure_record"]["f_counts_by_execution_date"].values()) == 1250
+    assert len(summary["caveats"]) >= 3
 
     # Feed into build_final_report.collect + render_markdown
     kestrel = tmp_path / "kestrel"
@@ -183,6 +190,8 @@ def test_assemble_locked_summary_and_final_report(tmp_path: Path) -> None:
     assert "## The three numbers (locked test)" in md
     assert "## Gate verdicts (product gates: locked_test; component gates: validation)" in md
     assert "Validation-only for comparison: gap 23.49 pp" in md
+    assert "## Caveats" in md
+    assert "unmeasured" in md
     assert "| **F** |" in md
     assert "| **B_LLM** |" in md
     assert "| **P1** |" in md

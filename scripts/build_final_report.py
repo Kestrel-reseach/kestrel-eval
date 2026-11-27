@@ -188,6 +188,11 @@ def collect(
             if product_path == "publish_negative_result"
             else f"G-Q and G-R both pass (evaluated on {decision_scope})."
         ),
+        "caveats": (
+            list(locked_test["caveats"])
+            if locked_run and isinstance(locked_test.get("caveats"), list)
+            else []
+        ),
         "f_measurement": {
             "public_accuracy_pct": frontier["metrics"]["arms"]["public"]["accuracy_pct"],
             "synthetic_accuracy_pct": frontier["metrics"]["arms"]["synthetic"]["accuracy_pct"],
@@ -297,6 +302,10 @@ def render_markdown(report: dict[str, Any]) -> str:
             for gname, gval in locked["gates"].items():
                 if isinstance(gval, dict):
                     lines.append(f"- **{gname}**: {gval.get('status', gval)}")
+    if report.get("caveats"):
+        lines.extend(["", "## Caveats", ""])
+        for caveat in report["caveats"]:
+            lines.append(f"- {caveat}")
     lines.extend(
         [
             "",
