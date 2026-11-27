@@ -103,11 +103,16 @@ def collect(
     }
 
     # Step 10 decision rule: prototype 2 only if BOTH G-Q and G-R pass.
+    # Use locked-test gates when available; fall back to validation gates otherwise.
+    locked_gates = locked_test.get("gates", {}) if isinstance(locked_test, dict) else {}
+    effective_gq = locked_gates.get("G_Q", {}).get("status", gate_verdicts["G_Q"])
+    effective_gr = locked_gates.get("G_R", {}).get("status", gate_verdicts["G_R"])
     product_path = (
         "prototype_2"
-        if gate_verdicts["G_Q"] == "PASS" and gate_verdicts["G_R"] == "PASS"
+        if effective_gq == "PASS" and effective_gr == "PASS"
         else "publish_negative_result"
     )
+    decision_scope = "locked_test" if locked_gates else "validation"
 
     return {
         "step": 10,
@@ -128,10 +133,12 @@ def collect(
             ),
         },
         "decision": product_path,
+        "decision_scope": decision_scope,
         "decision_reason": (
-            "G-Q and G-R must both pass for prototype 2."
+            f"G-Q and G-R must both pass for prototype 2 (evaluated on {decision_scope}: "
+            f"G-Q={effective_gq}, G-R={effective_gr})."
             if product_path == "publish_negative_result"
-            else "G-Q and G-R both pass."
+            else f"G-Q and G-R both pass (evaluated on {decision_scope})."
         ),
         "f_measurement": {
             "public_accuracy_pct": frontier["metrics"]["arms"]["public"]["accuracy_pct"],
@@ -181,12 +188,51 @@ def render_markdown(report: dict[str, Any]) -> str:
             f"- **{name}**: {metrics['accuracy_pct']}% accuracy, "
             f"{metrics['energy_per_correct_joules']} J/correct"
         )
+    locked = report["locked_test"]
+    locked_note = locked.get("note", "")
     lines.extend(
         [
             "",
             "## Locked-test partition",
             "",
-            f"**{report['locked_test']['status']}** — {report['locked_test']['note']}",
+            f"**{locked['status']}** — {locked_note}" if locked_note else f"**{locked['status']}**",
+        ]
+    )
+    if locked.get("status") == "RUN" and isinstance(locked.get("systems"), dict):
+        lines.extend(
+            [
+                "",
+                "| System | Full Suite (1,250) | Checkable G-Q/G-F (800) | Store QA (300) | Memory (150) | Net J/Correct | Resident GB |",
+                "| :--- | :---: | :---: | :---: | :---: | :---: | :---: |",
+            ]
+        )
+        for sys_name in ("F", "B_LLM", "P1"):
+            s = locked["systems"].get(sys_name)
+            if not s:
+                continue
+            fs = s["scopes"]["full_suite_1250"]
+            chk = s["scopes"]["matched_checkable_800"]
+            st = s["scopes"]["store_knowledge_qa_300"]
+            mem = s["scopes"]["memory_probe_150"]
+            res = s.get("resources", {})
+            j_corr = res.get("net_joules_per_correct_full_suite")
+            j_str = f"{j_corr:.2f} J" if j_corr is not None else "unmeasured"
+            gb = res.get("resident_gb")
+            gb_str = f"{gb:.3f} GB" if gb is not None else "—"
+            lines.append(
+                f"| **{sys_name}** | {fs['accuracy_pct']}% ({fs['correct']}/{fs['total']}) | "
+                f"{chk['accuracy_pct']}% ({chk['correct']}/{chk['total']}) | "
+                f"{st['accuracy_pct']}% ({st['correct']}/{st['total']}) | "
+                f"{mem['accuracy_pct']}% ({mem['correct']}/{mem['total']}) | "
+                f"{j_str} | {gb_str} |"
+            )
+        if isinstance(locked.get("gates"), dict):
+            lines.extend(["", "### Locked-test gate verdicts", ""])
+            for gname, gval in locked["gates"].items():
+                if isinstance(gval, dict):
+                    lines.append(f"- **{gname}**: {gval.get('status', gval)}")
+    lines.extend(
+        [
             "",
             "## Decision",
             "",
