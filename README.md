@@ -5,9 +5,9 @@ Locked evaluation suite, baselines and energy-measurement harness for
 one question: on a fixed slice, how do quality, energy per correct task and
 resident memory compare?
 
-The shared plan, pass/kill gates, rules and step status are in the
-**[Kestrel PLAN.md](https://github.com/Kestrel-reseach/kestrel/blob/main/PLAN.md)**.
-This README is the working copy for the suite itself.
+The shared plan, pass/kill gates, rules and step status are in the owner's
+private Notion workspace, not in this public repository. This README is the
+working copy for the suite itself.
 
 ## What lives here
 
