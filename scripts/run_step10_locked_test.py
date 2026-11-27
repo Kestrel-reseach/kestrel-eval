@@ -73,6 +73,11 @@ MEMORY_GROUP = "memory_probe"
 B_LLM_MODEL = "Qwen/Qwen2.5-1.5B-Instruct"
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 IDLE_BASELINE_POWER_W = 6.1444  # Step 0 RTX 3050 formal baseline
+MANIFEST_VERSION = "2.3"
+CONTEXT_LENGTH = 2048
+SEED_BLLM = 20260102
+SEED_P1 = 20260107
+SEED_SUMMARY = 20260102
 
 GROUP_CAPS: dict[str, int] = {
     "math": 768,
@@ -151,9 +156,21 @@ def load_jsonl_by_id(path: Path) -> dict[str, dict[str, Any]]:
     return recs
 
 
-def _sanitize_locked_record(rec: dict[str, Any]) -> dict[str, Any]:
-    """Keep only evaluation metadata & scores for out-of-repo audit cache (never print)."""
-    return rec
+def _count_by(values: list[str]) -> dict[str, int]:
+    """Count occurrences of each string value, sorted for reproducible reports."""
+    counts: dict[str, int] = {}
+    for value in values:
+        counts[value] = counts.get(value, 0) + 1
+    return dict(sorted(counts.items()))
+
+
+def _require_full_locked_scope(limit: int | None, phase: str) -> None:
+    """Refuse to emit a Step 10 summary from a partial --limit run."""
+    if limit is not None and phase in ("all", "summarize"):
+        raise RuntimeError(
+            "Refusing to write a Step 10 locked-test summary with --limit; "
+            "reports must cover all 1,250 items."
+        )
 
 
 def run_f_locked(
@@ -276,7 +293,7 @@ def run_bllm_locked(
     runs_dir: Path,
     *,
     device: str = "cuda:0",
-    seed: int = 20260102,
+    seed: int = SEED_BLLM,
     limit: int | None = None,
 ) -> list[dict[str, Any]]:
     """Run B-LLM (Qwen2.5-1.5B NF4, canonical prompts, BM25) once on locked test."""
@@ -399,7 +416,7 @@ def run_p1_locked(
     runs_dir: Path,
     *,
     device: str = "cuda:0",
-    seed: int = 20260107,
+    seed: int = SEED_P1,
     limit: int | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Run P1 Integrated (Step 7 frozen config) once on locked test."""
@@ -422,7 +439,22 @@ def run_p1_locked(
     eval_items = items[:limit] if limit else items
     existing = load_jsonl_by_id(out_jsonl)
 
-    # Fit Step 3 verifier head
+    # Build/load locked SSD KnowledgeStore outside git repo
+    store_dir = runs_dir / "locked_store_index"
+    store_meta: dict[str, Any] = {}
+    if len(existing) == len(eval_items) and (store_dir / "vectors.bin").is_file():
+        print(f"[P1] Loaded all {len(existing)} cached records.", flush=True)
+        store_obj = KnowledgeStore(store_dir)
+        store_obj.load_chunks()
+        store_meta = {
+            "disk_bytes": store_obj.disk_bytes,
+            "resident_bytes": store_obj.resident_bytes,
+            "corpus_chunks": len(store_obj._chunks),
+        }
+        return [existing[str(it["item_id"])] for it in eval_items], store_meta
+
+    # Fit Step 3 verifier head. The train feature cache is gitignored, so only
+    # load it when there are uncached records to score.
     train_cache = kestrel_dir / "reports" / ".cache_train_examples.jsonl"
     step3_json = kestrel_dir / "reports" / "verifier_step3.json"
     train_ex = [
@@ -437,20 +469,6 @@ def run_p1_locked(
     head = NumpyLogisticHead()
     head.fit(train_ex)
     temp = float(json.loads(step3_json.read_text(encoding="utf-8")).get("temperature", 2.0))
-
-    # Build/load locked SSD KnowledgeStore outside git repo
-    store_dir = runs_dir / "locked_store_index"
-    store_meta: dict[str, Any] = {}
-    if len(existing) == len(eval_items) and (store_dir / "vectors.bin").is_file():
-        print(f"[P1] Loaded all {len(existing)} cached records.", flush=True)
-        store_obj = KnowledgeStore(store_dir)
-        store_obj.load_chunks()
-        store_meta = {
-            "disk_bytes": store_obj.disk_bytes,
-            "resident_bytes": store_obj.resident_bytes,
-            "corpus_chunks": len(store_obj._chunks),
-        }
-        return [existing[str(it["item_id"])] for it in eval_items], store_meta
 
     import torch
     from transformers import AutoModel, AutoTokenizer
@@ -788,7 +806,7 @@ def summarize_system(
     ssd_disk_mb: float | None = None,
     ssd_resident_mb: float | None = None,
     no_history_records: list[dict[str, Any]] | None = None,
-    seed: int = 20260102,
+    seed: int = SEED_SUMMARY,
 ) -> dict[str, Any]:
     """Compute privacy-clean accuracy, CI, energy, latency, and group breakdown."""
 
@@ -969,9 +987,9 @@ def assemble_locked_summary(
         pf = [bool(f_by_id[i]["correct"]) for i in scope_ids]
         pb = [bool(b_by_id[i]["correct"]) for i in scope_ids]
         pp = [bool(p_by_id[i]["correct"]) for i in scope_ids]
-        lo_pb, hi_pb = paired_bootstrap_ci(pp, pb, seed=20260102)
-        lo_pf, hi_pf = paired_bootstrap_ci(pp, pf, seed=20260102)
-        lo_fb, hi_fb = paired_bootstrap_ci(pf, pb, seed=20260102)
+        lo_pb, hi_pb = paired_bootstrap_ci(pp, pb, seed=SEED_SUMMARY)
+        lo_pf, hi_pf = paired_bootstrap_ci(pp, pf, seed=SEED_SUMMARY)
+        lo_fb, hi_fb = paired_bootstrap_ci(pf, pb, seed=SEED_SUMMARY)
         acc_p = sum(pp) / len(pp) * 100.0
         acc_b = sum(pb) / len(pb) * 100.0
         acc_f = sum(pf) / len(pf) * 100.0
@@ -1036,19 +1054,18 @@ def assemble_locked_summary(
     g_m_pass = (
         p1_mem_acc >= f_no_mem
         and p1_mem_acc >= f_full_mem - 5.0
-        and p1_stale_err <= 14  # <= half of Step 6 plain memory (28)
+        # Frozen manifest v2.3 gates.G_M.target_max_stale_errors (22 baseline / 2).
+        and p1_stale_err <= 11
     )
 
     g_r_pass = p1_vram_mb <= 1536.0
 
     decision = "prototype_2" if (g_q_pass and g_r_pass) else "publish_negative_result"
 
-    f_models = sorted(
-        {str(r.get("model_version", "")) for r in f_records if r.get("model_version")}
-    )
-    f_dates = sorted(
-        {str(r.get("execution_date", "")) for r in f_records if r.get("execution_date")}
-    )
+    f_model_values = [str(r.get("model_version", "")) for r in f_records if r.get("model_version")]
+    f_date_values = [str(r.get("execution_date", "")) for r in f_records if r.get("execution_date")]
+    f_models = sorted(set(f_model_values))
+    f_dates = sorted(set(f_date_values))
 
     return {
         "status": "RUN",
@@ -1060,16 +1077,32 @@ def assemble_locked_summary(
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
         "git_commit": eval_commit,
         "kestrel_git_commit": kestrel_commit,
-        "manifest_version": "2.3",
+        "manifest_version": MANIFEST_VERSION,
         "manifest_root_hash": MANIFEST_ROOT_HASH,
         "hardware_tier": "AMD Ryzen 7 7435HS + NVIDIA GeForce RTX 3050 Laptop GPU (4 GB)",
         "energy_label": MANDATORY_ENERGY_LABEL,
         "frontier_reference": F_REFERENCE_LABEL,
+        "run_config": {
+            "manifest_version": MANIFEST_VERSION,
+            "manifest_root_hash": MANIFEST_ROOT_HASH,
+            "context_length": CONTEXT_LENGTH,
+            "b_llm_model": B_LLM_MODEL,
+            "embedding_model": EMBEDDING_MODEL,
+            "group_caps": GROUP_CAPS,
+            "seeds": {
+                "b_llm": SEED_BLLM,
+                "p1": SEED_P1,
+                "paired_bootstrap": SEED_SUMMARY,
+                "cluster_bootstrap": SEED_SUMMARY,
+            },
+        },
         "exposure_record": {
             "decision": "D12",
             "policy": "Locked-test partition used strictly once; minimal prompts sent to F free tier.",
             "f_model_versions_observed": f_models,
             "f_execution_dates": f_dates,
+            "f_counts_by_model_version": _count_by(f_model_values),
+            "f_counts_by_execution_date": _count_by(f_date_values),
             "f_response_ids_logged": len(f_records) + len(f_no_hist_records),
         },
         "systems": {
@@ -1135,6 +1168,7 @@ def main() -> None:
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--limit", type=int, default=None)
     args = parser.parse_args()
+    _require_full_locked_scope(args.limit, args.phase)
 
     private_dir = get_private_dir()
     runs_dir = private_dir / "step10_runs"

@@ -3,6 +3,14 @@
   "energy_label": "Relative energy only; GPU NVML scope; same machine and session; not comparable across machines.",
   "frontier_reference": "F = gemini-flash-lite-latest (gemini-3.5-flash-lite, free tier, D21); a free-tier reference, not the current frontier.",
   "headline_numbers": {
+    "quality_gap_to_f_pp": 20.62,
+    "gap_closed_pct": -0.59,
+    "joules_per_correct_task_p1": 196.95,
+    "joules_per_correct_task_b_llm": 110.04,
+    "resident_gb_p1": 1.223,
+    "resident_gb_b_llm": 1.217
+  },
+  "validation_numbers": {
     "quality_gap_to_f_pp": 23.49,
     "gap_closed_pct": 3.09,
     "joules_per_correct_task_p1": 297.02,
@@ -10,6 +18,7 @@
     "resident_gb_p1": 1.385,
     "resident_gb_b_llm": 1.383
   },
+  "headline_scope": "locked_test",
   "gate_verdicts": {
     "G_Q": "FAIL",
     "G_F": "reported (not promised)",
@@ -70,8 +79,8 @@
     },
     {
       "component": "G-Q product quality gate",
-      "reason": "P1 57.63% vs B-LLM 56.88%; delta 0.75 pp with CI including zero; energy above cap",
-      "evidence": "reports/integration_step7.json"
+      "reason": "Locked test: P1 63.5% vs B-LLM 63.62%; delta -0.12 pp with CI [-1.87, 1.62] including zero; P1 310.98 J/correct vs B-LLM 138.34 J/correct",
+      "evidence": "reports/locked_test_step10.json"
     }
   ],
   "locked_test": {

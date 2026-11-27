@@ -3,13 +3,15 @@
 > Relative energy only; GPU NVML scope; same machine and session; not comparable across machines.
 > F = gemini-flash-lite-latest (gemini-3.5-flash-lite, free tier, D21); a free-tier reference, not the current frontier.
 
-## The three numbers (validation)
+## The three numbers (locked test)
 
-- Quality gap to F: **23.49 pp** (3.09% of the gap closed)
-- Energy per correct task: **297.02 J** (B-LLM 171.55 J)
-- Resident memory: **1.385 GB** (B-LLM 1.383 GB)
+- Quality gap to F: **20.62 pp** (-0.59% of the gap closed)
+- Energy per correct task: **196.95 J** (B-LLM 110.04 J)
+- Resident memory: **1.223 GB** (B-LLM 1.217 GB)
 
-## Gate verdicts
+Validation-only for comparison: gap 23.49 pp (3.09% closed), 297.02 J/correct vs 171.55 J for B-LLM, 1.385 GB resident.
+
+## Gate verdicts (product gates: locked_test; component gates: validation)
 
 - **G_Q**: FAIL
 - **G_F**: reported (not promised)
@@ -24,9 +26,9 @@
 ## Failed components
 
 - **Step 4 verifier-gated halting**: gate failed; fixed two-pass kept per kill rule (reports/halting_step4.json)
-- **G-Q product quality gate**: P1 57.63% vs B-LLM 56.88%; delta 0.75 pp with CI including zero; energy above cap (reports/integration_step7.json)
+- **G-Q product quality gate**: Locked test: P1 63.5% vs B-LLM 63.62%; delta -0.12 pp with CI [-1.87, 1.62] including zero; P1 310.98 J/correct vs B-LLM 138.34 J/correct (reports/locked_test_step10.json)
 
-## Ablations
+## Ablations (validation only)
 
 - **ablation_no_verifier**: 63.2% accuracy, 213.83 J/correct
 - **ablation_no_knowledge_store**: 49.6% accuracy, 272.08 J/correct

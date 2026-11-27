@@ -6,7 +6,11 @@ import json
 from pathlib import Path
 
 from scripts.build_final_report import collect, render_markdown
-from scripts.run_step10_locked_test import assemble_locked_summary, wilson_ci_95
+from scripts.run_step10_locked_test import (
+    _require_full_locked_scope,
+    assemble_locked_summary,
+    wilson_ci_95,
+)
 
 
 def _synthetic_records(rate_by_group: dict[str, float]) -> list[dict]:
@@ -41,6 +45,57 @@ def _synthetic_records(rate_by_group: dict[str, float]) -> list[dict]:
             }
             recs.append(rec)
     return recs
+
+
+def _write_source_reports(kestrel: Path, eval_dir: Path) -> None:
+    """Write the minimal committed Step 3-7 + F reports used by collect()."""
+    for rel, obj in (
+        ("reports/verifier_step3.json", {"gate_decision": {"passes": True}}),
+        ("reports/halting_step4.json", {"gate": {"gate_decision": "FAIL"}}),
+        ("reports/knowledge_store_step5.json", {"gate": {"gate_decision": "PASS"}}),
+        ("reports/memory_step6.json", {"gate": {"gate_decision": "PASS"}}),
+        (
+            "reports/integration_step7.json",
+            {
+                "configurations": {"p1_integrated": {"resident_gb": 1.385}},
+                "quality_gate": {
+                    "G_Q": {
+                        "status": "FAIL",
+                        "p1_accuracy_pct": 57.63,
+                        "b_llm_accuracy_pct": 56.88,
+                        "delta_vs_b_llm_pp": 0.75,
+                        "p1_net_joules_per_correct": 297.02,
+                        "b_llm_net_joules_per_correct": 171.55,
+                    },
+                    "G_F": {"gap_to_f_pp": 23.49, "gap_closed_pct": 3.09},
+                    "G_M": {"status": "PASS"},
+                    "G_R": {"status": "PASS"},
+                },
+                "section_gates": {"gate_decision": "PASS (no-regression sanity only)"},
+                "honest_wins": {},
+            },
+        ),
+    ):
+        p = kestrel / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(json.dumps(obj), encoding="utf-8")
+
+    fp = eval_dir / "reports" / "step2" / "frontier_f_evaluation_report.json"
+    fp.parent.mkdir(parents=True, exist_ok=True)
+    fp.write_text(
+        json.dumps(
+            {
+                "metrics": {
+                    "arms": {
+                        "public": {"accuracy_pct": 79.85},
+                        "synthetic": {"accuracy_pct": 88.33},
+                    },
+                    "overall": {"accuracy_pct": 78.4},
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
 
 
 def test_wilson_ci_bounds() -> None:
@@ -103,58 +158,119 @@ def test_assemble_locked_summary_and_final_report(tmp_path: Path) -> None:
     # Feed into build_final_report.collect + render_markdown
     kestrel = tmp_path / "kestrel"
     eval_dir = tmp_path / "eval"
-    for rel, obj in (
-        ("reports/verifier_step3.json", {"gate_decision": {"passes": True}}),
-        ("reports/halting_step4.json", {"gate": {"gate_decision": "FAIL"}}),
-        ("reports/knowledge_store_step5.json", {"gate": {"gate_decision": "PASS"}}),
-        ("reports/memory_step6.json", {"gate": {"gate_decision": "PASS"}}),
-        (
-            "reports/integration_step7.json",
-            {
-                "configurations": {"p1_integrated": {"resident_gb": 1.385}},
-                "quality_gate": {
-                    "G_Q": {
-                        "status": "FAIL",
-                        "p1_accuracy_pct": 57.63,
-                        "b_llm_accuracy_pct": 56.88,
-                        "delta_vs_b_llm_pp": 0.75,
-                        "p1_net_joules_per_correct": 297.02,
-                        "b_llm_net_joules_per_correct": 171.55,
-                    },
-                    "G_F": {"gap_to_f_pp": 23.49, "gap_closed_pct": 3.09},
-                    "G_M": {"status": "PASS"},
-                    "G_R": {"status": "PASS"},
-                },
-                "section_gates": {"gate_decision": "PASS (no-regression sanity only)"},
-                "honest_wins": {},
-            },
-        ),
-    ):
-        p = kestrel / rel
-        p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(json.dumps(obj), encoding="utf-8")
-
-    fp = eval_dir / "reports" / "step2" / "frontier_f_evaluation_report.json"
-    fp.parent.mkdir(parents=True, exist_ok=True)
-    fp.write_text(
-        json.dumps(
-            {
-                "metrics": {
-                    "arms": {
-                        "public": {"accuracy_pct": 79.85},
-                        "synthetic": {"accuracy_pct": 88.33},
-                    },
-                    "overall": {"accuracy_pct": 78.4},
-                }
-            }
-        ),
-        encoding="utf-8",
-    )
+    _write_source_reports(kestrel, eval_dir)
 
     final = collect(kestrel, eval_dir, locked_test=summary)
     assert final["locked_test"]["status"] == "RUN"
     assert final["decision"] == "publish_negative_result"
+    assert final["headline_scope"] == "locked_test"
+    assert (
+        final["headline_numbers"]["quality_gap_to_f_pp"] == (summary["gates"]["G_F"]["gap_to_f_pp"])
+    )
+    assert (
+        final["headline_numbers"]["gap_closed_pct"] == (summary["gates"]["G_F"]["gap_closed_pct"])
+    )
+    assert (
+        final["headline_numbers"]["joules_per_correct_task_p1"]
+        == (summary["systems"]["P1"]["resources"]["net_joules_per_correct_full_suite"])
+    )
+    assert final["validation_numbers"]["quality_gap_to_f_pp"] == 23.49
+    assert any(
+        failed["evidence"] == "reports/locked_test_step10.json"
+        for failed in final["failed_components"]
+    )
     md = render_markdown(final)
+    assert "## The three numbers (locked test)" in md
+    assert "## Gate verdicts (product gates: locked_test; component gates: validation)" in md
+    assert "Validation-only for comparison: gap 23.49 pp" in md
     assert "| **F** |" in md
     assert "| **B_LLM** |" in md
     assert "| **P1** |" in md
+
+
+def test_decision_uses_locked_gates_when_they_pass(tmp_path: Path) -> None:
+    rates = {
+        "math": 0.95,
+        "science_mcq": 0.95,
+        "knowledge_mcq": 0.95,
+        "code": 0.95,
+        "knowledge_qa": 0.95,
+        "memory_probe": 0.96,
+    }
+    f_recs = _synthetic_records({g: 0.98 for g in rates})
+    b_recs = _synthetic_records({g: 0.50 if g != "knowledge_qa" else 0.60 for g in rates})
+    p1_recs = _synthetic_records(rates)
+    f_nh = [
+        {"item_id": f"memory_probe_{i:04d}", "group": "memory_probe", "correct": i < 5}
+        for i in range(150)
+    ]
+    summary = assemble_locked_summary(
+        f_recs,
+        f_nh,
+        b_recs,
+        p1_recs,
+        {"disk_bytes": 15_000_000, "resident_bytes": 6_000_000},
+        kestrel_dir=tmp_path,
+    )
+    assert summary["gates"]["G_Q"]["status"] == "PASS"
+    assert summary["gates"]["G_R"]["status"] == "PASS"
+    assert summary["decision"] == "prototype_2"
+
+    kestrel = tmp_path / "kestrel"
+    eval_dir = tmp_path / "eval"
+    _write_source_reports(kestrel, eval_dir)
+    final = collect(kestrel, eval_dir, locked_test=summary)
+    assert final["decision"] == "prototype_2"
+    assert final["decision_scope"] == "locked_test"
+    assert "both pass" in final["decision_reason"]
+    assert not any(
+        failed["component"] == "G-Q product quality gate" for failed in final["failed_components"]
+    )
+
+
+def test_g_m_stale_error_cap_matches_frozen_manifest(tmp_path: Path) -> None:
+    rates = {
+        "math": 0.80,
+        "science_mcq": 0.80,
+        "knowledge_mcq": 0.80,
+        "code": 0.80,
+        "knowledge_qa": 0.80,
+        "memory_probe": 0.96,
+    }
+    f_recs = _synthetic_records({g: 0.90 for g in rates})
+    b_recs = _synthetic_records({g: 0.70 for g in rates})
+    f_nh = [
+        {"item_id": f"memory_probe_{i:04d}", "group": "memory_probe", "correct": i < 5}
+        for i in range(150)
+    ]
+
+    def _with_stale_errors(n_errors: int) -> list[dict]:
+        p1_recs = _synthetic_records(rates)
+        stale = [
+            r for r in p1_recs if r["group"] == "memory_probe" and r["metadata"]["is_stale_fact"]
+        ]
+        for rec in stale[:n_errors]:
+            rec["stale_fact_error"] = True
+        return p1_recs
+
+    at_cap = assemble_locked_summary(
+        f_recs, f_nh, b_recs, _with_stale_errors(11), {}, kestrel_dir=tmp_path
+    )
+    assert at_cap["gates"]["G_M"]["status"] == "PASS"
+
+    over_cap = assemble_locked_summary(
+        f_recs, f_nh, b_recs, _with_stale_errors(12), {}, kestrel_dir=tmp_path
+    )
+    assert over_cap["gates"]["G_M"]["status"] == "FAIL"
+
+
+def test_partial_locked_run_cannot_write_summary() -> None:
+    _require_full_locked_scope(None, "all")
+    _require_full_locked_scope(None, "summarize")
+    for phase in ("all", "summarize"):
+        try:
+            _require_full_locked_scope(100, phase)
+        except RuntimeError as exc:
+            assert "Refusing to write" in str(exc)
+        else:
+            raise AssertionError(f"partial --limit allowed for phase {phase}")
